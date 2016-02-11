@@ -44,7 +44,7 @@ What is after `==` is the bash command to execute, you can use the following var
 
 To start Jarvis:
 ```
-./jarvis.sh
+./jarvis.sh -v
 ```
 
 Advanced options:
@@ -62,5 +62,5 @@ Advanced options:
 	-q	do not speak answer (just console)
 	-r	uninstall (remove config files)
 	-u	update (from git & update config files)
-	-v	verbose & VU meter - recommended for troubleshooting
+	-v	verbose & VU meter - recommended for first launch / troubleshooting
 ```
