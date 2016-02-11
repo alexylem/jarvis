@@ -8,28 +8,32 @@ It has almost no dependency and uses Google speech recognition & synthesis
 
 ## Install
   
-  ```
-  git clone https://github.com/alexylem/jarvis.git
-  cd jarvis/
-  ./jarvis -i
-  ```
+```
+git clone https://github.com/alexylem/jarvis.git
+cd jarvis/
+./jarvis -i
+```
   
-  The install process will guide you in updating the following files:
-  
-  In `jarvis-config.sh`:
-  - Update settings: JARVIS nickname, always-on, language, your Google Speech API...
-  - Translate if needed some JARVIS built-in sentences
-  - Comment & Uncomment PLAY, LISTEN, STT & TTS wrappers according to your plateform
-  
-  In `jarvis-commands` define your own customer commands:
-  ```
-  *TEST*==say "It works!"
-  *HELLO*==say "Hello $username"
-  *WHAT TIME*==say "It is `date +%H:%M`"
-  ...
-  ```
-  What is before `==` is the voice pattern to match, use `*` for any word
-  What is after `==` is the bash command to execute, you can use the following variables and functions:
+The install process will guide you in updating the following files:
+
+### `jarvis-config.sh`
+
+- Update settings: JARVIS nickname, always-on, language, your Google Speech API...
+- Translate if needed some JARVIS built-in sentences
+- Comment & Uncomment PLAY, LISTEN, STT & TTS wrappers according to your plateform
+
+### `jarvis-commands` define your own customer commands:
+
+```
+*TEST*==say "It works!"
+*HELLO*==say "Hello $username"
+*WHAT TIME*==say "It is `date +%H:%M`"
+...
+```
+
+What is before `==` is the voice pattern to match, use `*` for any word
+
+What is after `==` is the bash command to execute, you can use the following variables and functions:
   - say "I'm going to speak this out loud"
   - $trigger: JARVIS's nickname as defined in `jarvis-config.sh`  
   - $username: your username as defined in `jarvis-config.sh`
@@ -43,7 +47,7 @@ To start Jarvis:
 
 Advanced options:
 ```
-./jarvis -h
+./jarvis.sh -h
 
   Usage: jarvis.sh -flags
 	
