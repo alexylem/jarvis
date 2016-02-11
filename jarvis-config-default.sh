@@ -9,24 +9,36 @@
 
 # how YOU want to be called
 username=`whoami`
+
 # always listening for vocal input, false to wait for keyboard trigger
 always_listening=false
-# if above it true, wait magic word to be said wihtin the voice command
+
+# if always_listening is true, wait magic word to be said wihtin the voice command
 # example 1:
+#   you: Hey JARVIS?
+#		JARVIS: Yes?
+#			you: Open the door
+#				JARVIS: Done
+# example 2:
 # 	you: JARVIS Open the door
 # 		JARVIS: Done
-# example 2:
+# example 3:
 # 	you: ... Oups I left opened the garage door...
 # 		(no reaction, unless set to false => Done)
 trigger_mode=true
-# if above it true, magic word to be said (in CAPITAL letters)
-trigger='JARVIS' # also update in bottom of jarvis-commands
+
+# if trigger_mode is true, magic word to be said
+trigger='JARVIS' # also update at bottom of jarvis-commands file
+
 # welcome message to be said
 welcome="Que puis-je faire pour vous?"
+
 # google speech api key http://stackoverflow.com/a/26833337
 google_speech_api_key="YOUR_GOOGLE_SPEECH_API_KEY"
+
 # language
-language="fr_FR"
+language="fr_FR" # en_EN for english
+
 # execute all matching commands (default only first match)
 all_matches=false
 
