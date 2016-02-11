@@ -22,7 +22,9 @@ The install process will guide you in updating the following files:
 - Translate if needed some JARVIS built-in sentences
 - Comment & Uncomment (or update) PLAY, LISTEN, STT & TTS wrappers according to your plateform
 
-### `jarvis-commands` define your own customer commands:
+### `jarvis-commands` 
+
+This is the place to define your own **custom commands**:
 
 ```
 *TEST*==say "It works!"
