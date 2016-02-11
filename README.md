@@ -20,7 +20,7 @@ The install process will guide you in updating the following files:
 
 - Update settings: JARVIS nickname, always-on, language, your Google Speech API...
 - Translate if needed some JARVIS built-in sentences
-- Comment & Uncomment PLAY, LISTEN, STT & TTS wrappers according to your plateform
+- Comment & Uncomment (or update) PLAY, LISTEN, STT & TTS wrappers according to your plateform
 
 ### `jarvis-commands` define your own customer commands:
 
