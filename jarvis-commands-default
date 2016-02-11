@@ -1,0 +1,15 @@
+*AIDE*==cat jarvis-commands
+*COMMENT*APPELLE*==say "Je m'appelle $trigger"
+*BONJOUR*==say "Bonjour $username"
+*PAUSE*==say "Appuie sur entrée pour me réveiller"; read -p "Appuyer sur [Entrée]"
+*AU REVOIR*==say "Au revoir $username"; exit
+*TEST*==say "Ca fonctionne!"
+*VERSION*==say "Je suis en version 0.1"
+*REPETE*==say "..."
+*QUELLE HEURE*==say "il est `date +%H:%M`"
+*QUEL JOUR*==say "nous sommes le `date +"%A %d %h %Y"`"
+*SENS*VIE*==say "42"
+
+
+*ANNULER*==say "Ok"
+*JARVIS*==bypass=true; say "Oui?"
