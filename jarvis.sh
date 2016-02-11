@@ -17,7 +17,7 @@ show_help () { cat << EOF
 	-q	do not speak answer (just console)
 	-r	uninstall (remove config files)
 	-u	update (from git & update config files)
-	-v	verbose & VU meter - recommended for troubleshooting
+	-v	verbose & VU meter - recommended for first launch / troubleshooting
 
 EOF
 }
