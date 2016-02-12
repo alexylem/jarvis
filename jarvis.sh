@@ -32,27 +32,42 @@ keyboard=false
 quiet=false
 while getopts ":$flags" o; do
     case "${o}" in
-		a) all_matches=true;;
-		b) cp $DIR/jarvis-config.sh $DIR/jarvis-config-default.sh
-		   sed -i '' -E 's/(google_speech_api_key=").*(")/\1YOUR_GOOGLE_SPEECH_API_KEY\2/' jarvis-config-default.sh
-		   cp $DIR/jarvis-commands $DIR/jarvis-commands-default
-		   sed -i '' '/#PRIVATE/d' jarvis-commands-default
-		   exit;;
-		c) nano $DIR/jarvis-commands; exit;;
-		e) nano $DIR/jarvis-config.sh; exit;;
-		h) show_help; exit;;
-		i) cp -i $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
-		   cp -i $DIR/jarvis-commands-default $DIR/jarvis-commands
-		   read -p "Press [Enter] to edit the config file. Please follow instructions."
-		   nano $DIR/jarvis-config.sh
-		   echo "Installation complete."
-		   exit;;
-        k) keyboard=true;;
-		q) quiet=true;;
-		r) rm -i $audiofile $DIR/jarvis-config.sh $DIR/jarvis-commands; exit;;
-		u) echo TODO; exit;;
-		v) verbose=true;;
-        *) echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
+		a)	all_matches=true;;
+		b)	cp $DIR/jarvis-config.sh $DIR/jarvis-config-default.sh
+			sed -i '' -E 's/(google_speech_api_key=").*(")/\1YOUR_GOOGLE_SPEECH_API_KEY\2/' jarvis-config-default.sh
+			cp $DIR/jarvis-commands $DIR/jarvis-commands-default
+			sed -i '' '/#PRIVATE/d' jarvis-commands-default
+			exit;;
+		c)	nano $DIR/jarvis-commands; exit;;
+		e)	nano $DIR/jarvis-config.sh; exit;;
+		h)	show_help; exit;;
+		i)	echo "Checking dependencies:"
+			missing=false
+			for i in awk git iconv mpg321 nano perl sed sox wget; do
+		   		printf "$i: "
+				if hash $i 2>/dev/null; then
+					echo -e "[\033[32mInstalled\033[0m]"
+				else
+					echo -e "[\033[31mNot found\033[0m]"
+					missing=true
+				fi
+		  	done
+			$missing && read -p "WARNING: You may want to install missing dependencies based on your plateform"
+		  	cp -i $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
+			cp -i $DIR/jarvis-commands-default $DIR/jarvis-commands
+			read -p "Press [Enter] to edit the config file. Please follow instructions."
+			nano $DIR/jarvis-config.sh
+			echo "Installation complete."
+			exit;;
+        k)	keyboard=true;;
+		q)	quiet=true;;
+		r)	rm -i $audiofile $DIR/jarvis-config.sh $DIR/jarvis-commands; exit;;
+		u)	cd $DIR
+			git pull
+			echo "Make sure there has been no change on default config files to replicate"
+			exit;;
+		v)	verbose=true;;
+        *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
     esac
 done
 
