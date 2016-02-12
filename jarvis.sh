@@ -43,7 +43,7 @@ while getopts ":$flags" o; do
 		h)	show_help; exit;;
 		i)	echo "Checking dependencies:"
 			missing=false
-			for i in awk git iconv mpg321 nano perl sed sox wget; do
+			for i in awk git iconv mpg123 nano perl sed sox wget; do
 		   		printf "$i: "
 				if hash $i 2>/dev/null; then
 					echo -e "[\033[32mInstalled\033[0m]"

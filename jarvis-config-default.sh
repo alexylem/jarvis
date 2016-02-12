@@ -80,6 +80,6 @@ TTS () { # Using MaxOSX built'in say
 	/usr/bin/say -v $voice $1;
 }
 
-#TTS () { # Using Google Translate and mp3 "sudo apt-get install libsox-fmt-mp3"
-#	PLAY "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&q=$(rawurlencode '$1')"
+#TTS () { # Using Google Translate and mp3 "sudo apt-get install mpg123"
+#	mpg123 "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&q=$(rawurlencode '$1')"
 #}
