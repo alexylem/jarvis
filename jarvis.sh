@@ -76,7 +76,7 @@ handlecommand() {
 			$verbose && echo "$> $action"
 			
 			bypass=false
-			eval "$action"
+			eval "$action" || say "$command_failed"
 			$all_matches || return
 		fi
 	done < $DIR/jarvis-commands

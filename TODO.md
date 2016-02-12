@@ -1,1 +1,2 @@
 - [ ] check size and stats noise level
+- [X] check command return code and say if something went wrong

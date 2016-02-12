@@ -48,6 +48,7 @@ all_matches=false
 hello=$(if [ $(date +%H) -lt 18 ]; then echo Bonjour; else echo Bonsoir; fi)
 bye_helper="Dites 'Au revoir' pour quitter." # must be defined in jarvis-commands
 unknown_command="Je n'ai pas compris"
+command_failed="Cette commande a retourné une erreur"
 
 ##################
 # Main Functions #
