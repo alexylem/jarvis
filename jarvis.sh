@@ -96,7 +96,7 @@ while true; do
 			read -p "Press [Enter] to start voice command"
 		fi
 		$trigger_mode && ! $bypass && echo "$trigger: Your order should include '$trigger'"
-		echo "(listening...)"
+		echo "(listening until silence or press [Ctrl+C] to force stop...)"
 		LISTEN $audiofile
 		#$verbose && jplay $audiofile
 		STT $audiofile

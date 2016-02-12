@@ -60,26 +60,26 @@ command_failed="Cette commande a retourné une erreur"
 # TTS () {} Speaks text $1
 # PLAY () {} Play audio file $1
 
-# MacOSX
-#http://sourceforge.net/projects/sox/files/sox/14.4.2/
+# MacOSX http://sourceforge.net/projects/sox/files/sox/14.4.2/
+# Debian "sudo apt-get install sox"
 PLAY () { play -q $1; }
-LISTEN () { 
+LISTEN () {
 	local quiet=''
 	$verbose || quiet='-q'
 	PLAY beep-high.wav
-	rec -V1 $quiet -r 16000 -c 1 $1 rate 32k silence 1 0.1 1% 1 1.0 1%; 
+	rec -V1 $quiet -r 16000 -c 1 $1 rate 32k silence 1 0.1 1% 1 1.0 1%;
 	PLAY beep-low.wav
 }
 STT () {
-	
 	json=`wget -q --post-file $1 --header="Content-Type: audio/x-flac; rate=16000" -O - "http://www.google.com/speech-api/v2/recognize?client=chromium&lang=$language&key=$google_speech_api_key"`
 	$verbose && echo JSON: "$json"
 	order=`echo $json | perl -lne 'print $1 if m{"transcript":"([^"]*)"}'`
 }
-TTS () { /usr/bin/say -v Thomas $1; } # see available voices with "say -v ?"
+TTS () { # Using MaxOSX built'in say
+	voice=`/usr/bin/say -v ? | grep $language | awk '{print $1}'`
+	/usr/bin/say -v $voice $1;
+}
 
-# Linux
-#LISTEN () { rec $1 rate 32k silence 1 0.1 3% 1 3.0 3%; }
-#STT () { echo "Test transcription of $1"; }
-#TTS () { mpg321 "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&q=$(rawurlencode '$1')" }
-#PLAY () { aplay "$1"; }
+#TTS () { # Using Google Translate and mp3 "sudo apt-get install libsox-fmt-mp3"
+#	PLAY "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&q=$(rawurlencode '$1')"
+#}
