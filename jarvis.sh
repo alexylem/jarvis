@@ -12,11 +12,11 @@ show_help () { cat << EOF
 	-c	edit commands
 	-e	edit config
 	-h	display this help
-	-i	install (init & edit config files)
+	-i	install (check dependencies & init config files)
 	-k	read from keyboard instead of microphone
 	-q	do not speak answer (just console)
 	-r	uninstall (remove config files)
-	-u	update (from git & update config files)
+	-u	update (git pull)
 	-v	verbose & VU meter - recommended for first launch / troubleshooting
 
 EOF
@@ -71,6 +71,22 @@ while getopts ":$flags" o; do
     esac
 done
 
+rawurlencode() {
+  local string="${1}"
+  local strlen=${#string}
+  local encoded=""
+
+  for (( pos=0 ; pos<strlen ; pos++ )); do
+     c=${string:$pos:1}
+     case "$c" in
+        [-_.~a-zA-Z0-9] ) o="${c}" ;;
+        * )               printf -v o '%%%02x' "'$c"
+     esac
+     encoded+="${o}"
+  done
+  echo "${encoded}"
+}
+
 # Load config file
 if [ ! -f $DIR/jarvis-config.sh ]; then
 	echo "Missing config file. Install with command $>./jarvis -i" 1>&2
@@ -123,19 +139,3 @@ while true; do
 	fi
 	[ -n "$order" ] && handlecommand "$order"
 done
-
-rawurlencode() {
-  local string="${1}"
-  local strlen=${#string}
-  local encoded=""
-
-  for (( pos=0 ; pos<strlen ; pos++ )); do
-     c=${string:$pos:1}
-     case "$c" in
-        [-_.~a-zA-Z0-9] ) o="${c}" ;;
-        * )               printf -v o '%%%02x' "'$c"
-     esac
-     encoded+="${o}"
-  done
-  echo "${encoded}"
-}
