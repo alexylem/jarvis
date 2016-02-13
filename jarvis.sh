@@ -54,6 +54,7 @@ while getopts ":$flags" o; do
 		a)	all_matches=true;;
 		b)	cp $DIR/jarvis-config.sh $DIR/jarvis-config-default.sh
 			sed -i.bak -E 's/(google_speech_api_key=").*(")/\1YOUR_GOOGLE_SPEECH_API_KEY\2/' jarvis-config-default.sh
+			cp $DIR/jarvis-functions.sh $DIR/jarvis-functions-default.sh
 			cp $DIR/jarvis-commands $DIR/jarvis-commands-default
 			sed -i.bak '/#PRIVATE/d' jarvis-commands-default
 			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
@@ -99,12 +100,13 @@ while getopts ":$flags" o; do
 			cp -i $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
 			sed -i.bak "s/play -V1/$play_export play -V1/" $DIR/jarvis-config.sh
 			sed -i.bak "s/rec -V1/$rec_export rec -V1/" $DIR/jarvis-config.sh
+			cp -i $DIR/jarvis-functions-default.sh $DIR/jarvis-functions.sh
 			cp -i $DIR/jarvis-commands-default $DIR/jarvis-commands
 			read -p "Press [Enter] to edit the config file. Please follow instructions."
 			nano $DIR/jarvis-config.sh
 			echo "Installation complete."
 			echo "It is recommended for the first time to run Jarvis in verbose mode:"
-			echo "\t./jarvis -v"
+			echo "	./jarvis -v"
 			exit;;
         k)	keyboard=true;;
 		q)	quiet=true;;
@@ -141,6 +143,7 @@ if [ ! -f $DIR/jarvis-config.sh ]; then
 	exit 1
 fi
 source $DIR/jarvis-config.sh
+source $DIR/jarvis-functions.sh
 
 # say wrapper to be used in jarvis-commands
 say () { echo $trigger: $1; $quiet || TTS "$1"; }
@@ -153,7 +156,6 @@ handlecommand() {
 			action=${line#*==} # *MEANING*LIFE*==say 42 => say 42
 			action="${action/.../${order#*REPETE}}"
 			$verbose && echo "$> $action"
-			
 			bypass=false
 			eval "$action" || say "$command_failed"
 			$all_matches || return
@@ -176,8 +178,29 @@ while true; do
 		fi
 		$trigger_mode && ! $bypass && echo "$trigger: Your order should include '$trigger'"
 		echo "(listening until silence or press [Ctrl+C] to force stop...)"
-		LISTEN $audiofile
-		#$verbose && jplay $audiofile
+		PLAY beep-high.wav
+		while true; do
+			LISTEN $audiofile
+			duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
+			$verbose && echo "DEBUG: speech duration was $duration"
+			if $bypass; then
+				$verbose && echo "DEBUG: checking duration for a command"
+				if [ $duration -gt 30 ]; then
+					$verbose && echo "DEBUG: too long for a command, ignoring..."
+				else 
+					break
+				fi
+			else
+				$verbose && echo "DEBUG: checking duration for a trigger"
+				if [ $duration -lt 5 ] || [ $duration -gt 15 ]; then
+					$verbose && echo "DEBUG: too short or too long for a trigger, ignoring..."
+				else
+					break
+				fi
+			fi
+			printf '.'
+		done
+		PLAY beep-low.wav
 		STT $audiofile
 		echo "$username: $order"
 		if $trigger_mode && ! $bypass && [[ "$order" != *$trigger* ]]; then
@@ -186,4 +209,5 @@ while true; do
 		fi
 	fi
 	[ -n "$order" ] && handlecommand "$order"
+	PLAY beep-high.wav
 done
