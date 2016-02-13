@@ -13,6 +13,15 @@
 - [X] need to only send when it's looking like trigger: duration based like < 2sec?
 - [ ] use offline reco for trigger detection - sphinx?
 
+# Commands 
+
+- [ ] Possibility for discussions with nested commands like:
+```
+*HOW ARE YOU*==say "fine and you?"
+	*GOOD*==say "glad to hear"
+	*BAD*==say "oh no..."
+```
+
 # Execution
 
 - [X] check command return code and say if something went wrong

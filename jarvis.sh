@@ -176,36 +176,41 @@ while true; do
 			bypass=true
 			read -p "Press [Enter] to start voice command"
 		fi
-		$trigger_mode && ! $bypass && echo "$trigger: Your order should include '$trigger'"
-		echo "(listening until silence or press [Ctrl+C] to force stop...)"
-		PLAY beep-high.wav
+		$trigger_mode && ! $bypass && echo "$trigger: Waiting to hear '$trigger'"
+		printf "$username: "
 		while true; do
-			LISTEN $audiofile
-			duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
-			$verbose && echo "DEBUG: speech duration was $duration"
-			if $bypass; then
-				if [ $duration -gt 30 ]; then
-					$verbose && echo "DEBUG: too long for a command (max 3 secs), ignoring..."
-				else 
-					break
-				fi
-			else
-				if [ $duration -lt 5 ] || [ $duration -gt 15 ]; then
-					$verbose && echo "DEBUG: too short or too long for a trigger (min 0.5 max 1.5 sec), ignoring..."
+			PLAY beep-high.wav
+			while true; do
+				trap "exit" INT # exit jarvis with Ctrl+C
+				LISTEN $audiofile
+				duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
+				$verbose && echo "DEBUG: speech duration was $duration"
+				if $bypass; then
+					if [ $duration -gt 30 ]; then
+						$verbose && echo "DEBUG: too long for a command (max 3 secs), ignoring..."
+					else
+						break
+					fi
 				else
-					break
+					if [ $duration -lt 5 ] || [ $duration -gt 15 ]; then
+						$verbose && echo "DEBUG: too short or too long for a trigger (min 0.5 max 1.5 sec), ignoring..."
+					else
+						break
+					fi
 				fi
+				printf '.'
+			done
+			PLAY beep-low.wav
+			printf '?'
+			STT "$audiofile"
+			printf "$order"
+			[ -z "$order" ] && continue
+			if ! $trigger_mode || $bypass || [[ "$order" == *$trigger* ]]; then
+				break
 			fi
-			printf '.'
-		done
-		PLAY beep-low.wav
-		STT $audiofile
-		echo "$username: $order"
-		if $trigger_mode && ! $bypass && [[ "$order" != *$trigger* ]]; then
 			PLAY $DIR/beep-error.wav
-			continue
-		fi
+		done
+		echo # new line
 	fi
 	[ -n "$order" ] && handlecommand "$order"
-	PLAY beep-high.wav
 done
