@@ -80,11 +80,12 @@
 			*TEST*==say "It works!"
 			*HELLO*==say "Hello $username"
 			*WHAT TIME*==say "It is `date +%H:%M`"
+			*TURN ON*KITCHEN*==echo "pl a1 on" | nc localhost 1099 && say "Done" #discover [mochad](http://www.domotiquefacile.fr/tous-les-tutoriaux/installation-x10-sur-un-raspberry-pi)
 			...
 			```
 
 			What is before `==` is the voice pattern to match, use `*` for any word
-
+			
 			What is after `==` is the bash command to execute, you can use the following variables and functions:
 			  - say "I'm going to speak this out loud"
 			  - `$trigger`: JARVIS's nickname as defined in `jarvis-config.sh`  
