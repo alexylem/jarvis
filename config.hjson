@@ -80,7 +80,7 @@
 			
 			### `jarvis-config.sh`
 			
-			- Update settings: JARVIS nickname, always-on, language, your Google Speech API...
+			- Update settings: JARVIS nickname, always-on listening, language, your Google API key...
 			- Translate if needed some JARVIS built-in sentences
 			
 			### `jarvis-commands` 
@@ -98,7 +98,7 @@
 
 			What is before `==` is the voice pattern to match, use `*` for any word
 			
-			What is after `==` is the bash command to execute, you can use the following variables and functions:
+			What is after `==` is the bash command to execute, you can also use the following variables and functions:
 			  - say "I'm going to speak this out loud"
 			  - `$trigger`: JARVIS's nickname as defined in `jarvis-config.sh`  
 			  - `$username`: your username as defined in `jarvis-config.sh`
@@ -106,10 +106,10 @@
 			### `jarvis-functions.sh`
 			
 			For advanced users, here you can customize the following functions:
-			  - `LISTEN`: function that records your voice
-			  - `STT`: function for speech recognition (to use another engine such as sphinx)
-			  - `TTS`: function that speaks text out loud (to use another engine such as espeak)
-			  - `PLAY`: function to play an audio file
+			  - `LISTEN()`: function that records your voice
+			  - `STT()`: function for speech recognition (to use another engine such as `sphinx`)
+			  - `TTS()`: function that speaks text out loud (to use another engine such as `espeak`)
+			  - `PLAY()`: function to play an audio file
 			'''
 		},{
 			link: Usage
@@ -150,7 +150,7 @@
 * [Report an issue](https://github.com/alexylem/jarvis/issues/new)
 * [Submit a feature request](https://github.com/alexylem/jarvis/issues/new)
 > *Jarvis* is built with :heart: on my own time, any kind of support is more than welcome:
-* [View the Repo](https://github.com/alexylem/jarvis) on GitHub
+* [Star the Repo](https://github.com/alexylem/jarvis) on GitHub
 * [Contribute to Jarvis]() and join the team
 * <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top"><input type="hidden" name="" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="KUY4CUFXEYDR2"><input type="image" src="http://megaicons.net/static/img/icons_sizes/40/110/32/paypal-icon.png" border="0" name="submit"> Pay me a beer</form>
 '''
