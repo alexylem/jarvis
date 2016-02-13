@@ -87,16 +87,14 @@
 
 			What is after `==` is the bash command to execute, you can use the following variables and functions:
 			  - say "I'm going to speak this out loud"
-			  - $trigger: JARVIS's nickname as defined in `jarvis-config.sh`  
-			  - $username: your username as defined in `jarvis-config.sh`
+			  - `$trigger`: JARVIS's nickname as defined in `jarvis-config.sh`  
+			  - `$username`: your username as defined in `jarvis-config.sh`
 			'''
 		},{
 			link: Usage
 			id: usage
 			title: Usage
 			text: '''
-			## Usage
-
 			To start Jarvis:
 			```
 			./jarvis.sh -v
@@ -137,5 +135,5 @@
 '''
 		}
 	]
-	footer: "Alexandre Mély - [:pencil2:](https://github.com/alexylem/jarvis/edit/master/config.hjson)"
+	footer: "Alexandre Mély - [:pencil2:](https://github.com/alexylem/jarvis/edit/gh-pages/config.hjson)"
 }
