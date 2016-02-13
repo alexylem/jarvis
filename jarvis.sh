@@ -1,4 +1,10 @@
 #!/bin/bash
+cat << EOF
++----------------------------------------------+
+| >_ JARVIS - http://alexylem.github.io/jarvis |
+| by Alexandre Mély - alexandre.mely@gmail.com |
++----------------------------------------------+
+EOF
 flags='bcehikqruv'
 show_help () { cat << EOF
 	
@@ -6,7 +12,7 @@ show_help () { cat << EOF
 	
 	Jarvis.sh is a dead simple configurable multi-lang jarvis-like bot
  	Meant for home automation running on slow computer (ex: Raspberry Pi)
-	It has almost no dependency and uses Google speech recognition & synthesis
+	It has few dependencies and uses online speech recognition & synthesis
 	
 	-b	build (do not use)
 	-c	edit commands
@@ -21,6 +27,16 @@ show_help () { cat << EOF
 
 EOF
 }
+
+if [ "$(uname)" == "Darwin" ]; then
+	platform="osx"
+	dependencies=(awk git iconv nano perl sed sox wget)
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+	platform="linux"
+	dependencies=(aplay arecord awk git iconv mpg123 nano perl sed sox wget)
+else
+	echo "Unsupported platform"; exit 1
+fi
 
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 audiofile="$DIR/jarvis-record.flac"
@@ -45,16 +61,7 @@ while getopts ":$flags" o; do
 		c)	nano $DIR/jarvis-commands; exit;;
 		e)	nano $DIR/jarvis-config.sh; exit;;
 		h)	show_help; exit;;
-		i)	if [ "$(uname)" == "Darwin" ]; then
-			    echo "Plaftorm detected: OSX"
-				dependencies=(awk git iconv nano perl sed sox wget)
-			elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-			    echo "Plaftorm detected: Linux"
-				dependencies=(aplay arecord awk git iconv mpg123 nano perl sed sox wget)
-			else
-			    echo "Unsupported platform"; exit 1
-			fi
-			echo "Checking dependencies:"
+		i)	echo "Checking dependencies:"
 			missing=false
 			for i in "${dependencies[@]}"; do
 		   		printf "$i: "

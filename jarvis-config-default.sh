@@ -1,7 +1,7 @@
 # Instructions
 # 1) Update if needed config variables section
 # 2) Translate if needed language variables
-# 2) Comment and uncomment Main Function section according to your plateform
+# 2) Customize the Main Function section according to your needs
 
 ####################
 # Config Variables #
@@ -54,35 +54,33 @@ command_failed="Cette commande a retourné une erreur"
 # Main Functions #
 ##################
 
-# Prototype of main functions: (Do not uncomment)
-# LISTEN () {} Listens microhpone and record to audio file $1 when sound if detected until silence
-# STT () {} Transcribes audio file $1 and sets corresponding text in $order
-# TTS () {} Speaks text $1
-# PLAY () {} Play audio file $1
+# How to install sox?
+# MacOSX: http://sourceforge.net/projects/sox/files/sox/14.4.2/
+# Linux: "sudo apt-get install sox"
 
-# MacOSX http://sourceforge.net/projects/sox/files/sox/14.4.2/
-# Debian "sudo apt-get install sox"
-PLAY () { 
-	 play -V1 -q $1; 
+PLAY () { # PLAY () {} Play audio file $1
+	play -V1 -q $1; 
 }
-LISTEN () {
+LISTEN () { # LISTEN () {} Listens microhpone and record to audio file $1 when sound if detected until silence
 	local quiet=''
 	$verbose || quiet='-q'
 	PLAY beep-high.wav
-	 rec -V1 $quiet -r 16000 -c 1 $1 rate 32k silence 1 0.1 1% 1 1.0 1%
+	rec -V1 $quiet -r 16000 -c 1 $1 rate 32k silence 1 0.1 1% 1 1.0 1%
 	PLAY beep-low.wav
 }
-STT () {
+STT () { # STT () {} Transcribes audio file $1 and sets corresponding text in $order
 	json=`wget -q --post-file $1 --header="Content-Type: audio/x-flac; rate=16000" -O - "http://www.google.com/speech-api/v2/recognize?client=chromium&lang=$language&key=$google_speech_api_key"`
 	$verbose && echo JSON: "$json"
 	order=`echo $json | perl -lne 'print $1 if m{"transcript":"([^"]*)"}'`
 }
-TTS () { # Using MaxOSX built'in say
-	voice=`/usr/bin/say -v ? | grep $language | awk '{print $1}'`
-	/usr/bin/say -v $voice $1;
+TTS () { # TTS () {} Speaks text $1
+	if [[ "$platform" == "osx" ]]; then
+		# MaxOSX: using built'in say function
+		voice=`/usr/bin/say -v ? | grep $language | awk '{print $1}'`
+		/usr/bin/say -v $voice $1;
+	else
+		# Linux: using google translate speech synthesis
+		encoded=`rawurlencode "$1"`
+		mpg123 -q "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&q=$encoded"
+	fi
 }
-
-#TTS () { # Using Google Translate and mp3 "sudo apt-get install mpg123"
-#	encoded=`rawurlencode "$1"`
-#	mpg123 -q "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&q=$encoded"
-#}
