@@ -28,7 +28,7 @@ language="fr_FR" # en_EN for english
 # execute all matching commands (default only first match)
 all_matches=false
 
-# JARVIS sentences to be translated
+# JARVIS spoken sentences to be translated
 hello=$(if [ $(date +%H) -lt 18 ]; then echo Bonjour; else echo Bonsoir; fi)
 bye_helper="Dites 'Au revoir' pour quitter." # must be defined in jarvis-commands
 unknown_command="Je n'ai pas compris"
