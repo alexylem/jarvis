@@ -114,7 +114,7 @@ while getopts ":$flags" o; do
 		u)	cd $DIR
 			git reset --hard HEAD # override any local change
 			git pull
-			echo "Make sure there has been no change on default config files to replicate"
+			echo "You may want to re-run '$0 -i' to update your config files"
 			exit;;
 		v)	verbose=true;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
