@@ -19,7 +19,7 @@
 	disqus_shortname: coinche
 	
 	// Choose a Bootwatch theme (https://bootswatch.com/) ex: 'united'
-	theme: 'cosmo' // false to keep vanilla Bootstrap theme
+	theme: 'cyborg' // false to keep vanilla Bootstrap theme
 	
 	// These are the main sections of your ProjectPage
 	sections: [ /* FULL DOCUMENTATION available here: http://alexylem.github.io/projectpage/#sections
