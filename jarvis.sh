@@ -75,7 +75,7 @@ while getopts ":$flags" o; do
 				aplay -l
 				read -p "Indicate the card # to use [0-9]: " card
 				read -p "Indicate the device # to use [0-9]: " device
-				play_export="AUDIODEV=hw:$card,$device"
+				play_export="AUDIODEV=hw:$card,$device AUDIODRIVER=alsa"
 			done
 			while true; do
 				read -p "Checking audio input, make sure your microphone is on, press [Enter] and say something"
@@ -87,15 +87,17 @@ while getopts ":$flags" o; do
 				arecord -l
 				read -p "Indicate the card # to use [0-9]: " card
 				read -p "Indicate the device # to use [0-9]: " device
-				rec_export="AUDIODEV=hw:$card,$device"
+				rec_export="AUDIODEV=hw:$card,$device AUDIODRIVER=alsa"
 			done
 			cp -i $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
-			sed -i.bak "s/play -q/$play_export play -q/" $DIR/jarvis-config.sh
+			sed -i.bak "s/play -V1/$play_export play -V1/" $DIR/jarvis-config.sh
 			sed -i.bak "s/rec -V1/$rec_export rec -V1/" $DIR/jarvis-config.sh
 			cp -i $DIR/jarvis-commands-default $DIR/jarvis-commands
 			read -p "Press [Enter] to edit the config file. Please follow instructions."
 			nano $DIR/jarvis-config.sh
 			echo "Installation complete."
+			echo "It is recommended for the first time to run Jarvis in verbose mode:"
+			echo "\t./jarvis -v"
 			exit;;
         k)	keyboard=true;;
 		q)	quiet=true;;
