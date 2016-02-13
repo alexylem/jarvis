@@ -62,12 +62,14 @@ command_failed="Cette commande a retourné une erreur"
 
 # MacOSX http://sourceforge.net/projects/sox/files/sox/14.4.2/
 # Debian "sudo apt-get install sox"
-PLAY () { play -q $1; }
+PLAY () { 
+	 play -q $1; 
+}
 LISTEN () {
 	local quiet=''
 	$verbose || quiet='-q'
 	PLAY beep-high.wav
-	rec -V1 $quiet -r 16000 -c 1 $1 rate 32k silence 1 0.1 1% 1 1.0 1%;
+	 rec -V1 $quiet -r 16000 -c 1 $1 rate 32k silence 1 0.1 1% 1 1.0 1%
 	PLAY beep-low.wav
 }
 STT () {
@@ -81,5 +83,6 @@ TTS () { # Using MaxOSX built'in say
 }
 
 #TTS () { # Using Google Translate and mp3 "sudo apt-get install mpg123"
-#	mpg123 "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&q=$(rawurlencode '$1')"
+#	encoded=`rawurlencode "$1"`
+#	mpg123 "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&q=$encoded"
 #}

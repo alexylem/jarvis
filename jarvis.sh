@@ -24,26 +24,39 @@ EOF
 
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 audiofile="$DIR/jarvis-record.flac"
+testaudiofile="$DIR/applause.wav"
 shopt -s nocasematch # string comparison case insensitive
 
 # default flags, use options to change see jarvis.sh -h
 verbose=false
 keyboard=false
 quiet=false
+play_export=''
+rec_export=''
 while getopts ":$flags" o; do
     case "${o}" in
 		a)	all_matches=true;;
 		b)	cp $DIR/jarvis-config.sh $DIR/jarvis-config-default.sh
-			sed -i '' -E 's/(google_speech_api_key=").*(")/\1YOUR_GOOGLE_SPEECH_API_KEY\2/' jarvis-config-default.sh
+			sed -i.bak -E 's/(google_speech_api_key=").*(")/\1YOUR_GOOGLE_SPEECH_API_KEY\2/' jarvis-config-default.sh
 			cp $DIR/jarvis-commands $DIR/jarvis-commands-default
-			sed -i '' '/#PRIVATE/d' jarvis-commands-default
+			sed -i.bak '/#PRIVATE/d' jarvis-commands-default
+			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
 			exit;;
 		c)	nano $DIR/jarvis-commands; exit;;
 		e)	nano $DIR/jarvis-config.sh; exit;;
 		h)	show_help; exit;;
-		i)	echo "Checking dependencies:"
+		i)	if [ "$(uname)" == "Darwin" ]; then
+			    echo "Plaftorm detected: OSX"
+				dependencies=(awk git iconv nano perl sed sox wget)
+			elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+			    echo "Plaftorm detected: Linux"
+				dependencies=(aplay arecord awk git iconv mpg123 nano perl sed sox wget)
+			else
+			    echo "Unsupported platform"; exit 1
+			fi
+			echo "Checking dependencies:"
 			missing=false
-			for i in awk git iconv mpg123 nano perl sed sox wget; do
+			for i in "${dependencies[@]}"; do
 		   		printf "$i: "
 				if hash $i 2>/dev/null; then
 					echo -e "[\033[32mInstalled\033[0m]"
@@ -53,7 +66,33 @@ while getopts ":$flags" o; do
 				fi
 		  	done
 			$missing && read -p "WARNING: You may want to install missing dependencies based on your plateform"
-		  	cp -i $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
+			while true; do
+				read -p "Checking audio output, make sure your speakers are on and press [Enter]"
+				$play_export play $testaudiofile
+				read -p "Did you hear something? (y)es (n)o (r)etry: " -n 1 -r
+				echo # new line
+				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
+				if [[ $REPLY =~ ^[Rr]$ ]]; then continue; fi
+				aplay -l
+				read -p "Indicate the card # to use [0-9]: " -n 1 -r card
+				read -p "Indicate the device # to use [0-9]: " -n 1 -r device
+				play_export="AUDIODEV=hw:$card,$device"
+			done
+			while true; do
+				read -p "Checking audio input, make sure your microphone is on, press [Enter] and say something"
+				$rec_export rec $audiofile trim 0 3; $play_export play $audiofile
+				read -p "Did you hear yourself? (y)es (n)o (r)etry: " -n 1 -r
+				echo # new line
+				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
+				if [[ $REPLY =~ ^[Rr]$ ]]; then continue; fi
+				arecord -l
+				read -p "Indicate the card # to use [0-9]: " -n 1 -r card
+				read -p "Indicate the device # to use [0-9]: " -n 1 -r device
+				rec_export="AUDIODEV=hw:$card,$device"
+			done
+			cp -i $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
+			sed -i.bak "s/play -q/$play_export play -q/" $DIR/jarvis-config.sh
+			sed -i.bak "s/rec -V1/$rec_export rec -V1/" $DIR/jarvis-config.sh
 			cp -i $DIR/jarvis-commands-default $DIR/jarvis-commands
 			read -p "Press [Enter] to edit the config file. Please follow instructions."
 			nano $DIR/jarvis-config.sh

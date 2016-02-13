@@ -1,3 +1,12 @@
+# build
+
+- [ ] Simulate keystroke to comment & commit
+
+# Installation
+
+- [ ] check dependencies per platform
+- [X] mic & sound discovering
+
 # Recognition
 
 - [X] check size: ok it grow starting noise detected
