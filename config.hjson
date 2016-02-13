@@ -80,9 +80,10 @@
 			*TEST*==say "It works!"
 			*HELLO*==say "Hello $username"
 			*WHAT TIME*==say "It is `date +%H:%M`"
-			*TURN ON*KITCHEN*==echo "pl a1 on" | nc localhost 1099 && say "Done" #discover [mochad](http://www.domotiquefacile.fr/tous-les-tutoriaux/installation-x10-sur-un-raspberry-pi)
+			*TURN ON*KITCHEN*==echo "pl a1 on" | nc localhost 1099 && say "Done"
 			...
 			```
+			> Discover home automation with X10 & mochad on Raspberry Pi [here](http://www.domotiquefacile.fr/tous-les-tutoriaux/installation-x10-sur-un-raspberry-pi)
 
 			What is before `==` is the voice pattern to match, use `*` for any word
 			
