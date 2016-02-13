@@ -184,16 +184,14 @@ while true; do
 			duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
 			$verbose && echo "DEBUG: speech duration was $duration"
 			if $bypass; then
-				$verbose && echo "DEBUG: checking duration for a command"
 				if [ $duration -gt 30 ]; then
-					$verbose && echo "DEBUG: too long for a command, ignoring..."
+					$verbose && echo "DEBUG: too long for a command (max 3 secs), ignoring..."
 				else 
 					break
 				fi
 			else
-				$verbose && echo "DEBUG: checking duration for a trigger"
 				if [ $duration -lt 5 ] || [ $duration -gt 15 ]; then
-					$verbose && echo "DEBUG: too short or too long for a trigger, ignoring..."
+					$verbose && echo "DEBUG: too short or too long for a trigger (min 0.5 max 1.5 sec), ignoring..."
 				else
 					break
 				fi
