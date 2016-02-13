@@ -12,10 +12,10 @@ PLAY () { # PLAY () {} Play audio file $1
 LISTEN () { # LISTEN () {} Listens microhpone and record to audio file $1 when sound if detected until silence
 	local quiet=''
 	$verbose || quiet='-q'
-	rec -V1 $quiet -r 16000 -c 1 $1 rate 32k silence 1 0.4 1% 1 0.5 2% trim 0 10
+	rec -V1 $quiet -r 44100 -c 1 -b 32 $1 rate 32k silence 1 0.4 1% 1 0.5 2% trim 0 10
 }
 STT () { # STT () {} Transcribes audio file $1 and sets corresponding text in $order
-	json=`wget -q --post-file $1 --header="Content-Type: audio/x-flac; rate=16000" -O - "http://www.google.com/speech-api/v2/recognize?client=chromium&lang=$language&key=$google_speech_api_key"`
+	json=`wget -q --post-file $1 --header="Content-Type: audio/x-flac; rate=44100" -O - "http://www.google.com/speech-api/v2/recognize?client=chromium&lang=$language&key=$google_speech_api_key"`
 	$verbose && echo JSON: "$json"
 	order=`echo $json | perl -lne 'print $1 if m{"transcript":"([^"]*)"}'`
 }
