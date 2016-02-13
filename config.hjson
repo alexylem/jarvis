@@ -1,0 +1,133 @@
+{
+	// Main title of your project, used in the header & navbar
+	title: Jarvis
+
+	// Display your navbar title as a dropdown for discovering your other projects
+	projectpages: [ // false to disable
+		{icon: "home", title: "iHome", url: "http://domotiquefacile.fr" }
+		{icon: "play-circle", title: "Launcher", url: "http://domotiquefacile.fr/launcher/" }
+		{icon: "picture", title: "MyPhotos", url: "https://github.com/alexylem/myphotos#myphotos"}
+		{icon: "console", title: "Jasper", url: "https://github.com/alexylem/jarvis#jarvis"}
+		{icon: false, title: "♠ Coinche", url: "http://alexylem.github.io/coinche/"}
+		{icon: "wrench", title: "Builder" }
+		{icon: "bullhorn", title: "ProjectPage", url: "https://github.com/alexylem/projectpage"}
+		{icon: "globe", title: "Moeata Creations", url: "http://moeatacreations.fr"}
+	]
+
+	// Enable Disqus comments (https://publishers.disqus.com/engage)
+	comments: true
+	disqus_shortname: coinche
+	
+	// Choose a Bootwatch theme (https://bootswatch.com/) ex: 'united'
+	theme: false // false to keep vanilla Bootstrap theme
+	
+	// These are the main sections of your ProjectPage
+	sections: [ /* FULL DOCUMENTATION available here: http://alexylem.github.io/projectpage/#sections
+		
+		Cheat-Sheet, do not uncomment
+		{
+			type: 'jumbotron|text|grid' // more to come in the future
+			link: 'Link Label' // Set a label if you need a link for this section on the top navigation bar
+			id: 'section-id' // used for navbar linking & scrollspy
+			title: 'Big title' // title of the section
+			text: 'This text supports **Github flavored Markdown**' // (https://markdown-it.github.io/)
+			icon: 'asterisk' // for "glyphicon glyphicon-asterisk" (see http://getbootstrap.com/components)
+			image: 'img/image.png'
+			items: [{ // used for grid section type
+				icon: 'asterisk',
+				title: 'Short title'
+				text: 'Short text for this icon'
+			}, {...}]
+		}
+		*/
+		{
+			type: jumbotron
+			title: "{ ProjectPage }"
+			text: "Hey Jarvis, what's up?"
+			image: "https://placeimg.com/720/286/tech/sepia"
+		},{
+			text: '''
+			Jarvis.sh is a dead simple configurable multi-lang jarvis-like bot
+
+			Meant for home automation running on slow computer (ex: Raspberry Pi)
+
+			It has almost no dependency and uses Google speech recognition & synthesis
+
+			## Install
+			  
+			```
+			git clone https://github.com/alexylem/jarvis.git
+			cd jarvis/
+			./jarvis -i
+			```
+			  
+			The install process will guide you in updating the following files:
+
+			### `jarvis-config.sh`
+
+			- Update settings: JARVIS nickname, always-on, language, your Google Speech API...
+			- Translate if needed some JARVIS built-in sentences
+			- Comment & Uncomment (or update) PLAY, LISTEN, STT & TTS wrappers according to your plateform
+
+			### `jarvis-commands` 
+
+			This is the place to define your own **custom commands**:
+
+			```
+			*TEST*==say "It works!"
+			*HELLO*==say "Hello $username"
+			*WHAT TIME*==say "It is `date +%H:%M`"
+			...
+			```
+
+			What is before `==` is the voice pattern to match, use `*` for any word
+
+			What is after `==` is the bash command to execute, you can use the following variables and functions:
+			  - say "I'm going to speak this out loud"
+			  - $trigger: JARVIS's nickname as defined in `jarvis-config.sh`  
+			  - $username: your username as defined in `jarvis-config.sh`
+
+			## Usage
+
+			To start Jarvis:
+			```
+			./jarvis.sh -v
+			```
+
+			Advanced options:
+			```
+			./jarvis.sh -h
+
+			  Usage: jarvis.sh -flags
+				
+				-b	build (do not use)
+				-c	edit commands
+				-e	edit config
+				-h	display this help
+				-i	install (init & edit config files)
+				-k	read from keyboard instead of microphone
+				-q	do not speak answer (just console)
+				-r	uninstall (remove config files)
+				-u	update (from git & update config files)
+				-v	verbose & VU meter - recommended for first launch / troubleshooting
+			```
+'''
+		},{
+			link: Support
+			id: support
+			title: Get support
+			image: "https://placeimg.com/300/300/tech/grayscale"
+			text: '''
+* Check out the [Documentation](#sections)
+* A question? Please [post a comment](#disqus_thread) below
+* [Report an issue](https://github.com/alexylem/jarvis/issues/new)
+* [Submit a feature request](https://github.com/alexylem/jarvis/issues/new)
+> *Jarvis* is built with :heart: on my own time, any kind of support is more than welcome:
+* [Start the Repo](https://github.com/alexylem/jarvis) on GitHub
+* [Contribute to Jarvis]() and join the team
+* <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top"><input type="hidden" name="" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="KUY4CUFXEYDR2"><input type="image" src="http://megaicons.net/static/img/icons_sizes/40/110/32/paypal-icon.png" border="0" name="submit"> Pay me a beer</form>
+'''
+		}
+	]
+	footer: "Alexandre Mély - [:pencil2:](https://github.com/alexylem/jarvis/edit/gh-pages/config.defaults.hjson)"
+}

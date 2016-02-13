@@ -1,0 +1,33 @@
+body {
+  position: relative;
+  padding-top: 70px;
+}
+
+.jumbotron {
+	background-size: cover;
+	background-position: center;
+	color: white !important;
+}
+
+.navbar-header .dropdown-menu {
+	margin-left: -15px;
+}
+
+span.img-circle {
+	color: white;
+	font-size: 2em;
+    padding: 0.5em;
+}
+div.row.middle {
+	margin-bottom: 40px;
+	display: flex;
+    align-items: center;
+}
+
+div.section img {
+	max-width: 300px;
+}
+
+.emoji {
+  height: 1.2em;
+}

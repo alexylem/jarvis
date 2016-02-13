@@ -1,0 +1,276 @@
+{
+	// Main title of your project, used in the header & navbar
+	title: ProjectPages
+
+	// Display your navbar title as a dropdown for discovering your other projects
+	projectpages: [ // false to disable
+		{icon: "home", title: "iHome", url: "http://domotiquefacile.fr" }
+		{icon: "play-circle", title: "Launcher", url: "http://domotiquefacile.fr/launcher/" }
+		{icon: "picture", title: "MyPhotos", url: "https://github.com/alexylem/myphotos#myphotos"}
+		{icon: false, title: "♠ Coinche", url: "http://alexylem.github.io/coinche/"}
+		{icon: "wrench", title: "Builder" }
+		{icon: "bullhorn", title: "ProjectPage", url: "https://github.com/alexylem/projectpage"}
+		{icon: "globe", title: "Moeata Creations", url: "http://moeatacreations.fr"}
+	]
+
+	// Enable Disqus comments (https://publishers.disqus.com/engage)
+	comments: true
+	disqus_shortname: coinche
+	
+	// Choose a Bootwatch theme (https://bootswatch.com/) ex: 'united'
+	theme: false // false to keep vanilla Bootstrap theme
+
+	// These are the main sections of your ProjectPage
+	sections: [ /* FULL DOCUMENTATION available here: http://alexylem.github.io/projectpage/#sections
+		
+		Cheat-Sheet, do not uncomment
+		{
+			type: 'jumbotron|text|grid' // more to come in the future
+			link: 'Link Label' // Set a label if you need a link for this section on the top navigation bar
+			id: 'section-id' // used for navbar linking & scrollspy
+			title: 'Big title' // title of the section
+			text: 'This text supports **Github flavored Markdown**' // (https://markdown-it.github.io/)
+			icon: 'asterisk' // for "glyphicon glyphicon-asterisk" (see http://getbootstrap.com/components)
+			image: 'img/image.png'
+			items: [{ // used for grid section type
+				icon: 'asterisk',
+				title: 'Short title'
+				text: 'Short text for this icon'
+			}, {...}]
+		}
+		*/
+		{
+			type: jumbotron
+			title: "{ ProjectPage }"
+			text: Simple. Structured. Modern.
+			image: "https://placeimg.com/720/286/tech/sepia"
+		},{
+			text: '''
+**ProjectPage** is a *simple* modern-looking single project page template you can fill via configuration file.
+> :white_check_mark: This page is built upon *ProjectPage*.
+'''
+		},{
+			type: grid
+			items: [{
+				icon: gift
+				title: Free
+				text: *ProjectPage* is free to download and to use! Why not [give it a try](#install)? License is [MIT](https://github.com/alexylem/projectpage/blob/master/LICENSE.md).
+			},{
+				icon: phone
+				title: Responsive
+				text: Your *ProjectPage* will render well on Smartphones, Tablets & PCs
+			},{
+				icon: list
+				title: No wiziwig hassle
+				text: Structured. Just fill-in the config file and your site is ready.
+			},{
+				icon: save-file
+				title: Mardown support
+				text: Quickly write formatted paragraphs with plain text markup.
+			},{
+				icon: comment
+				title: Comments module
+				text: Easily enable *Disqus* integration for social discussions with your community
+			},{
+				icon: signal
+				title: Evolutive
+				text: Your *ProjectPage* will continue to improve with the latest webdesign codes. No need to change your config!
+			}]
+		},{
+			title: Example of config file
+			text:
+'''
+This is an insight of this page's config file. It is written in hjson ([Human JSON](http://hjson.org/)) for easier writing of multi-line paragraphs.
+``` cson
+{
+	title: ProjectPage
+	comments: true
+	theme: false
+	sections: [{
+		type: jumbotron
+		title: { ProjectPage }
+		text: Simple. Structured. Modern.
+		image: https://placeimg.com/720/286/tech/sepia
+	},{
+		text: '' '
+**ProjectPage** is a *simple* modern-looking single project page template you can fill via configuration file.
+> :white_check_mark: This page is built upon *ProjectPage*.
+'' '
+  }]
+}
+```
+> `text` properties are *Markdown* enabled. You can [link](#), **format**, :), and [many more](https://markdown-it.github.io/)...
+'''
+		}{
+			link: Section Types
+			id: sections
+			title: Sections types
+			text:
+'''
+A ProjectPage site is a vertical stack of Sections.  
+Each available section types are rendered below, with their corresponding configuration snippet:
+* [Jumbotron](#jumbotron)
+* [Text & Image](#text)
+* [Grid](#grid)
+* (more will be added in the future)
+
+Each section can be published on the top Navigation bar as a link. For this, simply set `link` and `id` properies:  
+``` cson
+	sections: [{
+		link: Section Types
+		id: sections
+		title: Section Types
+		text: A ProjectPage site is a vertical stack of Sections...
+	}, {...}]
+```
+> Note that **Section Types** is available on the top nav-bar. *Scrollspy* automatically highlights the current section as you scroll down.
+
+
+'''
+		}{
+			id: jumbotron
+			title: Jumbotron
+			text:
+'''
+``` cson
+	sections: [{
+		type: jumbotron
+		title: Im a Jumbotron    // Optional
+		text: This is the Slogan // Optional
+		image: "https://..."     // Optional
+		button: Click me         // Optional
+		url: "http://..."        // Optional, for button click
+		icon: play               // Optional, for button icon, 'play' => "glyphicon glyphicon-play"
+	}, {...}]
+```
+> Go to [bootstrap components](http://getbootstrap.com/components) to see all supported icons.
+'''
+		}{
+			type: jumbotron
+			title: I'm a Jumbotron
+			text: This is the Slogan
+			image: https://placeimg.com/720/286/nature
+			button: Click me
+			icon: play
+		}{
+			id: text
+			title: Text & Image
+			text:
+'''
+``` cson
+	sections: [{
+		type: text                 // Optional as its the default type
+		title: Im a title          // Optional
+		text: And this is the text // Optional
+		image: https://...         // Optional
+		button: Click me           // Optional
+		url: http://...            // Optional, for button click
+		icon: play                 // Optional, for button icon, 'play' => "glyphicon glyphicon-play"
+	}, {...}]
+```
+> The image on text sections will be 1 time left, 1 time right sided.  
+> Go to [Markdow-it](https://markdown-it.github.io/) to practice *Markdown* markup language.  
+> Here is the :+1: [Emoli Cheat-Sheet](http://www.emoji-cheat-sheet.com/) for *Markdown* emoji you can use.  
+> Go to [bootstrap components](http://getbootstrap.com/components) to see all supported section icons.
+'''
+		}{
+			title: I'm a title
+			text: And this is the text
+			image: https://placeimg.com/300/300/nature
+			button: Click me
+			icon: play
+		}{
+			id: grid
+			title: Grid
+			text:
+'''
+``` cson
+	sections: [{
+		type: grid
+		items: [{
+			icon: send
+			title: Amazing features
+			text: I sware they are amazing
+		}{
+			icon: cloud
+			title: In the cloud
+			text: up in the sky
+		}{
+			icon: leaf
+			title: Ecological
+			text: and it's good for the planet
+		}{...}]
+	}, {...}]
+```
+> Icons will render by rows of 3. They will stack on narrow mobile displays.
+'''
+		}{
+			type: grid
+			items: [{
+				icon: send
+				title: Amazing features
+				text: I sware they are amazing
+			}{
+				icon: cloud
+				title: In the cloud
+				text: up in the sky
+			}{
+				icon: leaf
+				title: Ecological
+				text: and it's good for the planet
+			}]
+		}{
+			link: Install
+			id: install
+			title: Installation
+			image: "https://placeimg.com/300/300/tech"
+			text: '''
+1) [Download ProjectPage](https://github.com/alexylem/projectpage/archive/master.zip) and dump it on a static webserver
+> Or better [clone it from Github](https://github.com/alexylem/projectpage)
+2) Copy `config.defaults.hjson` into `config.hjson`
+> :warning: If you directly modify `config.defaults.hjson` you will loose your changes on the next *ProjectPage* update.
+3) Modify `config.hjson` to set-up your *ProjectPage*
+> The default config file is well commented to guide you
+
+:bulb: GitHub can [host your ProjectPage](https://pages.github.com). If you do so, you can set-up a secured online edition link for your site:
+``` cson
+[edit](https://github.com/USERNAME/REPONAME/edit/gh-pages/js/config.js)
+```
+'''
+		}{
+				title: Comment Module
+				image: https://media.disquscdn.com/docs/embed.png
+				text:
+'''
+> *Disqus* is a networked community platform used by hundreds of thousands of sites all over the web.
+
+In order to enable the *Disqus* comment module in your *Projectpage*, just:
+1) [Create an account](https://disqus.com/admin/signup/) at Disqus
+2) Enable the comments module on your `config.js`:
+``` cson
+{
+	comments: true
+	disqus_shortname: YOUR_DISQUS_SHORTNAME
+}
+```
+3) Configure your comment module in [Disqus admin page](https://disqus.com/admin/settings/general/)
+'''
+		}{
+			link: Support
+			id: support
+			title: Get support
+			image: "https://placeimg.com/300/300/tech/grayscale"
+			text: '''
+* Check out the [Documentation](#sections)
+* A question? Please [post a comment](#disqus_thread) below
+* [Report an issue](https://github.com/alexylem/projectpage/issues/new)
+* [Submit a feature request](https://github.com/alexylem/projectpage/issues/new)
+> *ProjectPage* is built with :heart: on my own time, any kind of support is more than welcome:
+* [Start the Repo](https://github.com/alexylem/projectpage) on GitHub
+* [Contribute to ProjectPage]() and join the team
+* <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top"><input type="hidden" name="" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="KUY4CUFXEYDR2"><input type="image" src="http://megaicons.net/static/img/icons_sizes/40/110/32/paypal-icon.png" border="0" name="submit"> Pay me a beer</form>
+'''
+		}
+	]
+	footer: "Alexandre Mély - [:pencil2:](https://github.com/alexylem/projectpage/edit/gh-pages/config.defaults.hjson)"
+}
