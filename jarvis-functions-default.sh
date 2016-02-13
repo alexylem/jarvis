@@ -9,10 +9,10 @@
 PLAY () { # PLAY () {} Play audio file $1
 	play -V1 -q $1; 
 }
-LISTEN () { # LISTEN () {} Listens microhpone and record to audio file $1 when sound if detected until silence
+LISTEN () { # LISTEN () {} Listens microhpone and record to audio file $1 when sound is detected until silence
 	local quiet=''
 	$verbose || quiet='-q'
-	rec -V1 $quiet -r 44100 -c 1 -b 32 $1 rate 32k silence 1 0.4 1% 1 0.5 2% trim 0 10
+	rec -V1 $quiet -r 44100 -c 1 -b 32 $1 rate 32k silence 1 $min_noise_duration_to_start $min_noise_perc_to_start 1 $min_silence_duration_to_stop $min_silence_level_to_stop trim 0 $max_noise_duration_to_kill
 }
 STT () { # STT () {} Transcribes audio file $1 and sets corresponding text in $order
 	json=`wget -q --post-file $1 --header="Content-Type: audio/x-flac; rate=44100" -O - "http://www.google.com/speech-api/v2/recognize?client=chromium&lang=$language&key=$google_speech_api_key"`

@@ -40,6 +40,7 @@ fi
 
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 audiofile="$DIR/jarvis-record.flac"
+rm -f $audiofile # sometimes, when error, previous recording is played
 testaudiofile="$DIR/applause.wav"
 shopt -s nocasematch # string comparison case insensitive
 
@@ -87,7 +88,6 @@ while getopts ":$flags" o; do
 			done
 			while true; do
 				read -p "Checking audio input, make sure your microphone is on, press [Enter] and say something"
-				rm $audiofile # sometimes below fails and previous recording is played
 				eval "$rec_export rec $audiofile trim 0 3; $play_export play $audiofile"
 				read -p "Did you hear yourself? (y)es (n)o (r)etry: "
 				echo # new line
