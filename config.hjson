@@ -44,7 +44,7 @@
 			type: jumbotron
 			title: "Jarvis"
 			text: "Hey Jarvis, what's up?"
-			image: "http://theartmad.com/wp-content/uploads/2015/04/Iron-Man-Jarvis-Live-Wallpaper-2.png"
+			image: "img/banner.png"
 		},{
 			text: '''
 			Jarvis.sh is a dead simple configurable multi-lang jarvis-like bot
