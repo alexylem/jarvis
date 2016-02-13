@@ -48,10 +48,19 @@
 		},{
 			text: '''
 			Jarvis.sh is a dead simple configurable multi-lang jarvis-like bot
-
+			
 			Meant for home automation running on slow computer (ex: Raspberry Pi)
-
-			It has almost no dependency and uses Google speech recognition & synthesis
+			
+			It has few dependencies and uses online speech recognition & synthesis
+			
+			Example of usage (all spoken):
+			```
+			Alex: Hey Jarvis?
+				JARVIS: Yep?
+					Alex: Turn on the light please
+						JARVIS: Okay
+			```
+			> You can customize Jarvis a lot: his name, how he reacts and what he can do.
 			'''
 		},{
 			link: Install
@@ -63,15 +72,17 @@
 			cd jarvis/
 			./jarvis -i
 			```
-			  
-			The install process will guide you in updating the following files:
-
+			
+			The install process will:
+			- Check missing dependencies
+			- Let you test & select audio devices
+			- Init & let you update the following files:
+			
 			### `jarvis-config.sh`
-
+			
 			- Update settings: JARVIS nickname, always-on, language, your Google Speech API...
 			- Translate if needed some JARVIS built-in sentences
-			- Comment & Uncomment (or update) PLAY, LISTEN, STT & TTS wrappers according to your plateform
-
+			
 			### `jarvis-commands` 
 
 			This is the place to define your own **custom commands**:
@@ -91,6 +102,14 @@
 			  - say "I'm going to speak this out loud"
 			  - `$trigger`: JARVIS's nickname as defined in `jarvis-config.sh`  
 			  - `$username`: your username as defined in `jarvis-config.sh`
+			 
+			### `jarvis-functions.sh`
+			
+			For advanced users, here you can customize the following functions:
+			  - `LISTEN`: function that records your voice
+			  - `STT`: function for speech recognition (to use another engine such as sphinx)
+			  - `TTS`: function that speaks text out loud (to use another engine such as espeak)
+			  - `PLAY`: function to play an audio file
 			'''
 		},{
 			link: Usage
