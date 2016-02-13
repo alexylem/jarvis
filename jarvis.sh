@@ -70,7 +70,6 @@ while getopts ":$flags" o; do
 				read -p "Checking audio output, make sure your speakers are on and press [Enter]"
 				eval "$play_export play $testaudiofile"
 				read -p "Did you hear something? (y)es (n)o (r)etry: "
-				echo # new line
 				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
 				if [[ $REPLY =~ ^[Rr]$ ]]; then continue; fi
 				aplay -l
@@ -102,6 +101,7 @@ while getopts ":$flags" o; do
 		q)	quiet=true;;
 		r)	rm -i $audiofile $DIR/jarvis-config.sh $DIR/jarvis-commands; exit;;
 		u)	cd $DIR
+			git reset --hard HEAD # override any local change
 			git pull
 			echo "Make sure there has been no change on default config files to replicate"
 			exit;;
