@@ -68,26 +68,26 @@ while getopts ":$flags" o; do
 			$missing && read -p "WARNING: You may want to install missing dependencies based on your plateform"
 			while true; do
 				read -p "Checking audio output, make sure your speakers are on and press [Enter]"
-				$play_export play $testaudiofile
-				read -p "Did you hear something? (y)es (n)o (r)etry: " -n 1 -r
+				eval "$play_export play $testaudiofile"
+				read -p "Did you hear something? (y)es (n)o (r)etry: "
 				echo # new line
 				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
 				if [[ $REPLY =~ ^[Rr]$ ]]; then continue; fi
 				aplay -l
-				read -p "Indicate the card # to use [0-9]: " -n 1 -r card
-				read -p "Indicate the device # to use [0-9]: " -n 1 -r device
+				read -p "Indicate the card # to use [0-9]: " card
+				read -p "Indicate the device # to use [0-9]: " device
 				play_export="AUDIODEV=hw:$card,$device"
 			done
 			while true; do
 				read -p "Checking audio input, make sure your microphone is on, press [Enter] and say something"
-				$rec_export rec $audiofile trim 0 3; $play_export play $audiofile
-				read -p "Did you hear yourself? (y)es (n)o (r)etry: " -n 1 -r
+				eval "$rec_export rec $audiofile trim 0 3; $play_export play $audiofile"
+				read -p "Did you hear yourself? (y)es (n)o (r)etry: "
 				echo # new line
 				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
 				if [[ $REPLY =~ ^[Rr]$ ]]; then continue; fi
 				arecord -l
-				read -p "Indicate the card # to use [0-9]: " -n 1 -r card
-				read -p "Indicate the device # to use [0-9]: " -n 1 -r device
+				read -p "Indicate the card # to use [0-9]: " card
+				read -p "Indicate the device # to use [0-9]: " device
 				rec_export="AUDIODEV=hw:$card,$device"
 			done
 			cp -i $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
