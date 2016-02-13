@@ -10,7 +10,7 @@
 		{icon: "console", title: "Jarvis", url: "http://alexylem.github.io/jarvis/"}
 		{icon: false, title: "♠ Coinche", url: "http://alexylem.github.io/coinche/"}
 		{icon: "wrench", title: "Builder" }
-		{icon: "bullhorn", title: "ProjectPage", url: "https://github.com/alexylem/projectpage"}
+		{icon: "bullhorn", title: "ProjectPage", url: "http://alexylem.github.io/projectpage/"}
 		{icon: "globe", title: "Moeata Creations", url: "http://moeatacreations.fr"}
 	]
 
