@@ -192,7 +192,7 @@ while true; do
 						break
 					fi
 				else
-					if [ $duration -lt 5 ] || [ $duration -gt 15 ]; then
+					if [ $duration -lt 4 ] || [ $duration -gt 15 ]; then
 						$verbose && echo "DEBUG: too short or too long for a trigger (min 0.5 max 1.5 sec), ignoring..."
 					else
 						break
