@@ -7,7 +7,7 @@
 		{icon: "home", title: "iHome", url: "http://domotiquefacile.fr" }
 		{icon: "play-circle", title: "Launcher", url: "http://domotiquefacile.fr/launcher/" }
 		{icon: "picture", title: "MyPhotos", url: "https://github.com/alexylem/myphotos#myphotos"}
-		{icon: "console", title: "Jarvis", url: "https://github.com/alexylem/jarvis#jarvis"}
+		{icon: "console", title: "Jarvis", url: "http://alexylem.github.io/jarvis/"}
 		{icon: false, title: "♠ Coinche", url: "http://alexylem.github.io/coinche/"}
 		{icon: "wrench", title: "Builder" }
 		{icon: "bullhorn", title: "ProjectPage", url: "https://github.com/alexylem/projectpage"}
