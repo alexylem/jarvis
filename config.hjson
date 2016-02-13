@@ -42,9 +42,9 @@
 		*/
 		{
 			type: jumbotron
-			title: "{ ProjectPage }"
+			title: "Jarvis"
 			text: "Hey Jarvis, what's up?"
-			image: "https://placeimg.com/720/286/tech/sepia"
+			image: "http://theartmad.com/wp-content/uploads/2015/04/Iron-Man-Jarvis-Live-Wallpaper-2.png"
 		},{
 			text: '''
 			Jarvis.sh is a dead simple configurable multi-lang jarvis-like bot
@@ -52,7 +52,12 @@
 			Meant for home automation running on slow computer (ex: Raspberry Pi)
 
 			It has almost no dependency and uses Google speech recognition & synthesis
-
+			'''
+		},{
+			link: Install
+			id: install
+			title: Install
+			text: '''
 			## Install
 			  
 			```
@@ -86,7 +91,12 @@
 			  - say "I'm going to speak this out loud"
 			  - $trigger: JARVIS's nickname as defined in `jarvis-config.sh`  
 			  - $username: your username as defined in `jarvis-config.sh`
-
+			'''
+		},{
+			link: Usage
+			id: usage
+			title: Usage
+			text: '''
 			## Usage
 
 			To start Jarvis:
@@ -111,23 +121,23 @@
 				-u	update (from git & update config files)
 				-v	verbose & VU meter - recommended for first launch / troubleshooting
 			```
-'''
+			'''
 		},{
 			link: Support
 			id: support
 			title: Get support
 			image: "https://placeimg.com/300/300/tech/grayscale"
 			text: '''
-* Check out the [Documentation](#sections)
+* Check out the [Documentation](#usage)
 * A question? Please [post a comment](#disqus_thread) below
 * [Report an issue](https://github.com/alexylem/jarvis/issues/new)
 * [Submit a feature request](https://github.com/alexylem/jarvis/issues/new)
 > *Jarvis* is built with :heart: on my own time, any kind of support is more than welcome:
-* [Start the Repo](https://github.com/alexylem/jarvis) on GitHub
+* [View the Repo](https://github.com/alexylem/jarvis) on GitHub
 * [Contribute to Jarvis]() and join the team
 * <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top"><input type="hidden" name="" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="KUY4CUFXEYDR2"><input type="image" src="http://megaicons.net/static/img/icons_sizes/40/110/32/paypal-icon.png" border="0" name="submit"> Pay me a beer</form>
 '''
 		}
 	]
-	footer: "Alexandre Mély - [:pencil2:](https://github.com/alexylem/jarvis/edit/gh-pages/config.defaults.hjson)"
+	footer: "Alexandre Mély - [:pencil2:](https://github.com/alexylem/jarvis/edit/master/config.hjson)"
 }
