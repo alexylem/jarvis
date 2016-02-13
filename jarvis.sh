@@ -98,9 +98,9 @@ while getopts ":$flags" o; do
 				rec_export="AUDIODEV=hw:$card,$device AUDIODRIVER=alsa"
 			done
 			cp -i $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
-			sed -i.bak "s/play -V1/$play_export play -V1/" $DIR/jarvis-config.sh
-			sed -i.bak "s/rec -V1/$rec_export rec -V1/" $DIR/jarvis-config.sh
 			cp -i $DIR/jarvis-functions-default.sh $DIR/jarvis-functions.sh
+			sed -i.bak "s/play -V1/$play_export play -V1/" $DIR/jarvis-functions.sh
+			sed -i.bak "s/rec -V1/$rec_export rec -V1/" $DIR/jarvis-functions.sh
 			cp -i $DIR/jarvis-commands-default $DIR/jarvis-commands
 			read -p "Press [Enter] to edit the config file. Please follow instructions."
 			nano $DIR/jarvis-config.sh

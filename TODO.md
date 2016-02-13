@@ -4,13 +4,13 @@
 
 # Installation
 
-- [ ] check dependencies per platform
+- [X] check dependencies per platform
 - [X] mic & sound discovering
 
 # Recognition
 
 - [X] check size: ok it grow starting noise detected
-- [ ] need to only send when it's looking like trigger: duration based like < 2sec?
+- [X] need to only send when it's looking like trigger: duration based like < 2sec?
 - [ ] use offline reco for trigger detection - sphinx?
 
 # Execution
