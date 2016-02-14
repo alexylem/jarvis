@@ -39,7 +39,7 @@ else
 fi
 
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-audiofile="$DIR/jarvis-record.flac"
+audiofile="$DIR/jarvis-record.wav"
 rm -f $audiofile # sometimes, when error, previous recording is played
 testaudiofile="$DIR/applause.wav"
 shopt -s nocasematch # string comparison case insensitive
@@ -48,8 +48,8 @@ shopt -s nocasematch # string comparison case insensitive
 verbose=false
 keyboard=false
 quiet=false
-play_export=''
-rec_export=''
+play_hw=false
+rec_hw=false
 while getopts ":$flags" o; do
     case "${o}" in
 		a)	all_matches=true;;
@@ -84,7 +84,7 @@ while getopts ":$flags" o; do
 				aplay -l
 				read -p "Indicate the card # to use [0-9]: " card
 				read -p "Indicate the device # to use [0-9]: " device
-				play_export="AUDIODEV=hw:$card,$device AUDIODRIVER=alsa"
+				play_hw="hw:$card,$device"
 			done
 			while true; do
 				read -p "Checking audio input, make sure your microphone is on, press [Enter] and say something"
@@ -96,12 +96,12 @@ while getopts ":$flags" o; do
 				arecord -l
 				read -p "Indicate the card # to use [0-9]: " card
 				read -p "Indicate the device # to use [0-9]: " device
-				rec_export="AUDIODEV=hw:$card,$device AUDIODRIVER=alsa"
+				rec_hw="hw:$card,$device"
 			done
 			cp -i $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
+			sed -i.bak "s/play_hw=false/play_hw=$play_hw/" $DIR/jarvis-config.sh
+			sed -i.bak "s/rec_hw=false/rec_hw=$rec_hw/" $DIR/jarvis-config.sh
 			cp -i $DIR/jarvis-functions-default.sh $DIR/jarvis-functions.sh
-			sed -i.bak "s/play -V1/$play_export play -V1/" $DIR/jarvis-functions.sh
-			sed -i.bak "s/rec -V1/$rec_export rec -V1/" $DIR/jarvis-functions.sh
 			cp -i $DIR/jarvis-commands-default $DIR/jarvis-commands
 			read -p "Press [Enter] to edit the config file. Please follow instructions."
 			nano $DIR/jarvis-config.sh
@@ -166,7 +166,6 @@ handlecommand() {
 }
 
 say "$hello $username"
-echo $byehelper
 bypass=false
 while true; do
 	if [ $keyboard = true ]; then
@@ -187,13 +186,13 @@ while true; do
 				duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
 				$verbose && echo "DEBUG: speech duration was $duration"
 				if $bypass; then
-					if [ $duration -gt 30 ]; then
+					if [ "$duration" -gt 30 ]; then
 						$verbose && echo "DEBUG: too long for a command (max 3 secs), ignoring..."
 					else
 						break
 					fi
 				else
-					if [ $duration -lt 4 ] || [ $duration -gt 15 ]; then
+					if [ "$duration" -lt 4 ] || [ "$duration" -gt 15 ]; then
 						$verbose && echo "DEBUG: too short or too long for a trigger (min 0.5 max 1.5 sec), ignoring..."
 					else
 						break
@@ -205,8 +204,9 @@ while true; do
 			printf '?'
 			$verbose && PLAY "$audiofile"
 			STT "$audiofile"
+			printf '\b \b'
 			printf "$order"
-			[ -z "$order" ] && continue
+			[ -z "$order" ] && printf '.' && continue
 			if ! $trigger_mode || $bypass || [[ "$order" == *$trigger* ]]; then
 				break
 			fi

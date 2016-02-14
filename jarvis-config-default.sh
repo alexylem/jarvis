@@ -28,6 +28,11 @@ language="fr_FR" # en_EN for english
 # execute all matching commands (default only first match)
 all_matches=false
 
+# hw:X,X of speakers, false for default
+play_hw=false
+# hw:X,X of microhpone, false for default
+rec_hw=false
+
 # sox auto-recording tresholds
 min_noise_duration_to_start="0.4"
 min_noise_perc_to_start="1%"
@@ -37,6 +42,5 @@ max_noise_duration_to_kill="10"
 
 # JARVIS spoken sentences to be translated
 hello=$(if [ $(date +%H) -lt 18 ]; then echo Bonjour; else echo Bonsoir; fi)
-bye_helper="Dites 'Au revoir' pour quitter." # must be defined in jarvis-commands
 unknown_command="Je n'ai pas compris"
 command_failed="Cette commande a retourné une erreur"
