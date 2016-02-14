@@ -79,7 +79,7 @@ while getopts ":$flags" o; do
 			$missing && read -p "WARNING: You may want to install missing dependencies based on your plateform"
 			while true; do
 				read -p "Checking audio output, make sure your speakers are on and press [Enter]"
-				$play_hw && play_export="AUDIODEV=$play_hw AUDIODRIVER=alsa"
+				[ $play_hw ] && play_export="AUDIODEV=$play_hw AUDIODRIVER=alsa"
 				eval "$play_export play $testaudiofile"
 				read -p "Did you hear something? (y)es (n)o (r)etry: "
 				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
@@ -91,7 +91,7 @@ while getopts ":$flags" o; do
 			done
 			while true; do
 				read -p "Checking audio input, make sure your microphone is on, press [Enter] and say something"
-				$rec_hw && rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa"
+				[ $rec_hw ] && rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa"
 				eval "$rec_export rec $audiofile trim 0 3; $play_export play $audiofile"
 				read -p "Did you hear yourself? (y)es (n)o (r)etry: "
 				echo # new line
