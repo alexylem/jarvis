@@ -12,3 +12,5 @@ jarvis-config-default.sh.bak
 jarvis-config.sh.bak
 
 jarvis-functions.sh
+
+jarvis-pocketsphinx-words.txt

@@ -31,9 +31,11 @@ EOF
 if [ "$(uname)" == "Darwin" ]; then
 	platform="osx"
 	dependencies=(awk git iconv nano perl sed sox wget)
+	forder="/tmp/jarvis-order"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 	platform="linux"
 	dependencies=(aplay arecord awk git iconv mpg123 nano perl sed sox wget)
+	forder="/dev/shm/jarvis-order"
 else
 	echo "Unsupported platform"; exit 1
 fi
@@ -169,6 +171,15 @@ handlecommand() {
 	say "$unknown_command: $order"
 }
 
+spinner(){ # call spinner $!
+	while kill -0 $1 2>/dev/null; do
+		for i in \| / - \\; do
+			printf '%c\b' $i
+			sleep .1
+		done
+	done
+}
+
 say "$hello $username"
 bypass=false
 while true; do
@@ -183,7 +194,7 @@ while true; do
 		$trigger_mode && ! $bypass && echo "$trigger: Waiting to hear '$trigger'"
 		printf "$username: "
 		while true; do
-			PLAY beep-high.wav
+			$quiet || PLAY beep-high.wav
 			while true; do
 				trap "exit" INT # exit jarvis with Ctrl+C
 				LISTEN $audiofile
@@ -191,30 +202,35 @@ while true; do
 				$verbose && echo "DEBUG: speech duration was $duration"
 				if $bypass; then
 					if [ "$duration" -gt 30 ]; then
-						$verbose && echo "DEBUG: too long for a command (max 3 secs), ignoring..."
+						$verbose && echo "DEBUG: too long for a command (max 3 secs), ignoring..." || printf '#'
+						continue
 					else
 						break
 					fi
 				else
-					if [ "$duration" -lt 4 ] || [ "$duration" -gt 15 ]; then
-						$verbose && echo "DEBUG: too short or too long for a trigger (min 0.5 max 1.5 sec), ignoring..."
+					if [ "$duration" -lt 4 ]; then
+						$verbose && echo "DEBUG: too short for a trigger (min 0.5 max 1.5 sec), ignoring..." || printf '.'
+						continue
+					elif [ "$duration" -gt 15 ]; then
+						$verbose && echo "DEBUG: too long for a trigger (min 0.5 max 1.5 sec), ignoring..." || printf '#'
+						continue
 					else
 						break
 					fi
 				fi
-				printf '.'
+				printf '_'
 			done
-			PLAY beep-low.wav
-			printf '?'
+			$quiet || PLAY beep-low.wav
 			$verbose && PLAY "$audiofile"
-			STT "$audiofile"
-			printf '\b \b'
+			order=`STT "$audiofile"` &
+			spinner $!
+			order=`cat $forder`
 			printf "$order"
-			[ -z "$order" ] && printf '.' && continue
+			[ -z "$order" ] && printf '?' && continue
 			if ! $trigger_mode || $bypass || [[ "$order" == *$trigger* ]]; then
 				break
 			fi
-			PLAY $DIR/beep-error.wav
+			$quiet || PLAY $DIR/beep-error.wav
 		done
 		echo # new line
 	fi
