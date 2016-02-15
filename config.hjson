@@ -140,6 +140,18 @@
 			```
 			'''
 		},{
+			title: Going further
+			text: '''
+			I chose to use `Google Speech API` for the accuracy of the transcription, no matter the language.
+			As mentionned abose, you can update the `STT` function to use another speech recognition engine.
+			The main offline alternative is `PocketSphinx` (CMUSphinx for embedded devices such as the Raspberry Pi).
+			Here below is a quick comparison table between the two:
+			|               | Google Speech API | PocketSphinx   |
+			|---------------|-------------------|----------------|
+			| Price         | :-|        50/day | :-)       Free |
+			| Privacy       | :-(        Online | :-)    Offline |
+			'''
+		},{
 			link: Support
 			id: support
 			title: Get support
