@@ -130,11 +130,11 @@ while getopts ":$flags" o; do
 				read -p "Indicate the device # to use [0-9]: " device
 				rec_hw="hw:$card,$device"
 			done
-			cp -i $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
+			updateconfig $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
+			updateconfig $DIR/jarvis-functions-default.sh $DIR/jarvis-functions.sh
+			updateconfig $DIR/jarvis-commands-default $DIR/jarvis-commands
 			sed -i.bak "s/play_hw=false/play_hw=$play_hw/" $DIR/jarvis-config.sh
 			sed -i.bak "s/rec_hw=false/rec_hw=$rec_hw/" $DIR/jarvis-config.sh
-			cp -i $DIR/jarvis-functions-default.sh $DIR/jarvis-functions.sh
-			cp -i $DIR/jarvis-commands-default $DIR/jarvis-commands
 			read -p "Press [Enter] to edit the config file. Please follow instructions."
 			nano $DIR/jarvis-config.sh
 			echo "Installation complete."
@@ -148,6 +148,8 @@ while getopts ":$flags" o; do
 			git reset --hard HEAD # override any local change
 			git pull
 			updateconfig $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
+			updateconfig $DIR/jarvis-functions-default.sh $DIR/jarvis-functions.sh
+			updateconfig $DIR/jarvis-commands-default $DIR/jarvis-commands
 			exit;;
 		v)	verbose=true;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
