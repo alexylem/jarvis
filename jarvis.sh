@@ -40,6 +40,28 @@ else
 	echo "Unsupported platform"; exit 1
 fi
 
+updateconfig () { # usage updateconfig default-file ($1) user-file ($2)
+	if [ -f $2 && ! cmp --silent $2 $1 ]; then
+		echo "$1 may have changed, what do you want to do?"
+		select answer in "Replace (you may loose your changes)" "Merge (you will choose what to keep)" "Ignore (not recommended)"; do
+			case $answer in
+				Replace )	break;;
+				Merge )		cat << EOF
+Differences will now be displayed betweeen the two files for you to decide
+Enter (l)eft to choose the left version (default file)
+Enter (r)ight to choose the right version (your file)
+If you are not sure, choose (l)eft
+EOF
+							sdiff -w 80 -o $2.merged $1 $2
+							mv $2.merged $2
+							return;;
+				Ignore ) return;;
+			esac
+		done
+	fi
+	cp $1 $2
+}
+
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 audiofile="$DIR/jarvis-record.wav"
 rm -f $audiofile # sometimes, when error, previous recording is played
@@ -121,7 +143,7 @@ while getopts ":$flags" o; do
 		u)	cd $DIR
 			git reset --hard HEAD # override any local change
 			git pull
-			echo "You may want to re-run '$0 -i' to update your config files"
+			updateconfig $DIR/jarvis-config-default.js $DIR/jarvis-config.sh
 			exit;;
 		v)	verbose=true;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
