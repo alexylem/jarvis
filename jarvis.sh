@@ -241,7 +241,7 @@ while true; do
 					if [ -z "$duration" ]; then
 						$verbose && echo "DEBUG: timeout, end of hot conversation" || printf '.'
 						$quiet || PLAY $DIR/beep-low.wav
-						sleep 1 # sometimes mic still busy
+						sleep 2 # sometimes mic still busy
 						bypass=false
 						order='' # clean previous order
 						break 2
@@ -263,7 +263,7 @@ while true; do
 					fi
 				fi
 			done
-			$quiet || PLAY $DIR/beep-low.wav
+			$verbose && PLAY $DIR/beep-low.wav
 			$verbose && PLAY "$audiofile"
 			STT "$audiofile" &
 			spinner $!
@@ -273,7 +273,7 @@ while true; do
 			if ! $trigger_mode || $bypass || [[ "$order" == *$trigger* ]]; then
 				break
 			fi
-			$quiet || PLAY $DIR/beep-error.wav
+			$verbose && PLAY $DIR/beep-error.wav
 		done
 		echo # new line
 	fi
