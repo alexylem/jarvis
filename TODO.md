@@ -6,12 +6,13 @@
 
 - [X] check dependencies per platform
 - [X] mic & sound discovering
+- [ ] add to crontab @reboot
 
 # Recognition
 
 - [X] check size: ok it grow starting noise detected
 - [X] need to only send when it's looking like trigger: duration based like < 2sec?
-- [ ] use offline reco for trigger detection - sphinx?
+- [X] use offline reco for trigger detection - sphinx?
 
 # Commands 
 

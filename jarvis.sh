@@ -144,6 +144,14 @@ rawurlencode() {
   echo "${encoded}"
 }
 
+settimeout () { # usage settimeout 10 command args
+	local timeout=$1
+	shift
+	( $@ ) & pid=$!
+	( sleep $timeout && kill -HUP $pid ) 2>/dev/null & watcher=$!
+	wait $pid 2>/dev/null && pkill -HUP -P $watcher
+}
+
 # Load config file
 if [ ! -f $DIR/jarvis-config.sh ]; then
 	echo "Missing config file. Install with command $>./jarvis -i" 1>&2
@@ -161,9 +169,8 @@ handlecommand() {
 		pattern=${line%==*} # *MEANING*LIFE*==say 42 => *MEANING*LIFE*
 		if [[ $order == $pattern ]]; then # WHAT IS THE MEANING OF LIFE ? == *MEANING*LIFE*
 			action=${line#*==} # *MEANING*LIFE*==say 42 => say 42
-			action="${action/.../${order#*REPETE}}"
+			action="${action/.../$order}"
 			$verbose && echo "$> $action"
-			bypass=false
 			eval "$action" || say "$command_failed"
 			$all_matches || return
 		fi
@@ -193,36 +200,43 @@ while true; do
 		fi
 		$trigger_mode && ! $bypass && echo "$trigger: Waiting to hear '$trigger'"
 		printf "$username: "
+		$quiet || PLAY $DIR/beep-high.wav
 		while true; do
-			$quiet || PLAY beep-high.wav
+			#$quiet || PLAY $DIR/beep-high.wav
 			while true; do
 				trap "exit" INT # exit jarvis with Ctrl+C
-				LISTEN $audiofile
+				$bypass && timeout='settimeout 10' || timeout=''
+				$timeout LISTEN $audiofile
 				duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
 				$verbose && echo "DEBUG: speech duration was $duration"
 				if $bypass; then
-					if [ "$duration" -gt 30 ]; then
+					if [ -z "$duration" ]; then
+						$verbose && echo "DEBUG: timeout, end of hot conversation" || printf '.'
+						$quiet || PLAY $DIR/beep-low.wav
+						bypass=false
+						order=''
+						break 2
+					elif [ "$duration" -gt 40 ]; then
 						$verbose && echo "DEBUG: too long for a command (max 3 secs), ignoring..." || printf '#'
 						continue
 					else
 						break
 					fi
 				else
-					if [ "$duration" -lt 4 ]; then
-						$verbose && echo "DEBUG: too short for a trigger (min 0.5 max 1.5 sec), ignoring..." || printf '.'
+					if [ "$duration" -lt 3 ]; then
+						$verbose && echo "DEBUG: too short for a trigger (min 0.5 max 1.5 sec), ignoring..." || printf '-'
 						continue
-					elif [ "$duration" -gt 15 ]; then
+					elif [ "$duration" -gt 20 ]; then
 						$verbose && echo "DEBUG: too long for a trigger (min 0.5 max 1.5 sec), ignoring..." || printf '#'
 						continue
 					else
 						break
 					fi
 				fi
-				printf '_'
 			done
-			$quiet || PLAY beep-low.wav
+			$quiet || PLAY $DIR/beep-low.wav
 			$verbose && PLAY "$audiofile"
-			order=`STT "$audiofile"` &
+			STT "$audiofile" &
 			spinner $!
 			order=`cat $forder`
 			printf "$order"

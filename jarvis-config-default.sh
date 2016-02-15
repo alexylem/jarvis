@@ -7,14 +7,20 @@ always_listening=true
 # wait magic word to be said before to ask for command
 # need always_listening to be true
 # ex:
-#   you: Hey JARVIS?
+#	(waiting for magic word to be said)
+#	you: Hey JARVIS?
 #		JARVIS: Yes?
+#			(discussion mode)
 #			you: Open the door
 #				JARVIS: Okay
+#			you: Thanks
+#				JARVIS: You're welcome
+#			(> 10secs)
+#	(need to say magic word again)
 trigger_mode=true
 
 # if trigger_mode is true, magic word to be said
-trigger='JARVIS' # also update at bottom of jarvis-commands file
+trigger='JARVIS' # also update at top of jarvis-commands file
 
 # welcome message to be said
 welcome="Que puis-je faire pour vous?"
@@ -34,11 +40,11 @@ play_hw=false
 rec_hw=false
 
 # sox auto-recording tresholds
-min_noise_duration_to_start="0.4"
-min_noise_perc_to_start="1%"
-min_silence_duration_to_stop="0.5"
-min_silence_level_to_stop="2%"
-max_noise_duration_to_kill="10"
+min_noise_duration_to_start="0.2" # default 0.3
+min_noise_perc_to_start="1%" # default 1%
+min_silence_duration_to_stop="0.5" # default 0.5
+min_silence_level_to_stop="2%" # default 2%
+max_noise_duration_to_kill="10" # default 10
 
 # JARVIS spoken sentences to be translated
 hello=$(if [ $(date +%H) -lt 18 ]; then echo Bonjour; else echo Bonsoir; fi)
