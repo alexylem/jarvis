@@ -241,8 +241,9 @@ while true; do
 					if [ -z "$duration" ]; then
 						$verbose && echo "DEBUG: timeout, end of hot conversation" || printf '.'
 						$quiet || PLAY $DIR/beep-low.wav
+						sleep 1 # sometimes mic still busy
 						bypass=false
-						order=''
+						order='' # clean previous order
 						break 2
 					elif [ "$duration" -gt 40 ]; then
 						$verbose && echo "DEBUG: too long for a command (max 3 secs), ignoring..." || printf '#'
