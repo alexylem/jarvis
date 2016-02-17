@@ -43,7 +43,7 @@ fi
 updateconfig () { # usage updateconfig default-file ($1) user-file ($2)
 	if [ -f $2 ]; then
 		if ! cmp --silent $1.old $1; then
-			echo "$1 have changed, what do you want to do?"
+			echo "$1 has changed, what do you want to do?"
 			select opt in "Replace (you may loose your changes)" "Merge (you will choose what to keep)" "Ignore (not recommended)"; do
 				case "$REPLY" in
 					1 )	cp $1 $2
