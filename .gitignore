@@ -5,12 +5,8 @@ jarvis-commands
 
 jarvis-record.flac
 
-jarvis-commands-default.bak
-
-jarvis-config-default.sh.bak
-
-jarvis-config.sh.bak
-
 jarvis-functions.sh
 
 jarvis-pocketsphinx-words.txt
+
+*.old

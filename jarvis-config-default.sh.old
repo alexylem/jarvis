@@ -18,7 +18,7 @@ always_listening=true
 #			(> 10secs)
 #	(need to say magic word again)
 trigger_mode=true
-
+ 
 # if trigger_mode is true, magic word to be said
 trigger='JARVIS' # also update at top of jarvis-commands file
 
