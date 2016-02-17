@@ -16,13 +16,13 @@ LISTEN () { # LISTEN () {} Listens microhpone and record to audio file $1 when s
 	eval "$rec_export rec -V1 $quiet -r 16000 -c 1 -b 16 -e signed-integer --endian little $1 silence 1 $min_noise_duration_to_start $min_noise_perc_to_start 1 $min_silence_duration_to_stop $min_silence_level_to_stop trim 0 $max_noise_duration_to_kill"
 }
 STT () { # STT () {} Transcribes audio file $1 and writes corresponding text in $forder
-	if ([ ! $bypass ] && [ $trigger_tts == "pocketsphinx" ]) || ( $bypass && [ $command_tts == "pocketsphinx" ]); then
-		LD_LIBRARY_PATH=/usr/local/lib PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pocketsphinx_continuous -lm $language_model -dict $dictionary -logfn $pocketsphinxlog -infile $1 > $forder
-	else # using google
-		json=`wget -q --post-file $1 --header="Content-Type: audio/l16; rate=16000" -O - "http://www.google.com/speech-api/v2/recognize?client=chromium&lang=$language&key=$google_speech_api_key"`
-		$verbose && printf "DEBUG: $json\n"
-		echo $json | perl -lne 'print $1 if m{"transcript":"([^"]*)"}' > $forder
-	fi
+if ([ $bypass = false ] && [ $trigger_stt == "pocketsphinx" ]) || ( $bypass && [ $command_stt == "pocketsphinx" ]); then
+	LD_LIBRARY_PATH=/usr/local/lib PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pocketsphinx_continuous -lm $language_model -dict $dictionary -logfn $pocketsphinxlog -infile $1 > $forder
+else # using google
+	json=`wget -q --post-file $1 --header="Content-Type: audio/l16; rate=16000" -O - "http://www.google.com/speech-api/v2/recognize?client=chromium&lang=$language&key=$google_speech_api_key"`
+	$verbose && printf "DEBUG: $json\n"
+	echo $json | perl -lne 'print $1 if m{"transcript":"([^"]*)"}' > $forder
+fi
 }
 TTS () { # TTS () {} Speaks text $1
 	if [[ "$platform" == "osx" ]]; then

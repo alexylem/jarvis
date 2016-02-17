@@ -40,16 +40,16 @@ play_hw=false
 rec_hw=false
 
 # sox auto-recording tresholds
-min_noise_duration_to_start="0.2" # default 0.2
+min_noise_duration_to_start="0.1" # default 0.1
 min_noise_perc_to_start="1%" # default 1%
 min_silence_duration_to_stop="0.5" # default 0.5
-min_silence_level_to_stop="2%" # default 2%
+min_silence_level_to_stop="1%" # default 1%
 max_noise_duration_to_kill="10" # default 10
 
-# choice of TTS engine for magic word detection (google|pocketsphinx)
-trigger_tts=google
-# choice of TTS engine for command detection (google|pocketsphinx)
-command_tts=google
+# choice of STT engine for magic word detection (google|pocketsphinx)
+trigger_stt=google
+# choice of STT engine for command detection (google|pocketsphinx)
+command_stt=google
 
 # options for pocketsphinx (not enabled by default)
 dictionary="$DIR/dictionary.dic"
