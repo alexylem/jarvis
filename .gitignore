@@ -9,4 +9,6 @@ jarvis-functions.sh
 
 jarvis-pocketsphinx-words.txt
 
-*.old
+jarvis-commands-default.old
+
+jarvis-config-default.sh.old
