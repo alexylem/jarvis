@@ -42,8 +42,8 @@ fi
 
 updateconfig () { # usage updateconfig default-file ($1) user-file ($2)
 	if [ -f $2 ]; then
-		if ! cmp --silent $2 $1; then
-			echo "$1 may have changed, what do you want to do?"
+		if ! cmp --silent $1.old $1; then
+			echo "$1 have changed, what do you want to do?"
 			select opt in "Replace (you may loose your changes)" "Merge (you will choose what to keep)" "Ignore (not recommended)"; do
 				case "$REPLY" in
 					1 )	cp $1 $2
@@ -84,10 +84,10 @@ while getopts ":$flags" o; do
     case "${o}" in
 		a)	all_matches=true;;
 		b)	cp $DIR/jarvis-config.sh $DIR/jarvis-config-default.sh
-			sed -i.bak -E 's/(google_speech_api_key=").*(")/\1YOUR_GOOGLE_SPEECH_API_KEY\2/' jarvis-config-default.sh
+			sed -i.old -E 's/(google_speech_api_key=").*(")/\1YOUR_GOOGLE_SPEECH_API_KEY\2/' jarvis-config-default.sh
 			cp $DIR/jarvis-functions.sh $DIR/jarvis-functions-default.sh
 			cp $DIR/jarvis-commands $DIR/jarvis-commands-default
-			sed -i.bak '/#PRIVATE/d' jarvis-commands-default
+			sed -i.old '/#PRIVATE/d' jarvis-commands-default
 			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
 			exit;;
 		c)	nano $DIR/jarvis-commands; exit;;
@@ -145,11 +145,15 @@ while getopts ":$flags" o; do
 		q)	quiet=true;;
 		r)	rm -i $audiofile $DIR/jarvis-config.sh $DIR/jarvis-commands; exit;;
 		u)	cd $DIR
+			cp jarvis-config-default.sh jarvis-config-default.sh.old
+			cp jarvis-functions-default.sh jarvis-functions-default.sh.old
+			cp jarvis-commands-default jarvis-commands-default.old
 			git reset --hard HEAD # override any local change
 			git pull
-			updateconfig $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
-			updateconfig $DIR/jarvis-functions-default.sh $DIR/jarvis-functions.sh
-			updateconfig $DIR/jarvis-commands-default $DIR/jarvis-commands
+			updateconfig jarvis-config-default.sh jarvis-config.sh
+			updateconfig jarvis-functions-default.sh jarvis-functions.sh
+			updateconfig jarvis-commands-default jarvis-commands
+			# rm *.old
 			exit;;
 		v)	verbose=true;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
@@ -217,6 +221,7 @@ spinner(){ # call spinner $!
 
 say "$hello $username"
 bypass=false
+trap "exit" INT # exit jarvis with Ctrl+C
 while true; do
 	if [ $keyboard = true ]; then
 		echo; echo $trigger: $welcome
@@ -232,7 +237,6 @@ while true; do
 		while true; do
 			#$quiet || PLAY $DIR/beep-high.wav
 			while true; do
-				trap "exit" INT # exit jarvis with Ctrl+C
 				$bypass && timeout='settimeout 10' || timeout=''
 				$timeout LISTEN $audiofile
 				duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
@@ -240,8 +244,8 @@ while true; do
 				if $bypass; then
 					if [ -z "$duration" ]; then
 						$verbose && echo "DEBUG: timeout, end of hot conversation" || printf '.'
-						$quiet || PLAY $DIR/beep-low.wav
-						sleep 2 # sometimes mic still busy
+						$verbose && PLAY $DIR/beep-low.wav
+						sleep 5 # sometimes mic still busy
 						bypass=false
 						order='' # clean previous order
 						break 2

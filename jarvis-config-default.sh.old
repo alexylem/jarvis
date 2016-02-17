@@ -26,7 +26,7 @@ trigger='JARVIS' # also update at top of jarvis-commands file
 welcome="Que puis-je faire pour vous?"
 
 # google speech api key http://stackoverflow.com/a/26833337
-google_speech_api_key="YOUR_GOOGLE_SPEECH_API_KEY"
+google_speech_api_key="AIzaSyDF-IPsaJwiE10uzJgVdo24evhrWHZIyiY"
 
 # language
 language="fr_FR" # en_EN for english

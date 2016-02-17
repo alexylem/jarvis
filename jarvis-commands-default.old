@@ -12,3 +12,7 @@
 *QUEL JOUR*==say "nous sommes le `date +"%A %d %h %Y"`"
 *SENS*VIE*==say "42"
 
+*ALLUME*BAR*==wget -qO /dev/null "http://88.167.175.47/ihome.php?action=on&device=A2" && say "Voila" #PRIVATE
+*ETEINS*BAR*==wget -qO /dev/null "http://88.167.175.47/ihome.php?action=off&device=A2" && say "Voila" #PRIVATE
+*ALLUME*VERANDA*==wget -qO /dev/null "http://88.167.175.47/ihome.php?action=on&device=A3" && say "Voila" #PRIVATE
+*ETEINS*VERANDA*==wget -qO /dev/null "http://88.167.175.47/ihome.php?action=off&device=A3" && say "Voila" #PRIVATE
