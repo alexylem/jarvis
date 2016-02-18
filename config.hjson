@@ -55,12 +55,19 @@
 			
 			Example of usage (all spoken):
 ```bash
-Alex: Hey Jarvis?
-  JARVIS: Yep?
-    Alex: Turn on the light please
-      JARVIS: Okay
-    Alex: Thank you
-      JARVIS: You're welcome
++----------------------------------------------+
+| >_ JARVIS - http://alexylem.github.io/jarvis |
+| by Alexandre Mély - alexandre.mely@gmail.com |
++----------------------------------------------+
+JARVIS: Good morning Alex # parametric welcome phrase
+JARVIS: Waiting to hear 'JARVIS' # always-on mode, magic word is JARVIS
+Alex: @--@@--BlahBlah-- # ignored background noise and discussions
+Alex: Hey Jarvis? # magic word has been heard
+JARVIS: Yes? # parametric magic word response, entering conversation mode
+Alex: Switch on the lights please # here is the order
+JARVIS: Okay # order recognized, executing coresponding command
+Alex: Thank you! # still in conversation mode (timeout is 10sec, or say "cancel", parametric too)
+JARVIS: You're welcome # order recognized, executing corresponding command
 ```
 			> You can customize Jarvis a lot: his name, how he reacts and what he can do.
 			'''
