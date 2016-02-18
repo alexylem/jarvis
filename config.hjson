@@ -86,6 +86,24 @@ Alex: Hey Jarvis?
 			> You can now also choose between Google Speech and PocketSphinx for speech recognition
 			- Translate if needed some JARVIS built-in sentences
 			
+			```bash
+			# how YOU want to be called
+# how YOU want to be called
+username=`whoami`
+# always listening for vocal input, false to wait for keyboard trigger
+# wait magic word to be said before to ask for command
+always_listening=true
+# magic word to be said
+trigger='JARVIS' # also update at top of jarvis-commands file
+# google speech api key http://stackoverflow.com/a/26833337
+google_speech_api_key="YOUR_GOOGLE_SPEECH_API_KEY"
+# language
+language="fr_FR" # en_EN for english
+# execute all matching commands (default only first match)
+all_matches=false
+...
+			```
+			
 			### `jarvis-commands` 
 
 			This is the place to define your own **custom commands**:
