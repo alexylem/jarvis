@@ -140,6 +140,7 @@ all_matches=false
 			  - `STT()`: function for speech recognition (to use another engine such as `sphinx`)
 			  > The default `STT()` function has both Google Speech & PocketSphinx implementations. You can choose which one should be used in your `jarvis-config.sh`.
 			  - `TTS()`: function that speaks text out loud (to use another engine such as `espeak`)
+			  > The default `TTS()` function has both Google Speech & Say (Mac OSX) implementations. It is automatically chosen based on your plateform.
 			  - `PLAY()`: function to play an audio file
 			'''
 		},{
