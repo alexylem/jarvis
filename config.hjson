@@ -55,7 +55,7 @@
 			
 			Example of usage (spoken) and console output:
 ```bash
-$> ./jarvis
+$> ./jarvis.sh
 +----------------------------------------------+
 | >_ JARVIS - http://alexylem.github.io/jarvis |
 | by Alexandre Mély - alexandre.mely@gmail.com |
