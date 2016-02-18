@@ -56,11 +56,16 @@
 			Example of usage (all spoken):
 ```
 Alex: Hey Jarvis?
-  JARVIS: Yep?
-    Alex: Turn on the light please
-      JARVIS: Okay
-    Alex: Thank you
-      JARVIS: You're welcome
+
+ JARVIS: Yep?
+  
+  Alex: Turn on the light please
+    
+   JARVIS: Okay
+      
+  Alex: Thank you
+    
+   JARVIS: You're welcome
 ```
 			> You can customize Jarvis a lot: his name, how he reacts and what he can do.
 			'''
@@ -199,7 +204,7 @@ Looks like we have a good match!
 I have `sudo apt-get install pocketsphinx` and updated my `jarvis-config.sh` accordingly:
 ```bash
 # choice of STT engine for magic word detection (google|pocketsphinx)
-trigger_stt=google
+trigger_stt=pocketsphinx
 # choice of STT engine for command detection (google|pocketsphinx)
 command_stt=google
 ```
