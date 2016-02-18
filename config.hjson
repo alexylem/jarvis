@@ -87,7 +87,6 @@ Alex: Hey Jarvis?
 			- Translate if needed some JARVIS built-in sentences
 			
 			```bash
-			# how YOU want to be called
 # how YOU want to be called
 username=`whoami`
 # always listening for vocal input, false to wait for keyboard trigger
@@ -198,7 +197,7 @@ Here is a new comparison table in this context:
 
 Looks like we have a good match!
 I have `sudo apt-get install pocketsphinx` and updated my `jarvis-config.sh` accordingly:
-```
+```bash
 # choice of STT engine for magic word detection (google|pocketsphinx)
 trigger_stt=google
 # choice of STT engine for command detection (google|pocketsphinx)
