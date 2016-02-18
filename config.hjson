@@ -66,9 +66,9 @@ Alex: @--@@--BlahBlah-- # ignored background noise and discussion
 Alex: Hey Jarvis? # magic word has been heard
 JARVIS: Yes? # parametric magic word response, entering conversation mode
 Alex: Switch on the lights please # here is the order
-JARVIS: Okay # order recognized, executing coresponding command
+JARVIS: Okay # order "*ON*LIGHT*" recognized, executing coresponding command: echo pl a1 on | nc localhost 1099
 Alex: Thank you! # still in conversation mode (timeout is 10sec, or say "cancel", parametric too)
-JARVIS: At your disposal # order recognized, executing corresponding command
+JARVIS: At your disposal # order "*THANK*" recognized, executing corresponding command: say "At your disposal"
 Alex: # 10 secs elapsed with no order
 JARVIS: Waiting to hear 'JARVIS' # end of conversation mode, magic word to be said again
 ```
