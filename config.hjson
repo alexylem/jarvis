@@ -180,13 +180,13 @@ The main offline alternative is `PocketSphinx` (`CMUSphinx for` embedded devices
 
 Here below is a quick comparison table between the two:
 
-|               | PocketSphinx                    | Google Speech API |
-|---------------|---------------------------------|-------------------|
-| Price         | :-) Free                        | :-( 50/day        | 
-| Privacy       | :-) Offline                     | :-( Online        | 
-| Vocabulary    | :-( Raspi can't handle much     | :-)               | 
-| Accuracy      | :-( But ok if small dictionary  | :-)               | 
-| Speed         | :-)                             | :-)               |
+|               | PocketSphinx                    | Google Speech API             |
+|---------------|---------------------------------|-------------------------------|
+| Price         | :-) Free                        | :-( limit 50 calls/day        | 
+| Privacy       | :-) Offline                     | :-( Online                    | 
+| Vocabulary    | :-( Raspi can't handle much     | :-)                           | 
+| Accuracy      | :-( But ok if small dictionary  | :-)                           | 
+| Speed         | :-)                             | :-)                           |
 
 Both have their pros & cons, and on my RaspberryPi B, the trasncription speed is more or less equal.
 However, the 50/day limit for `Google Speech API` can be a huge issue on a noisy (ex: Family) environment.
