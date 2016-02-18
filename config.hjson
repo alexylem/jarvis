@@ -54,18 +54,13 @@
 			It has few dependencies and uses online speech recognition & synthesis
 			
 			Example of usage (all spoken):
-```
+```bash
 Alex: Hey Jarvis?
-
- JARVIS: Yep?
-  
-  Alex: Turn on the light please
-    
-   JARVIS: Okay
-      
-  Alex: Thank you
-    
-   JARVIS: You're welcome
+  JARVIS: Yep?
+    Alex: Turn on the light please
+      JARVIS: Okay
+    Alex: Thank you
+      JARVIS: You're welcome
 ```
 			> You can customize Jarvis a lot: his name, how he reacts and what he can do.
 			'''
