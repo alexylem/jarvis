@@ -82,7 +82,7 @@ JARVIS: Waiting to hear 'JARVIS' # end of conversation mode, magic word to be sa
 			```
 			git clone https://github.com/alexylem/jarvis.git
 			cd jarvis/
-			./jarvis -i
+			./jarvis.sh -i
 			```
 			
 			The install process will:
