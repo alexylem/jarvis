@@ -78,8 +78,10 @@
 			'''
 		},{
 			title: "App flow"
-			text: "Here is an overview of the JARVIS flow and how main files are used."
-			image: "http://yuml.me/b239a149"
+			text: '''
+			Here is an overview of the JARVIS flow and how main files are used."
+			![JARVIS Flow](http://yuml.me/b239a149)
+			'''
 		},{
 			link: Install
 			id: install
