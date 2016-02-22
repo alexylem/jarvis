@@ -105,20 +105,20 @@
 			- Translate if needed some JARVIS built-in sentences
 			
 			```bash
-# how YOU want to be called
-username=`whoami`
-# always listening for vocal input, false to wait for keyboard trigger
-# wait magic word to be said before to ask for command
-always_listening=true
-# magic word to be said
-trigger='JARVIS' # also update at top of jarvis-commands file
-# google speech api key http://stackoverflow.com/a/26833337
-google_speech_api_key="YOUR_GOOGLE_SPEECH_API_KEY"
-# language
-language="fr_FR" # en_EN for english
-# execute all matching commands (default only first match)
-all_matches=false
-...
+			# how YOU want to be called
+			username=`whoami`
+			# always listening for vocal input, false to wait for keyboard trigger
+			# wait magic word to be said before to ask for command
+			always_listening=true
+			# magic word to be said
+			trigger='JARVIS' # also update at top of jarvis-commands file
+			# google speech api key http://stackoverflow.com/a/26833337
+			google_speech_api_key="YOUR_GOOGLE_SPEECH_API_KEY"
+			# language
+			language="fr_FR" # en_EN for english
+			# execute all matching commands (default only first match)
+			all_matches=false
+			...
 			```
 			
 			### `jarvis-commands` 
@@ -127,14 +127,14 @@ all_matches=false
 
 			```
 			*TEST*==say "It works!"
-			*HELLO*==say "Hello $username"
+			*HELLO*|*HI*==say "Hello $username"
 			*WHAT TIME*==say "It is `date +%H:%M`"
 			*TURN ON*KITCHEN*==echo "pl a1 on" | nc localhost 1099 && say "Done"
 			...
 			```
 			> Discover home automation with X10 & mochad on Raspberry Pi [here](http://www.domotiquefacile.fr/tous-les-tutoriaux/installation-x10-sur-un-raspberry-pi)
 
-			What is before `==` is the voice pattern to match, use `*` for any word
+			What is before `==` is the voice pattern to match, use `*` for any word and `|` for alternatives
 			
 			What is after `==` is the bash command to execute, you can also use the following variables and functions:
 			  - say "I'm going to speak this out loud"
@@ -163,20 +163,20 @@ all_matches=false
 
 			Advanced options:
 			```
-./jarvis.sh -h
-
-  Usage: jarvis.sh -flags
-	
-  -b	build (do not use)
-  -c	edit commands
-  -e	edit config
-  -h	display this help
-  -i	install (init & edit config files)
-  -k	read from keyboard instead of microphone
-  -q	do not speak answer (just console)
-  -r	uninstall (remove config files)
-  -u	update (from git & update config files)
-  -v	verbose & VU meter - recommended for first launch / troubleshooting
+			./jarvis.sh -h
+			
+			  Usage: jarvis.sh -flags
+				
+			  -b	build (do not use)
+			  -c	edit commands
+			  -e	edit config
+			  -h	display this help
+			  -i	install (init & edit config files)
+			  -k	read from keyboard instead of microphone
+			  -q	do not speak answer (just console)
+			  -r	uninstall (remove config files)
+			  -u	update (from git & update config files)
+			  -v	verbose & VU meter - recommended for first launch / troubleshooting
 			```
 			'''
 		},{
