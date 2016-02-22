@@ -251,7 +251,7 @@ while true; do
 				if $bypass; then
 					if [ -z "$duration" ]; then
 						$verbose && echo "DEBUG: timeout, end of hot conversation" || printf '.'
-						$DIR/beep-low.wav
+						PLAY $DIR/beep-low.wav
 						sleep 5 # sometimes mic still busy
 						bypass=false
 						order='' # clean previous order
