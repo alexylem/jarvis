@@ -1,10 +1,10 @@
 *JARVIS*==bypass=true; say "Oui?"
-*ANNULER*==bypass=false; say "Ok"
+ANNULE*|TERMINE*==bypass=false; say "Ok"
 *MERCI*==say "De rien"
 *AIDE*==cat jarvis-commands
 *COMMENT*APPELLE*==say "Je m'appelle $trigger"
-*BONJOUR*==say "Bonjour $username"
-*AU REVOIR*==say "Au revoir $username"; exit
+*BONJOUR*|*SALUT*==say "Bonjour $username"
+*AU REVOIR*|*BYE*==say "Au revoir $username"; exit
 *TEST*==say "Ca fonctionne!"
 *VERSION*==say "Je suis en version 0.1"
 *REPETE*==say "..."

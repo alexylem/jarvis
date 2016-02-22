@@ -135,6 +135,8 @@ while getopts ":$flags" o; do
 			updateconfig $DIR/jarvis-commands-default $DIR/jarvis-commands
 			sed -i.bak "s/play_hw=false/play_hw=$play_hw/" $DIR/jarvis-config.sh
 			sed -i.bak "s/rec_hw=false/rec_hw=$rec_hw/" $DIR/jarvis-config.sh
+			cp -i pocketsphinx-dictionary-default.dic pocketsphinx-dictionary.dic
+			cp -i pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel.lm
 			read -p "Press [Enter] to edit the config file. Please follow instructions."
 			nano $DIR/jarvis-config.sh
 			echo "Installation complete."
@@ -154,6 +156,8 @@ while getopts ":$flags" o; do
 			updateconfig jarvis-functions-default.sh jarvis-functions.sh
 			updateconfig jarvis-commands-default jarvis-commands
 			# rm *.old
+			cp -i pocketsphinx-dictionary-default.dic pocketsphinx-dictionary.dic
+			cp -i pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel.lm
 			exit;;
 		v)	verbose=true;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
@@ -198,14 +202,17 @@ say () { echo $trigger: $1; $quiet || TTS "$1"; }
 handlecommand() {
 	order=`echo $1 | iconv -f utf8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719	
 	while read line; do
-		pattern=${line%==*} # *MEANING*LIFE*==say 42 => *MEANING*LIFE*
-		if [[ $order == $pattern ]]; then # WHAT IS THE MEANING OF LIFE ? == *MEANING*LIFE*
-			action=${line#*==} # *MEANING*LIFE*==say 42 => say 42
-			action="${action/.../$order}"
-			$verbose && echo "$> $action"
-			eval "$action" || say "$command_failed"
-			$all_matches || return
-		fi
+		patterns=${line%==*} # *HELLO*|*GOOD*MORNING*==say Hi => *HELLO*|*GOOD*MORNING*
+		IFS='|' read -ra ARR <<< "$patterns" # *HELLO*|*GOOD*MORNING* => [*HELLO*, *GOOD*MORNING*]
+		for pattern in "${ARR[@]}"; do # *HELLO*
+			if [[ $order == $pattern ]]; then # HELLO THERE == *HELLO*
+				action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
+				action="${action/.../$order}"
+				$verbose && echo "$> $action"
+				eval "$action" || say "$command_failed"
+				$all_matches || return
+			fi
+		done
 	done < $DIR/jarvis-commands
 	say "$unknown_command: $order"
 }
@@ -244,20 +251,20 @@ while true; do
 				if $bypass; then
 					if [ -z "$duration" ]; then
 						$verbose && echo "DEBUG: timeout, end of hot conversation" || printf '.'
-						$verbose && PLAY $DIR/beep-low.wav
+						$DIR/beep-low.wav
 						sleep 5 # sometimes mic still busy
 						bypass=false
 						order='' # clean previous order
 						break 2
 					elif [ "$duration" -gt 40 ]; then
-						$verbose && echo "DEBUG: too long for a command (max 3 secs), ignoring..." || printf '#'
+						$verbose && echo "DEBUG: too long for a command (max 4 secs), ignoring..." || printf '#'
 						continue
 					else
 						break
 					fi
 				else
-					if [ "$duration" -lt 3 ]; then
-						$verbose && echo "DEBUG: too short for a trigger (min 0.5 max 1.5 sec), ignoring..." || printf '-'
+					if [ "$duration" -lt 2 ]; then
+						$verbose && echo "DEBUG: too short for a trigger (min 0.2 max 1.5 sec), ignoring..." || printf '-'
 						continue
 					elif [ "$duration" -gt 20 ]; then
 						$verbose && echo "DEBUG: too long for a trigger (min 0.5 max 1.5 sec), ignoring..." || printf '#'

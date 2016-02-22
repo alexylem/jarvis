@@ -1,5 +1,5 @@
 # how YOU want to be called
-username=`whoami`
+username="`whoami`"
 
 # always listening for vocal input, false to wait for keyboard trigger
 always_listening=true
@@ -52,9 +52,9 @@ trigger_stt=google
 command_stt=google
 
 # options for pocketsphinx (not enabled by default)
-dictionary="$DIR/dictionary.dic"
-language_model="$DIR/language_model.lm"
-pocketsphinxlog="/dev/null"
+dictionary="$DIR/pocketsphinx-dictionary.dic"
+language_model="$DIR/pocketsphinx-languagemodel.lm"
+pocketsphinxlog="/dev/null" # can get very big on long run
 
 # JARVIS spoken sentences to be translated
 hello=$(if [ $(date +%H) -lt 18 ]; then echo Bonjour; else echo Bonsoir; fi)

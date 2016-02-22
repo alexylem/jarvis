@@ -4,20 +4,16 @@
 
 # Installation
 
-- [X] check dependencies per platform
-- [X] mic & sound discovering
 - [ ] add to crontab @reboot - propose during install?
 
 # Update
 
-- [/] compare old and update to check if updateconf is needed (using .old?), then remove all .old
+- [X] compare old and update to check if updateconf is needed (using .old?), then remove all .old
+- [ ] automatic check of updates at launch + speak it?
 
 # Recognition
 
-- [X] check size: ok it grow starting noise detected
-- [X] need to only send when it's looking like trigger: duration based like < 2sec?
-- [X] use offline reco for trigger detection - sphinx?
-- [X] pocketsphing.log getting too bid (15M a day)
+- [/] low beep with timeout reached
 
 # Commands 
 
@@ -27,9 +23,19 @@
 	*GOOD*==say "glad to hear"
 	*BAD*==say "oh no..."
 ```
+- [/] add an OR operator
+- [ ] remind me to...
 
 # Execution
 
 - [X] check command return code and say if something went wrong
+
+# Planification
+
+- [ ] Add notification features such as mails, alarm, hour, easily configurable
+	crontab based? difficult to write but not more difficult than command pattern...
+	or DAILY at 9am (human writing into crontab) that keep crontab updated?
+	issue is how to use internal functions such as say of username?
+	say should be published outside and called via $DIR/say ? which sources jarvis-functions for TTS ?
 
 # Speak
