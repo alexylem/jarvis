@@ -245,14 +245,14 @@ while true; do
 			#$quiet || PLAY $DIR/beep-high.wav
 			while true; do
 				$bypass && timeout='settimeout 10' || timeout=''
-				$timeout LISTEN $audiofile
+				eval "$timeout LISTEN $audiofile"
 				duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
 				$verbose && echo "DEBUG: speech duration was $duration"
 				if $bypass; then
 					if [ -z "$duration" ]; then
 						$verbose && echo "DEBUG: timeout, end of hot conversation" || printf '.'
 						PLAY $DIR/beep-low.wav
-						sleep 5 # sometimes mic still busy
+						sleep 1 # BUG here despite timeout mic still busy can't rec again...
 						bypass=false
 						order='' # clean previous order
 						break 2
