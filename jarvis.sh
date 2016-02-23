@@ -67,14 +67,25 @@ EOF
 	fi
 }
 
+spinner(){ # call spinner $!
+	while kill -0 $1 2>/dev/null; do
+		for i in \| / - \\; do
+			printf '%c\b' $i
+			sleep .1
+		done
+	done
+}
+
 autoupdate () {
+	printf "Updating..."
 	cp jarvis-config-default.sh jarvis-config-default.sh.old
 	cp jarvis-functions-default.sh jarvis-functions-default.sh.old
 	cp jarvis-commands-default jarvis-commands-default.old
 	cp pocketsphinx-dictionary-default.dic pocketsphinx-dictionary-default.dic.old
 	cp pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel-default.lm.old
 	git reset --hard HEAD >/dev/null # override any local change
-	git pull >/dev/null
+	git pull >/dev/null &
+	spinner $!
 	updateconfig jarvis-config-default.sh jarvis-config.sh
 	updateconfig jarvis-functions-default.sh jarvis-functions.sh
 	updateconfig jarvis-commands-default jarvis-commands
@@ -145,7 +156,7 @@ EOF
 				read -p "Checking audio output, make sure your speakers are on and press [Enter]"
 				[ $play_hw ] && play_export="AUDIODEV=$play_hw AUDIODRIVER=alsa"
 				eval "$play_export play $testaudiofile"
-				read -p "Did you hear something? (y)es (n)o (r)etry: "
+				read -p "Did you hear something? (y)es (n)o (r)etry: " -n 1 -r
 				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
 				if [[ $REPLY =~ ^[Rr]$ ]]; then continue; fi
 				aplay -l
@@ -158,7 +169,7 @@ EOF
 				read -p "Checking audio input, make sure your microphone is on, press [Enter] and say something"
 				[ $rec_hw ] && rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa"
 				eval "$rec_export rec $audiofile trim 0 3; $play_export play $audiofile"
-				read -p "Did you hear yourself? (y)es (n)o (r)etry: "
+				read -p "Did you hear yourself? (y)es (n)o (r)etry: " -n 1 -r
 				echo # new line
 				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
 				if [[ $REPLY =~ ^[Rr]$ ]]; then continue; fi
@@ -210,15 +221,6 @@ if [[ "$just_say" != false ]]; then
 	exit
 fi
 
-spinner(){ # call spinner $!
-	while kill -0 $1 2>/dev/null; do
-		for i in \| / - \\; do
-			printf '%c\b' $i
-			sleep .1
-		done
-	done
-}
-
 # check for updates
 if "$check_updates"; then
 	printf "Checking for updates..."
@@ -231,9 +233,7 @@ if "$check_updates"; then
 			read -p "A new version of JARVIS is available, would you like to update? [Y/n] " -n 1 -r
 			echo    # (optional) move to a new line
 			if [[ $REPLY =~ ^[Yy]$ ]]; then
-			    echo "Updating..."
-				autoupdate &
-				spinner $!
+				autoupdate # has spinner inside
 				echo "Please restart JARVIS"
 				exit
 			fi
