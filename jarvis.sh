@@ -109,8 +109,8 @@ while getopts ":$flags" o; do
 			cp jarvis-functions.sh jarvis-functions-default.sh
 			cp jarvis-commands jarvis-commands-default
 			sed -i.old '/#PRIVATE/d' jarvis-commands-default
-			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
 			rm *.old
+			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
 			exit;;
 		c)	nano jarvis-commands; exit;;
 		e)	nano jarvis-config.sh; exit;;

@@ -7,8 +7,8 @@ jarvis-record.flac
 
 jarvis-functions.sh
 
-jarvis-commands-default.old
-
-jarvis-config-default.sh.old
-
 jarvis-record.wav
+
+pocketsphinx-dictionary.dic
+
+pocketsphinx-languagemodel.lm
