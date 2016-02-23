@@ -67,6 +67,23 @@ EOF
 	fi
 }
 
+autoupdate () {
+	cp jarvis-config-default.sh jarvis-config-default.sh.old
+	cp jarvis-functions-default.sh jarvis-functions-default.sh.old
+	cp jarvis-commands-default jarvis-commands-default.old
+	cp pocketsphinx-dictionary-default.dic pocketsphinx-dictionary-default.dic.old
+	cp pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel-default.lm.old
+	git reset --hard HEAD >/dev/null # override any local change
+	git pull >/dev/null
+	updateconfig jarvis-config-default.sh jarvis-config.sh
+	updateconfig jarvis-functions-default.sh jarvis-functions.sh
+	updateconfig jarvis-commands-default jarvis-commands
+	updateconfig pocketsphinx-dictionary-default.dic pocketsphinx-dictionary.dic
+	updateconfig pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel.lm
+	rm *.old
+	echo "Update completed"
+}
+
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR" # needed now for git used in automatic update
 audiofile="jarvis-record.wav"
@@ -153,20 +170,7 @@ while getopts ":$flags" o; do
 		r)	rm -i $audiofile jarvis-config.sh jarvis-commands; exit;;
 		s)	just_say=${OPTARG}
 			echo "to say: $just_say";;
-		u)	cd $DIR
-			cp jarvis-config-default.sh jarvis-config-default.sh.old
-			cp jarvis-functions-default.sh jarvis-functions-default.sh.old
-			cp jarvis-commands-default jarvis-commands-default.old
-			cp pocketsphinx-dictionary-default.dic pocketsphinx-dictionary-default.dic.old
-			cp pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel-default.lm.old
-			git reset --hard HEAD # override any local change
-			git pull
-			updateconfig jarvis-config-default.sh jarvis-config.sh
-			updateconfig jarvis-functions-default.sh jarvis-functions.sh
-			updateconfig jarvis-commands-default jarvis-commands
-			updateconfig pocketsphinx-dictionary-default.dic pocketsphinx-dictionary.dic
-			updateconfig pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel.lm
-			rm *.old
+		u)	autoupdate
 			exit;;
 		v)	verbose=true;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
@@ -211,7 +215,9 @@ if "$check_updates"; then
 			read -p "A new version of JARVIS is available, would you like to update? [Y/n] " -n 1 -r
 			echo    # (optional) move to a new line
 			if [[ $REPLY =~ ^[Yy]$ ]]; then
-			    exec $0 -u
+			    autoupdate
+				echo "Please restart JARVIS"
+				exit
 			fi
 			;;
 	esac
