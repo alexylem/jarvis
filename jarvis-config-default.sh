@@ -55,8 +55,8 @@ trigger_stt=google
 command_stt=google
 
 # options for pocketsphinx (not enabled by default)
-dictionary="$DIR/pocketsphinx-dictionary.dic"
-language_model="$DIR/pocketsphinx-languagemodel.lm"
+dictionary="pocketsphinx-dictionary.dic"
+language_model="pocketsphinx-languagemodel.lm"
 pocketsphinxlog="/dev/null" # can get very big on long run
 
 # JARVIS spoken sentences to be translated

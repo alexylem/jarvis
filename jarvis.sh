@@ -68,9 +68,10 @@ EOF
 }
 
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-audiofile="$DIR/jarvis-record.wav"
+cd "$DIR" # needed now for git used in automatic update
+audiofile="jarvis-record.wav"
 rm -f $audiofile # sometimes, when error, previous recording is played
-testaudiofile="$DIR/applause.wav"
+testaudiofile="applause.wav"
 shopt -s nocasematch # string comparison case insensitive
 
 # default flags, use options to change see jarvis.sh -h
@@ -85,15 +86,15 @@ just_say=false
 while getopts ":$flags" o; do
     case "${o}" in
 		a)	all_matches=true;;
-		b)	cp $DIR/jarvis-config.sh $DIR/jarvis-config-default.sh
+		b)	cp jarvis-config.sh jarvis-config-default.sh
 			sed -i.old -E 's/(google_speech_api_key=").*(")/\1YOUR_GOOGLE_SPEECH_API_KEY\2/' jarvis-config-default.sh
-			cp $DIR/jarvis-functions.sh $DIR/jarvis-functions-default.sh
-			cp $DIR/jarvis-commands $DIR/jarvis-commands-default
+			cp jarvis-functions.sh jarvis-functions-default.sh
+			cp jarvis-commands jarvis-commands-default
 			sed -i.old '/#PRIVATE/d' jarvis-commands-default
 			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
 			exit;;
-		c)	nano $DIR/jarvis-commands; exit;;
-		e)	nano $DIR/jarvis-config.sh; exit;;
+		c)	nano jarvis-commands; exit;;
+		e)	nano jarvis-config.sh; exit;;
 		h)	show_help; exit;;
 		i)	echo "Checking dependencies:"
 			missing=false
@@ -132,22 +133,22 @@ while getopts ":$flags" o; do
 				read -p "Indicate the device # to use [0-9]: " device
 				rec_hw="hw:$card,$device"
 			done
-			updateconfig $DIR/jarvis-config-default.sh $DIR/jarvis-config.sh
-			updateconfig $DIR/jarvis-functions-default.sh $DIR/jarvis-functions.sh
-			updateconfig $DIR/jarvis-commands-default $DIR/jarvis-commands
-			sed -i.bak "s/play_hw=false/play_hw=$play_hw/" $DIR/jarvis-config.sh
-			sed -i.bak "s/rec_hw=false/rec_hw=$rec_hw/" $DIR/jarvis-config.sh
-			updateconfig $DIR/pocketsphinx-dictionary-default.dic   $DIR/pocketsphinx-dictionary.dic
-			updateconfig $DIR/pocketsphinx-languagemodel-default.lm $DIR/pocketsphinx-languagemodel.lm
+			updateconfig jarvis-config-default.sh jarvis-config.sh
+			updateconfig jarvis-functions-default.sh jarvis-functions.sh
+			updateconfig jarvis-commands-default jarvis-commands
+			sed -i.bak "s/play_hw=false/play_hw=$play_hw/" jarvis-config.sh
+			sed -i.bak "s/rec_hw=false/rec_hw=$rec_hw/" jarvis-config.sh
+			updateconfig pocketsphinx-dictionary-default.dic   pocketsphinx-dictionary.dic
+			updateconfig pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel.lm
 			read -p "Press [Enter] to edit the config file. Please follow instructions."
-			nano $DIR/jarvis-config.sh
+			nano jarvis-config.sh
 			echo "Installation complete."
 			echo "It is recommended for the first time to run Jarvis in verbose mode:"
 			echo "	./jarvis -v"
 			exit;;
         k)	keyboard=true;;
 		q)	quiet=true;;
-		r)	rm -i $audiofile $DIR/jarvis-config.sh $DIR/jarvis-commands; exit;;
+		r)	rm -i $audiofile jarvis-config.sh jarvis-commands; exit;;
 		s)	just_say=${OPTARG}
 			echo "to say: $just_say";;
 		u)	cd $DIR
@@ -171,12 +172,12 @@ while getopts ":$flags" o; do
 done
 
 # Load config file
-if [ ! -f $DIR/jarvis-config.sh ]; then
+if [ ! -f jarvis-config.sh ]; then
 	echo "Missing config file. Install with command $>./jarvis -i" 1>&2
 	exit 1
 fi
-source $DIR/jarvis-config.sh
-source $DIR/jarvis-functions.sh
+source jarvis-config.sh
+source jarvis-functions.sh
 
 # say wrapper to be used in jarvis-commands
 say () { echo $trigger: $1; $quiet || TTS "$1"; }
@@ -187,18 +188,30 @@ if [[ "$just_say" != false ]]; then
 	exit
 fi
 
+spinner(){ # call spinner $!
+	while kill -0 $1 2>/dev/null; do
+		for i in \| / - \\; do
+			printf '%c\b' $i
+			sleep .1
+		done
+	done
+}
+
 # check for updates
 if "$check_updates"; then
-	$verbose && echo "DEBUG: Checking if new version if JARVIS is available..."
-	case `git fetch origin && git rev-list HEAD...origin/master --count || echo e` in
-	"e") echo -e "\033[31mERROR: An error has occured while trying to git fetch origin\033[0m";;
-	"0") $verbose && echo "DEBUG: Your version of JARVIS is up-to-date";;
-	*)	read -p "A new version of JARVIS is available, would you like to update? [Y/n] " -n 1 -r
-		echo    # (optional) move to a new line
-		if [[ $REPLY =~ ^[Yy]$ ]]; then
-		    exec $0 -u
-		fi
-		;;
+	printf "Checking for updates..."
+	git fetch origin >/dev/null 2>&1 &
+	spinner $!
+	case `git rev-list HEAD...origin/master --count 2>/dev/null || echo e` in
+		"e") echo -e "[\033[31mError\033[0m]";;
+		"0") echo -e "[\033[32mUp-to-date\033[0m]";;
+		*)	echo -e "[\033[33mNew version available\033[0m]"
+			read -p "A new version of JARVIS is available, would you like to update? [Y/n] " -n 1 -r
+			echo    # (optional) move to a new line
+			if [[ $REPLY =~ ^[Yy]$ ]]; then
+			    exec $0 -u
+			fi
+			;;
 	esac
 fi
 
@@ -240,17 +253,8 @@ handlecommand() {
 				$all_matches || return
 			fi
 		done
-	done < $DIR/jarvis-commands
+	done < jarvis-commands
 	say "$unknown_command: $order"
-}
-
-spinner(){ # call spinner $!
-	while kill -0 $1 2>/dev/null; do
-		for i in \| / - \\; do
-			printf '%c\b' $i
-			sleep .1
-		done
-	done
 }
 
 say "$hello $username"
@@ -267,9 +271,9 @@ while true; do
 		fi
 		$trigger_mode && ! $bypass && echo "$trigger: Waiting to hear '$trigger'"
 		printf "$username: "
-		$quiet || PLAY $DIR/beep-high.wav
+		$quiet || PLAY beep-high.wav
 		while true; do
-			#$quiet || PLAY $DIR/beep-high.wav
+			#$quiet || PLAY beep-high.wav
 			while true; do
 				$bypass && timeout='settimeout 10' || timeout=''
 				eval "$timeout LISTEN $audiofile"
@@ -278,7 +282,7 @@ while true; do
 				if $bypass; then
 					if [ -z "$duration" ]; then
 						$verbose && echo "DEBUG: timeout, end of hot conversation" || printf '.'
-						PLAY $DIR/beep-low.wav
+						PLAY beep-low.wav
 						sleep 1 # BUG here despite timeout mic still busy can't rec again...
 						bypass=false
 						order='' # clean previous order
@@ -301,7 +305,7 @@ while true; do
 					fi
 				fi
 			done
-			$verbose && PLAY $DIR/beep-low.wav
+			$verbose && PLAY beep-low.wav
 			$verbose && PLAY "$audiofile"
 			STT "$audiofile" &
 			spinner $!
@@ -311,7 +315,7 @@ while true; do
 			if ! $trigger_mode || $bypass || [[ "$order" == *$trigger* ]]; then
 				break
 			fi
-			$verbose && PLAY $DIR/beep-error.wav
+			$verbose && PLAY beep-error.wav
 		done
 		echo # new line
 	fi
