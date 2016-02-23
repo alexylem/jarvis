@@ -86,7 +86,7 @@ autoupdate () {
 	git reset --hard HEAD >/dev/null # override any local change
 	git pull >/dev/null &
 	spinner $!
-	echo
+	echo " " # remove spinner
 	updateconfig jarvis-config-default.sh jarvis-config.sh
 	updateconfig jarvis-functions-default.sh jarvis-functions.sh
 	updateconfig jarvis-commands-default jarvis-commands
