@@ -220,7 +220,7 @@ fi
 # check for updates
 if "$check_updates"; then
 	printf "Checking for updates..."
-	git fetch origin >/dev/null &
+	git fetch origin -q &
 	spinner $!
 	case `git rev-list HEAD...origin/master --count || echo e` in
 		"e") echo -e "[\033[31mError\033[0m]";;
