@@ -88,10 +88,12 @@ while getopts ":$flags" o; do
 		a)	all_matches=true;;
 		b)	cp jarvis-config.sh jarvis-config-default.sh
 			sed -i.old -E 's/(google_speech_api_key=").*(")/\1YOUR_GOOGLE_SPEECH_API_KEY\2/' jarvis-config-default.sh
+			sed -i.old -E 's/check_updates=false/check_updates=true/' jarvis-config-default.sh
 			cp jarvis-functions.sh jarvis-functions-default.sh
 			cp jarvis-commands jarvis-commands-default
 			sed -i.old '/#PRIVATE/d' jarvis-commands-default
 			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
+			rm *.old
 			exit;;
 		c)	nano jarvis-commands; exit;;
 		e)	nano jarvis-config.sh; exit;;
@@ -200,9 +202,9 @@ spinner(){ # call spinner $!
 # check for updates
 if "$check_updates"; then
 	printf "Checking for updates..."
-	git fetch origin >/dev/null 2>&1 &
+	git fetch origin >/dev/null &
 	spinner $!
-	case `git rev-list HEAD...origin/master --count 2>/dev/null || echo e` in
+	case `git rev-list HEAD...origin/master --count || echo e` in
 		"e") echo -e "[\033[31mError\033[0m]";;
 		"0") echo -e "[\033[32mUp-to-date\033[0m]";;
 		*)	echo -e "[\033[33mNew version available\033[0m]"
