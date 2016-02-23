@@ -55,7 +55,7 @@ Enter (l)eft to choose the left version (default file)
 Enter (r)ight to choose the right version (your file)
 If you are not sure, choose (l)eft
 EOF
-								sdiff -w 80 -o $2.merged $1 $2
+								sdiff -s -w 80 -o $2.merged $1 $2
 								mv $2.merged $2
 								break;;
 					3 ) break;;
@@ -137,8 +137,8 @@ while getopts ":$flags" o; do
 			updateconfig $DIR/jarvis-commands-default $DIR/jarvis-commands
 			sed -i.bak "s/play_hw=false/play_hw=$play_hw/" $DIR/jarvis-config.sh
 			sed -i.bak "s/rec_hw=false/rec_hw=$rec_hw/" $DIR/jarvis-config.sh
-			cp -i pocketsphinx-dictionary-default.dic pocketsphinx-dictionary.dic
-			cp -i pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel.lm
+			updateconfig $DIR/pocketsphinx-dictionary-default.dic   $DIR/pocketsphinx-dictionary.dic
+			updateconfig $DIR/pocketsphinx-languagemodel-default.lm $DIR/pocketsphinx-languagemodel.lm
 			read -p "Press [Enter] to edit the config file. Please follow instructions."
 			nano $DIR/jarvis-config.sh
 			echo "Installation complete."
@@ -154,14 +154,16 @@ while getopts ":$flags" o; do
 			cp jarvis-config-default.sh jarvis-config-default.sh.old
 			cp jarvis-functions-default.sh jarvis-functions-default.sh.old
 			cp jarvis-commands-default jarvis-commands-default.old
+			cp pocketsphinx-dictionary-default.dic pocketsphinx-dictionary-default.dic.old
+			cp pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel-default.lm.old
 			git reset --hard HEAD # override any local change
 			git pull
 			updateconfig jarvis-config-default.sh jarvis-config.sh
 			updateconfig jarvis-functions-default.sh jarvis-functions.sh
 			updateconfig jarvis-commands-default jarvis-commands
-			# rm *.old
-			cp -i pocketsphinx-dictionary-default.dic pocketsphinx-dictionary.dic
-			cp -i pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel.lm
+			updateconfig pocketsphinx-dictionary-default.dic pocketsphinx-dictionary.dic
+			updateconfig pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel.lm
+			rm *.old
 			exit;;
 		v)	verbose=true;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
