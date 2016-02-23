@@ -5,7 +5,7 @@ cat << EOF
 | by Alexandre Mély - alexandre.mely@gmail.com |
 +----------------------------------------------+
 EOF
-flags='bcehikqruv'
+flags='bcehikqrs:uv'
 show_help () { cat << EOF
 	
 	Usage: ${0##*/} [-$flags]
@@ -22,6 +22,7 @@ show_help () { cat << EOF
 	-k	read from keyboard instead of microphone
 	-q	do not speak answer (just console)
 	-r	uninstall (remove config files)
+	-s	just say something, ex: ${0##*/} -s "hello world"
 	-u	update (git pull)
 	-v	verbose & VU meter - recommended for first launch / troubleshooting
 
@@ -80,6 +81,7 @@ play_hw=false
 play_export=''
 rec_hw=false
 rec_export=''
+just_say=false
 while getopts ":$flags" o; do
     case "${o}" in
 		a)	all_matches=true;;
@@ -146,6 +148,8 @@ while getopts ":$flags" o; do
         k)	keyboard=true;;
 		q)	quiet=true;;
 		r)	rm -i $audiofile $DIR/jarvis-config.sh $DIR/jarvis-commands; exit;;
+		s)	just_say=${OPTARG}
+			echo "to say: $just_say";;
 		u)	cd $DIR
 			cp jarvis-config-default.sh jarvis-config-default.sh.old
 			cp jarvis-functions-default.sh jarvis-functions-default.sh.old
@@ -163,6 +167,38 @@ while getopts ":$flags" o; do
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
     esac
 done
+
+# Load config file
+if [ ! -f $DIR/jarvis-config.sh ]; then
+	echo "Missing config file. Install with command $>./jarvis -i" 1>&2
+	exit 1
+fi
+source $DIR/jarvis-config.sh
+source $DIR/jarvis-functions.sh
+
+# say wrapper to be used in jarvis-commands
+say () { echo $trigger: $1; $quiet || TTS "$1"; }
+
+# if -s argument provided, just say it & exit (used in jarvis-events)
+if [[ "$just_say" != false ]]; then
+	say "$just_say"
+	exit
+fi
+
+# check for updates
+if "$check_updates"; then
+	$verbose && echo "DEBUG: Checking if new version if JARVIS is available..."
+	case `git fetch origin && git rev-list HEAD...origin/master --count || echo e` in
+	"e") echo -e "\033[31mERROR: An error has occured while trying to git fetch origin\033[0m";;
+	"0") $verbose && echo "DEBUG: Your version of JARVIS is up-to-date";;
+	*)	read -p "A new version of JARVIS is available, would you like to update? [Y/n] " -n 1 -r
+		echo    # (optional) move to a new line
+		if [[ $REPLY =~ ^[Yy]$ ]]; then
+		    exec $0 -u
+		fi
+		;;
+	esac
+fi
 
 rawurlencode() {
   local string="${1}"
@@ -187,17 +223,6 @@ settimeout () { # usage settimeout 10 command args
 	( sleep $timeout && kill -HUP $pid ) 2>/dev/null & watcher=$!
 	wait $pid 2>/dev/null && pkill -HUP -P $watcher
 }
-
-# Load config file
-if [ ! -f $DIR/jarvis-config.sh ]; then
-	echo "Missing config file. Install with command $>./jarvis -i" 1>&2
-	exit 1
-fi
-source $DIR/jarvis-config.sh
-source $DIR/jarvis-functions.sh
-
-# say wrapper to be used in jarvis-commands
-say () { echo $trigger: $1; $quiet || TTS "$1"; }
 
 handlecommand() {
 	order=`echo $1 | iconv -f utf8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719	

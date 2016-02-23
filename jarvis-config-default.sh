@@ -34,6 +34,9 @@ language="fr_FR" # en_EN for english
 # execute all matching commands (default only first match)
 all_matches=false
 
+# check updates on startup (needs git)
+check_updates=true
+
 # hw:X,X of speakers, false for default
 play_hw=false
 # hw:X,X of microhpone, false for default
