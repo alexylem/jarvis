@@ -128,8 +128,18 @@ while getopts ":$flags" o; do
 					missing=true
 				fi
 		  	done
-			$missing && read -p "WARNING: You may want to install missing dependencies based on your plateform"
+			$missing && read -p "WARNING: You may want to install missing dependencies before going further"
+			clear
+			cat << EOF
+Before testing your audio devices, we need to make sure the levels are correctly set
+	1) Alsamixer will be opened after you press [Enter]
+	2) use [Tab] to select Capture devices
+	3) use [Arrows] to select Mic and raise volume to maximum
+	4) hit [Esc] when you are done
+EOF
+			read
 			while true; do
+				clear
 				read -p "Checking audio output, make sure your speakers are on and press [Enter]"
 				[ $play_hw ] && play_export="AUDIODEV=$play_hw AUDIODRIVER=alsa"
 				eval "$play_export play $testaudiofile"
@@ -142,6 +152,7 @@ while getopts ":$flags" o; do
 				play_hw="hw:$card,$device"
 			done
 			while true; do
+				clear
 				read -p "Checking audio input, make sure your microphone is on, press [Enter] and say something"
 				[ $rec_hw ] && rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa"
 				eval "$rec_export rec $audiofile trim 0 3; $play_export play $audiofile"
@@ -154,6 +165,7 @@ while getopts ":$flags" o; do
 				read -p "Indicate the device # to use [0-9]: " device
 				rec_hw="hw:$card,$device"
 			done
+			clear
 			updateconfig jarvis-config-default.sh jarvis-config.sh
 			updateconfig jarvis-functions-default.sh jarvis-functions.sh
 			updateconfig jarvis-commands-default jarvis-commands
