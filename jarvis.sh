@@ -35,7 +35,7 @@ if [ "$(uname)" == "Darwin" ]; then
 	forder="/tmp/jarvis-order"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 	platform="linux"
-	dependencies=(aplay arecord awk git iconv mpg123 nano perl sed sox wget)
+	dependencies=(alsamixer aplay arecord awk git iconv mpg123 nano perl sed sox wget)
 	forder="/dev/shm/jarvis-order"
 else
 	echo "Unsupported platform"; exit 1
@@ -128,7 +128,8 @@ while getopts ":$flags" o; do
 					missing=true
 				fi
 		  	done
-			$missing && read -p "WARNING: You may want to install missing dependencies before going further"
+			$missing && echo "WARNING: You may want to install missing dependencies before going further"
+			read -p "Press [Enter] to continue"
 			clear
 			cat << EOF
 Before testing your audio devices, we need to make sure the levels are correctly set
@@ -138,6 +139,7 @@ Before testing your audio devices, we need to make sure the levels are correctly
 	4) hit [Esc] when you are done
 EOF
 			read
+			alsamixer
 			while true; do
 				clear
 				read -p "Checking audio output, make sure your speakers are on and press [Enter]"
@@ -222,14 +224,16 @@ if "$check_updates"; then
 	printf "Checking for updates..."
 	git fetch origin >/dev/null &
 	spinner $!
-	case `git rev-list HEAD...origin/master --count || echo e` in
+	case `git rev-list HEAD...origin/master --count >/dev/null || echo e` in
 		"e") echo -e "[\033[31mError\033[0m]";;
 		"0") echo -e "[\033[32mUp-to-date\033[0m]";;
 		*)	echo -e "[\033[33mNew version available\033[0m]"
 			read -p "A new version of JARVIS is available, would you like to update? [Y/n] " -n 1 -r
 			echo    # (optional) move to a new line
 			if [[ $REPLY =~ ^[Yy]$ ]]; then
-			    autoupdate
+			    echo "Updating..."
+				autoupdate &
+				spinner $!
 				echo "Please restart JARVIS"
 				exit
 			fi
