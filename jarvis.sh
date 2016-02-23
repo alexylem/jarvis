@@ -86,6 +86,7 @@ autoupdate () {
 	git reset --hard HEAD >/dev/null # override any local change
 	git pull >/dev/null &
 	spinner $!
+	echo
 	updateconfig jarvis-config-default.sh jarvis-config.sh
 	updateconfig jarvis-functions-default.sh jarvis-functions.sh
 	updateconfig jarvis-commands-default jarvis-commands
@@ -226,7 +227,7 @@ if "$check_updates"; then
 	printf "Checking for updates..."
 	git fetch origin >/dev/null &
 	spinner $!
-	case `git rev-list HEAD...origin/master --count >/dev/null || echo e` in
+	case `git rev-list HEAD...origin/master --count || echo e` in
 		"e") echo -e "[\033[31mError\033[0m]";;
 		"0") echo -e "[\033[32mUp-to-date\033[0m]";;
 		*)	echo -e "[\033[33mNew version available\033[0m]"
