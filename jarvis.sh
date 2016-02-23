@@ -109,6 +109,8 @@ while getopts ":$flags" o; do
 			cp jarvis-functions.sh jarvis-functions-default.sh
 			cp jarvis-commands jarvis-commands-default
 			sed -i.old '/#PRIVATE/d' jarvis-commands-default
+			cp pocketsphinx-dictionary.dic pocketsphinx-dictionary-default.dic
+			cp pocketsphinx-languagemodel.lm pocketsphinx-languagemodel-default.lm
 			rm *.old
 			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
 			exit;;
