@@ -136,7 +136,7 @@ while getopts ":$flags" o; do
 			echo "	crontab -l"
 			echo "If you already have crontab rules defined, add them to JARVIS events:"
 			echo "	crontab -l >> jarvis-events"
-			read "Press [Enter] to start editing Event Rules"
+			read -p "Press [Enter] to start editing Event Rules"
 			nano jarvis-events
 			crontab jarvis-events -i; exit;;
 		f)	nano jarvis-config.sh; exit;;
