@@ -5,7 +5,7 @@ cat << EOF
 | by Alexandre Mély - alexandre.mely@gmail.com |
 +----------------------------------------------+
 EOF
-flags='bcehikqrs:uv'
+flags='bcefhikpqrs:uv'
 show_help () { cat << EOF
 	
 	Usage: ${0##*/} [-$flags]
@@ -16,10 +16,12 @@ show_help () { cat << EOF
 	
 	-b	build (do not use)
 	-c	edit commands
-	-e	edit config
+	-e	edit events
+	-f	edit config
 	-h	display this help
 	-i	install (check dependencies & init config files)
 	-k	read from keyboard instead of microphone
+	-p	report a problem
 	-q	do not speak answer (just console)
 	-r	uninstall (remove config files)
 	-s	just say something, ex: ${0##*/} -s "hello world"
@@ -81,6 +83,7 @@ autoupdate () {
 	cp jarvis-config-default.sh jarvis-config-default.sh.old
 	cp jarvis-functions-default.sh jarvis-functions-default.sh.old
 	cp jarvis-commands-default jarvis-commands-default.old
+	cp jarvis-events-default jarvis-events-default.old
 	cp pocketsphinx-dictionary-default.dic pocketsphinx-dictionary-default.dic.old
 	cp pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel-default.lm.old
 	git reset --hard HEAD >/dev/null # override any local change
@@ -90,6 +93,7 @@ autoupdate () {
 	updateconfig jarvis-config-default.sh jarvis-config.sh
 	updateconfig jarvis-functions-default.sh jarvis-functions.sh
 	updateconfig jarvis-commands-default jarvis-commands
+	updateconfig jarvis-events-default jarvis-events
 	updateconfig pocketsphinx-dictionary-default.dic pocketsphinx-dictionary.dic
 	updateconfig pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel.lm
 	rm *.old
@@ -127,7 +131,15 @@ while getopts ":$flags" o; do
 			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
 			exit;;
 		c)	nano jarvis-commands; exit;;
-		e)	nano jarvis-config.sh; exit;;
+		e)	echo "WARNING: JARVIS currently uses Crontab to schedule monitoring & notifications"
+			echo "This will erase crontab entries you may already have, check with:"
+			echo "	crontab -l"
+			echo "If you already have crontab rules defined, add them to JARVIS events:"
+			echo "	crontab -l >> jarvis-events"
+			read "Press [Enter] to start editing Event Rules"
+			nano jarvis-events
+			crontab jarvis-events -i; exit;;
+		f)	nano jarvis-config.sh; exit;;
 		h)	show_help; exit;;
 		i)	echo "Checking dependencies:"
 			missing=false
@@ -175,20 +187,32 @@ while getopts ":$flags" o; do
 			read
 			alsamixer -c $card -V capture
 			clear
-			updateconfig jarvis-config-default.sh jarvis-config.sh
-			updateconfig jarvis-functions-default.sh jarvis-functions.sh
-			updateconfig jarvis-commands-default jarvis-commands
-			sed -i.bak "s/play_hw=false/play_hw=$play_hw/" jarvis-config.sh
-			sed -i.bak "s/rec_hw=false/rec_hw=$rec_hw/" jarvis-config.sh
-			updateconfig pocketsphinx-dictionary-default.dic   pocketsphinx-dictionary.dic
-			updateconfig pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel.lm
+			autoupdate
+			sed -i.old "s/play_hw=false/play_hw=$play_hw/" jarvis-config.sh
+			sed -i.old "s/rec_hw=false/rec_hw=$rec_hw/" jarvis-config.sh
 			read -p "Press [Enter] to edit the config file. Please follow instructions."
 			nano jarvis-config.sh
-			echo "Installation complete."
-			echo "It is recommended for the first time to run Jarvis in verbose mode:"
-			echo "	./jarvis -v"
+			cat << EOF
+Installation complete.
+What to do now?
+
+Personalize JARVIS:
+	./jarvis.sh -f
+		to edit again the config file
+	./jarvis.sh -c
+		to edit what JARVIS can understand and execute
+	./jarvis.sh -e
+		to edit what JARVIS monitors and notifies you about
+
+Start JARVIS
+	./jarvis.sh -v
+		It is recommended to add -v (verbose) for the first execution
+EOF
 			exit;;
         k)	keyboard=true;;
+		p)	echo "Create an issue on GitHub"
+			echo "https://github.com/alexylem/jarvis/issues/new"
+			exit;;
 		q)	quiet=true;;
 		r)	rm -i $audiofile jarvis-config.sh jarvis-commands; exit;;
 		s)	just_say=${OPTARG}

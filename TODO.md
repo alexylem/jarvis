@@ -41,4 +41,6 @@
 	issue is how to use internal functions such as say or username?
 	say should be published outside and called via $DIR/say ? which sources jarvis-functions for TTS ?
 
-# Speak
+# Other
+
+- [ ] Automate inclusion of log in bug report & create issue on GitHub
