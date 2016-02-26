@@ -159,7 +159,7 @@ while getopts ":$flags" o; do
 				read -p "Checking audio output, make sure your speakers are on and press [Enter]"
 				[ $play_hw ] && play_export="AUDIODEV=$play_hw AUDIODRIVER=alsa"
 				eval "$play_export play $testaudiofile"
-				read -p "Did you hear something? (y)es (n)o (r)etry: " -n 1 -r
+				read -p "Did you hear something? (y)es (n)o or error (r)etry: " -n 1 -r
 				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
 				if [[ $REPLY =~ ^[Rr]$ ]]; then continue; fi
 				clear
@@ -173,7 +173,7 @@ while getopts ":$flags" o; do
 				read -p "Checking audio input, make sure your microphone is on, press [Enter] and say something"
 				[ $rec_hw ] && rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa"
 				eval "$rec_export rec $audiofile trim 0 3; $play_export play $audiofile"
-				read -p "Did you hear yourself? (y)es (n)o (r)etry: " -n 1 -r
+				read -p "Did you hear yourself? (y)es (n)o or error (r)etry: " -n 1 -r
 				echo # new line
 				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
 				if [[ $REPLY =~ ^[Rr]$ ]]; then continue; fi
@@ -192,6 +192,7 @@ while getopts ":$flags" o; do
 			autoupdate
 			sed -i.old "s/play_hw=false/play_hw=$play_hw/" jarvis-config.sh
 			sed -i.old "s/rec_hw=false/rec_hw=$rec_hw/" jarvis-config.sh
+			clear
 			read -p "Press [Enter] to edit the config file. Please follow instructions."
 			nano jarvis-config.sh
 			clear

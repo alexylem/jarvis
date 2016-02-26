@@ -28,3 +28,4 @@
 #	@reboot									~/jarvis/jarvis.sh 2>/dev/null
 #	0		7-21	*		*		*		~/jarvis/jarvis.sh -s "Il est `date +\%_H` heures"
 #	1		7-21	*		*		*		nb=`curl -u username:password --silent "https://mail.google.com/mail/feed/atom" | sed -n "s/.*<fullcount>\(.*\)<\/fullcount>.*/\1/p"`; [ $nb -ne 0 ] && ~/jarvis/jarvis.sh -s "Alex, vous avez $nb emails non lus"
+#	@midnight								wget -qO /dev/null "http://mywebsite.com/backup"
