@@ -153,6 +153,7 @@ while getopts ":$flags" o; do
 				fi
 		  	done
 			$missing && echo "WARNING: You may want to install missing dependencies before going further"
+			read -p "Press [Enter] to continue"
 			while true; do
 				clear
 				read -p "Checking audio output, make sure your speakers are on and press [Enter]"
