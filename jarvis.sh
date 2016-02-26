@@ -1,4 +1,5 @@
 #!/bin/bash
+clear
 cat << EOF
 +----------------------------------------------+
 | >_ JARVIS - http://alexylem.github.io/jarvis |
