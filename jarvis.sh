@@ -53,11 +53,13 @@ updateconfig () { # usage updateconfig default-file ($1) user-file ($2)
 						break;;
 					2 )	cat << EOF
 Differences will now be displayed betweeen the two files for you to decide
+Hint: increase your console width for easier comparison
 Enter (l)eft to choose the left version (default file)
 Enter (r)ight to choose the right version (your file)
 If you are not sure, choose (l)eft
 EOF
-								sdiff -s -w 80 -o $2.merged $1 $2
+								read -p "Press [Enter] to start"
+								sdiff -s -w `tput cols` -o $2.merged $1 $2
 								mv $2.merged $2
 								break;;
 					3 ) break;;
