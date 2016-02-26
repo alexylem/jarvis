@@ -60,6 +60,7 @@ Enter (r)ight to choose the right version (your file)
 If you are not sure, choose (l)eft
 EOF
 								read -p "Press [Enter] to start"
+                                tabs 2 # sdiff --tabsize=2 not working
 								sdiff -s -w `tput cols` -o $2.merged $1 $2
 								mv $2.merged $2
 								break;;

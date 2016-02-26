@@ -7,16 +7,16 @@ always_listening=true
 # wait magic word to be said before to ask for command
 # need always_listening to be true
 # ex:
-#	(waiting for magic word to be said)
-#	you: Hey JARVIS?
-#		JARVIS: Yes?
-#			(discussion mode)
-#			you: Open the door
-#				JARVIS: Okay
-#			you: Thanks
-#				JARVIS: You're welcome
-#			(> 10secs)
-#	(need to say magic word again)
+#    (waiting for magic word to be said)
+#    you: Hey JARVIS?
+#        JARVIS: Yes?
+#            (discussion mode)
+#            you: Open the door
+#                JARVIS: Okay
+#            you: Thanks
+#                JARVIS: You're welcome
+#            (> 10secs)
+#    (need to say magic word again)
 trigger_mode=true
 
 # if trigger_mode is true, magic word to be said
