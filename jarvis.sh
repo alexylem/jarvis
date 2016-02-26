@@ -162,6 +162,7 @@ while getopts ":$flags" o; do
 				read -p "Did you hear something? (y)es (n)o (r)etry: " -n 1 -r
 				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
 				if [[ $REPLY =~ ^[Rr]$ ]]; then continue; fi
+				clear
 				aplay -l
 				read -p "Indicate the card # to use [0-9]: " card
 				read -p "Indicate the device # to use [0-9]: " device
@@ -176,12 +177,12 @@ while getopts ":$flags" o; do
 				echo # new line
 				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
 				if [[ $REPLY =~ ^[Rr]$ ]]; then continue; fi
+				clear
 				arecord -l
 				read -p "Indicate the card # to use [0-9]: " card
 				read -p "Indicate the device # to use [0-9]: " device
 				rec_hw="hw:$card,$device"
 			done
-			read -p "Press [Enter] to continue"
 			clear
 			echo "We want to make sure the mic level is high enough"
 			echo "Hit [Enter] and use [Arrows] to select Mic and raise volume to maximum"
@@ -193,6 +194,7 @@ while getopts ":$flags" o; do
 			sed -i.old "s/rec_hw=false/rec_hw=$rec_hw/" jarvis-config.sh
 			read -p "Press [Enter] to edit the config file. Please follow instructions."
 			nano jarvis-config.sh
+			clear
 			cat << EOF
 Installation complete.
 What to do now?
