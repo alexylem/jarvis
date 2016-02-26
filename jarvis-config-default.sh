@@ -61,5 +61,5 @@ pocketsphinxlog="/dev/null" # can get very big on long run
 
 # JARVIS spoken sentences to be translated
 hello=$(if [ $(date +%H) -lt 18 ]; then echo Bonjour; else echo Bonsoir; fi)
-unknown_command="Je n'ai pas compris"
+unknown_command="Je ne comprends pas"
 command_failed="Cette commande a retourné une erreur"
