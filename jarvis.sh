@@ -87,7 +87,7 @@ autoupdate () {
 	cp pocketsphinx-dictionary-default.dic pocketsphinx-dictionary-default.dic.old
 	cp pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel-default.lm.old
 	git reset --hard HEAD >/dev/null # override any local change
-	git pull >/dev/null &
+	git pull -q &
 	spinner $!
 	echo " " # remove spinner
 	updateconfig jarvis-config-default.sh jarvis-config.sh
