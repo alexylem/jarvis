@@ -28,10 +28,12 @@
 ```
 - [X] add an OR operator
 - [ ] remind me to...
-
-# Execution
-
 - [X] check command return code and say if something went wrong
+
+# Voice
+
+- [ ] Cache spoken sentences not to call google translate each time
+        http://uneviehightech.over-blog.com/article-recuperer-la-synthese-vocale-de-google-sous-linux-115326936.html
 
 # Planification
 

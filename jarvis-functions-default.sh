@@ -33,6 +33,6 @@ TTS () { # TTS () {} Speaks text $1
         # Linux: using google translate speech synthesis
         encoded=`rawurlencode "$1"`
         [ $play_hw ] && local audio_device="-a $play_hw" || local audio_device=''
-        mpg123 -q $audio_device "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&q=$encoded"
+        mpg123 -q $audio_device "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&ie=UTF-8&q=$encoded"
     fi
 }
