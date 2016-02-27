@@ -240,6 +240,22 @@ fi
 source jarvis-config.sh
 source jarvis-functions.sh
 
+rawurlencode() { # here because used in TTS
+  local string="${1}"
+  local strlen=${#string}
+  local encoded=""
+
+  for (( pos=0 ; pos<strlen ; pos++ )); do
+     c=${string:$pos:1}
+     case "$c" in
+        [-_.~a-zA-Z0-9] ) o="${c}" ;;
+        * )               printf -v o '%%%02x' "'$c"
+     esac
+     encoded+="${o}"
+  done
+  echo "${encoded}"
+}
+
 # say wrapper to be used in jarvis-commands
 say () { echo $trigger: $1; $quiet || TTS "$1"; }
 
@@ -268,22 +284,6 @@ if "$check_updates"; then
 			;;
 	esac
 fi
-
-rawurlencode() {
-  local string="${1}"
-  local strlen=${#string}
-  local encoded=""
-
-  for (( pos=0 ; pos<strlen ; pos++ )); do
-     c=${string:$pos:1}
-     case "$c" in
-        [-_.~a-zA-Z0-9] ) o="${c}" ;;
-        * )               printf -v o '%%%02x' "'$c"
-     esac
-     encoded+="${o}"
-  done
-  echo "${encoded}"
-}
 
 settimeout () { # usage settimeout 10 command args
 	local timeout=$1
