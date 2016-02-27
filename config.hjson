@@ -87,6 +87,8 @@
 			id: install
 			title: Install
 			text: '''
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/VPqjIUuE_So" frameborder="0" allowfullscreen></iframe>
+			
 			```
 			git clone https://github.com/alexylem/jarvis.git
 			cd jarvis/
