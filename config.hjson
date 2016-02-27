@@ -79,8 +79,9 @@
 		},{
 			title: "App flow"
 			text: '''
-			Here is an overview of the JARVIS flow and how main files are used."
-			![JARVIS Flow](http://yuml.me/diagram/plain/class/[jarvis-events%7C@daily%20check%20mails%7Bbg:green%7D]-crontab%3E[cron%20scheduler%7Bbg:orange%7D],[$%3Ejarvis.sh]-%3E[wait%20to%20hear%20'JARVIS'],[wait%20to%20hear%20'JARVIS']%3Ctimeout-'JARVIS'%3E[listen%20for%20command],[wait%20to%20hear%20'JARVIS']-.-[jarvis-functions.sh%7Bbg:green%7D%7CLISTEN():%20record%20from%20mic;STT():%20speech%20to%20text;TTS():%20text%20to%20speech;PLAY():%20play%20audio%20file],[listen%20for%20command]-.-[jarvis-functions.sh],[listen%20for%20command]%3CDone-'Command'%3E[execute%20corresponding%20command],[execute%20corresponding%20command]-.-[jarvis-commands%7Bbg:green%7D%7CPATTERN1==command1;PATTERN2==command2;...],[$%3Ejarvis.sh%7Bbg:orange%7D]-.-[jarvis-config.sh%7Bbg:green%7D%7Ctrigger='JARVIS'])
+			Here is an overview of the JARVIS flow and how main files are used.
+			
+			![JARVIS Flow](http://yuml.me/diagram/plain;dir:LR/class/[jarvis-events%7C@daily%20check%20mails%7Bbg:green%7D]-crontab%3E[cron%20scheduler%7Bbg:orange%7D],[$%3Ejarvis.sh]-%3E[wait%20to%20hear%20'JARVIS'],[wait%20to%20hear%20'JARVIS']%3Ctimeout-'JARVIS'%3E[listen%20for%20command],[wait%20to%20hear%20'JARVIS']-.-[jarvis-functions.sh%7Bbg:green%7D%7CLISTEN():%20record%20from%20mic;STT():%20speech%20to%20text;TTS():%20text%20to%20speech;PLAY():%20play%20audio%20file],[listen%20for%20command]-.-[jarvis-functions.sh],[listen%20for%20command]%3CDone-'Command'%3E[execute%20corresponding%20command],[execute%20corresponding%20command]-.-[jarvis-commands%7Bbg:green%7D%7CPATTERN1==command1;PATTERN2==command2;...],[$%3Ejarvis.sh%7Bbg:orange%7D]-.-[jarvis-config.sh%7Bbg:green%7D%7Ctrigger='JARVIS'])
 			'''
 		},{
 			link: Install
