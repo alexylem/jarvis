@@ -82,7 +82,7 @@ spinner(){ # call spinner $!
 	done
 }
 
-autoupdate () {
+autoupdate () { # usage autoupdate 1 to show changelog
 	printf "Updating..."
 	cp jarvis-config-default.sh jarvis-config-default.sh.old
 	cp jarvis-functions-default.sh jarvis-functions-default.sh.old
@@ -102,6 +102,10 @@ autoupdate () {
 	updateconfig pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel.lm
 	rm *.old
 	echo "Update completed"
+    [ $1 ] || return
+    echo "Recent changes:"
+    cat CHANGELOG.md | head
+    echo "[...] To see the full change log: more CHANGELOG.md"
 }
 
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -225,7 +229,7 @@ EOF
 		r)	rm -i $audiofile jarvis-config.sh jarvis-commands; exit;;
 		s)	just_say=${OPTARG}
 			echo "to say: $just_say";;
-		u)	autoupdate
+		u)	autoupdate 1
 			exit;;
 		v)	verbose=true;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
@@ -277,7 +281,7 @@ if "$check_updates"; then
 			read -p "A new version of JARVIS is available, would you like to update? [Y/n] " -n 1 -r
 			echo    # (optional) move to a new line
 			if [[ $REPLY =~ ^[Yy]$ ]]; then
-				autoupdate # has spinner inside
+				autoupdate 1 # has spinner inside
 				echo "Please restart JARVIS"
 				exit
 			fi
