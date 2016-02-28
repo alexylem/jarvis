@@ -323,7 +323,7 @@ while true; do
 			bypass=true
 			read -p "Press [Enter] to start voice command"
 		fi
-		$trigger_mode && ! $bypass && echo "$trigger: Waiting to hear '$trigger'"
+		! $bypass && echo "$trigger: Waiting to hear '$trigger'"
 		printf "$username: "
 		$quiet || PLAY beep-high.wav
 		while true; do
@@ -366,7 +366,7 @@ while true; do
 			order=`cat $forder`
 			printf "$order"
 			[ -z "$order" ] && printf '?' && continue
-			if ! $trigger_mode || $bypass || [[ "$order" == *$trigger* ]]; then
+			if $bypass || [[ "$order" == *$trigger* ]]; then
 				break
 			fi
 			$verbose && PLAY beep-error.wav

@@ -2,10 +2,7 @@
 username="`whoami`"
 
 # always listening for vocal input, false to wait for keyboard trigger
-always_listening=true
-
-# wait magic word to be said before to ask for command
-# need always_listening to be true
+# if true it will wait magic word to be said before to ask for command
 # ex:
 #    (waiting for magic word to be said)
 #    you: Hey JARVIS?
@@ -17,9 +14,9 @@ always_listening=true
 #                JARVIS: You're welcome
 #            (> 10secs)
 #    (need to say magic word again)
-trigger_mode=true
+always_listening=true
 
-# if trigger_mode is true, magic word to be said
+# if always_listening is true, magic word to be said
 trigger='JARVIS' # also update at top of jarvis-commands file
 
 # welcome message to be said
@@ -58,6 +55,9 @@ command_stt=google
 dictionary="pocketsphinx-dictionary.dic"
 language_model="pocketsphinx-languagemodel.lm"
 pocketsphinxlog="/dev/null" # can get very big on long run
+
+# temporary folder (ex: to store cached synthesised speech)
+tmp_folder="/tmp"
 
 # JARVIS spoken sentences to be translated
 hello=$(if [ $(date +%H) -lt 18 ]; then echo Bonjour; else echo Bonsoir; fi)

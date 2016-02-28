@@ -8,7 +8,7 @@
 
 PLAY () { # PLAY () {} Play audio file $1
     [ $play_hw != false ] && local play_export="AUDIODEV=$play_hw AUDIODRIVER=alsa" || local play_export=''
-    eval "$play_export play -V1 -q $1"; 
+    eval "$play_export play -V1 -q $1";
 }
 LISTEN () { # LISTEN () {} Listens microhpone and record to audio file $1 when sound is detected until silence
     $verbose && local quiet='' || local quiet='-q'
@@ -30,9 +30,9 @@ TTS () { # TTS () {} Speaks text $1
         voice=`/usr/bin/say -v ? | grep $language | awk '{print $1}'`
         /usr/bin/say -v $voice $1;
     else
-        # Linux: using google translate speech synthesis
-        encoded=`rawurlencode "$1"`
-        [ $play_hw ] && local audio_device="-a $play_hw" || local audio_device=''
-        mpg123 -q $audio_device "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&ie=UTF-8&q=$encoded"
+        # Linux: using google translate speech synthesis if not cached already
+        audio_file="$tmp_folder/`echo -n $1 | md5sum | awk '{print $1}'`.mp3"
+        [ -f $audio_file ] || wget `$verbose || echo -q` -U Mozilla -O $audio_file "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&ie=UTF-8&q=`rawurlencode \"$1\"`"
+        mpg123 -q ` [ $play_hw = false ] || echo "-a $play_hw"` $audio_file # space between ` and [ is important
     fi
 }
