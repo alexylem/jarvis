@@ -13,11 +13,11 @@ show_help () { cat << EOF
 	
 	Jarvis.sh is a dead simple configurable multi-lang jarvis-like bot
  	Meant for home automation running on slow computer (ex: Raspberry Pi)
-	It has few dependencies and uses online speech recognition & synthesis
+	Very few dependencies. Uses by default online speech recognition & synthesis
 	
 	-b	build (do not use)
-	-c	edit commands
-	-e	edit events
+	-c	edit commands (what jarvis can recognize & execute)
+	-e	edit events (jarvis pro-active voice notifications)
 	-f	edit config
 	-h	display this help
 	-i	install (check dependencies & init config files)
@@ -88,8 +88,8 @@ autoupdate () { # usage autoupdate 1 to show changelog
 	cp jarvis-functions-default.sh jarvis-functions-default.sh.old
 	cp jarvis-commands-default jarvis-commands-default.old
 	cp jarvis-events-default jarvis-events-default.old
-	cp pocketsphinx-dictionary-default.dic pocketsphinx-dictionary-default.dic.old
-	cp pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel-default.lm.old
+	cp pocketsphinx/jarvis-dictionary-default.dic pocketsphinx/jarvis-dictionary-default.dic.old
+	cp pocketsphinx/jarvis-languagemodel-default.lm pocketsphinx/jarvis-languagemodel-default.lm.old
 	git reset --hard HEAD >/dev/null # override any local change
 	git pull -q &
 	spinner $!
@@ -98,8 +98,8 @@ autoupdate () { # usage autoupdate 1 to show changelog
 	updateconfig jarvis-functions-default.sh jarvis-functions.sh
 	updateconfig jarvis-commands-default jarvis-commands
 	updateconfig jarvis-events-default jarvis-events
-	updateconfig pocketsphinx-dictionary-default.dic pocketsphinx-dictionary.dic
-	updateconfig pocketsphinx-languagemodel-default.lm pocketsphinx-languagemodel.lm
+	updateconfig pocketsphinx/jarvis-dictionary-default.dic pocketsphinx/jarvis-dictionary.dic
+	updateconfig pocketsphinx/jarvis-languagemodel-default.lm pocketsphinx/jarvis-languagemodel.lm
 	rm *.old
 	echo "Update completed"
     [ $1 ] || return
@@ -133,8 +133,8 @@ while getopts ":$flags" o; do
 			cp jarvis-functions.sh jarvis-functions-default.sh
 			cp jarvis-commands jarvis-commands-default
 			sed -i.old '/#PRIVATE/d' jarvis-commands-default
-			cp pocketsphinx-dictionary.dic pocketsphinx-dictionary-default.dic
-			cp pocketsphinx-languagemodel.lm pocketsphinx-languagemodel-default.lm
+			cp pocketsphinx/jarvis-dictionary.dic pocketsphinx/jarvis-dictionary-default.dic
+			cp pocketsphinx/jarvis-languagemodel.lm pocketsphinx/jarvis-languagemodel-default.lm
 			rm *.old
 			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
 			exit;;
@@ -161,7 +161,19 @@ while getopts ":$flags" o; do
 				fi
 		  	done
 			$missing && echo "WARNING: You may want to install missing dependencies before going further"
+            # todo propose to try to install them if has apt-get
 			read -p "Press [Enter] to continue"
+            clear
+            hash pocketsphinx_continuous 2>/dev/null || {
+                read -p "Install PockeSphinx for offline keyword recognition? (Y/n):" -n 1 -r
+                if [[ $REPLY =~ ^[Yy]$ ]]; then
+                    echo
+                    cd pocketsphinx
+                    ./install.sh || exit 1
+                    cd ../
+                    read -p "Press [Enter] to continue"
+                fi
+            }
 			while true; do
 				clear
 				read -p "Checking audio output, make sure your speakers are on and press [Enter]"
@@ -197,11 +209,13 @@ while getopts ":$flags" o; do
 			read
 			alsamixer -c $card -V capture
 			clear
-			autoupdate
+            autoupdate
 			sed -i.old "s/play_hw=false/play_hw=$play_hw/" jarvis-config.sh
 			sed -i.old "s/rec_hw=false/rec_hw=$rec_hw/" jarvis-config.sh
 			clear
-			read -p "Press [Enter] to edit the config file. Please follow instructions."
+			#read -p "How do you want me to call you?"
+            #sed -i.old "s/username=false/username=$REPLY/" jarvis-config.sh
+            read -p "Press [Enter] to edit the config file. Please follow instructions."
 			nano jarvis-config.sh
 			clear
 			cat << EOF
@@ -307,7 +321,7 @@ handlecommand() {
 				action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
 				action="${action/.../$order}"
 				$verbose && echo "$> $action"
-				eval "$action" || say "$command_failed"
+                eval "$action" || say "$command_failed"
 				$all_matches || return
 			fi
 		done

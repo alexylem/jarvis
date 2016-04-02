@@ -1,3 +1,6 @@
+02APR16
+    PocketSphinx automatic install
+
 28FEB16
     List of changes is shown after update
     Text to speech is now cached to speed up JARVIS speech

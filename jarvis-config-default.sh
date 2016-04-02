@@ -19,9 +19,6 @@ always_listening=true
 # if always_listening is true, magic word to be said
 trigger='JARVIS' # also update at top of jarvis-commands file
 
-# welcome message to be said
-welcome="Que puis-je faire pour vous?"
-
 # google speech api key http://stackoverflow.com/a/26833337
 google_speech_api_key="YOUR_GOOGLE_SPEECH_API_KEY"
 
@@ -52,8 +49,8 @@ trigger_stt=google
 command_stt=google
 
 # options for pocketsphinx (not enabled by default)
-dictionary="pocketsphinx-dictionary.dic"
-language_model="pocketsphinx-languagemodel.lm"
+dictionary="pocketsphinx/jarvis-dictionary.dic"
+language_model="pocketsphinx/jarvis-languagemodel.lm"
 pocketsphinxlog="/dev/null" # can get very big on long run
 
 # temporary folder (ex: to store cached synthesised speech)

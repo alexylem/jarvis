@@ -14,3 +14,7 @@ pocketsphinx-dictionary.dic
 pocketsphinx-languagemodel.lm
 
 jarvis-events
+
+pocketsphinx/jarvis-dictionary.dic
+
+pocketsphinx/jarvis-languagemodel.lm
