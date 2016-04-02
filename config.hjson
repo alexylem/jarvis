@@ -168,18 +168,22 @@
 			```
 			./jarvis.sh -h
 			
-			  Usage: jarvis.sh -flags
+			Usage: jarvis.sh -flags
 				
-			  -b	build (do not use)
-			  -c	edit commands
-			  -e	edit config
-			  -h	display this help
-			  -i	install (init & edit config files)
-			  -k	read from keyboard instead of microphone
-			  -q	do not speak answer (just console)
-			  -r	uninstall (remove config files)
-			  -u	update (from git & update config files)
-			  -v	verbose & VU meter - recommended for first launch / troubleshooting
+			-b  run in background (will continue after terminal is closed)
+			-c  edit commands (what jarvis can recognize & execute)
+			-e  edit events (jarvis pro-active voice notifications)
+			-f  edit config
+			-h  display this help
+			-i  install (check dependencies & init config files)
+			-k  read from keyboard instead of microphone
+			-p  report a problem
+			-q  do not speak answer (just console)
+			-r  uninstall (remove config files)
+			-s  just say something, ex: jarvis.sh -s "hello world"
+			-u  update (git pull)
+			-v  verbose & VU meter - recommended for first launch / troubleshooting
+			-x  build (do not use)
 			```
 			'''
 		},{
