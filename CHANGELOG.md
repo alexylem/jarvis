@@ -1,5 +1,6 @@
 02APR16
     PocketSphinx automatic install
+        EXECUTE ./jarvis.sh -i to install PocketSphinx
 
 28FEB16
     List of changes is shown after update

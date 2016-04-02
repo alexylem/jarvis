@@ -88,8 +88,6 @@ autoupdate () { # usage autoupdate 1 to show changelog
 	cp jarvis-functions-default.sh jarvis-functions-default.sh.old
 	cp jarvis-commands-default jarvis-commands-default.old
 	cp jarvis-events-default jarvis-events-default.old
-	cp pocketsphinx/jarvis-dictionary-default.dic pocketsphinx/jarvis-dictionary-default.dic.old
-	cp pocketsphinx/jarvis-languagemodel-default.lm pocketsphinx/jarvis-languagemodel-default.lm.old
 	git reset --hard HEAD >/dev/null # override any local change
 	git pull -q &
 	spinner $!
@@ -98,13 +96,11 @@ autoupdate () { # usage autoupdate 1 to show changelog
 	updateconfig jarvis-functions-default.sh jarvis-functions.sh
 	updateconfig jarvis-commands-default jarvis-commands
 	updateconfig jarvis-events-default jarvis-events
-	updateconfig pocketsphinx/jarvis-dictionary-default.dic pocketsphinx/jarvis-dictionary.dic
-	updateconfig pocketsphinx/jarvis-languagemodel-default.lm pocketsphinx/jarvis-languagemodel.lm
 	rm *.old
 	echo "Update completed"
     [ $1 ] || return
     echo "Recent changes:"
-    cat CHANGELOG.md | head
+    head CHANGELOG.md
     echo "[...] To see the full change log: more CHANGELOG.md"
 }
 
@@ -133,8 +129,6 @@ while getopts ":$flags" o; do
 			cp jarvis-functions.sh jarvis-functions-default.sh
 			cp jarvis-commands jarvis-commands-default
 			sed -i.old '/#PRIVATE/d' jarvis-commands-default
-			cp pocketsphinx/jarvis-dictionary.dic pocketsphinx/jarvis-dictionary-default.dic
-			cp pocketsphinx/jarvis-languagemodel.lm pocketsphinx/jarvis-languagemodel-default.lm
 			rm *.old
 			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
 			exit;;
