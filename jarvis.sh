@@ -6,28 +6,29 @@ cat << EOF
 | by Alexandre Mély - alexandre.mely@gmail.com |
 +----------------------------------------------+
 EOF
-flags='bcefhikpqrs:uv'
+flags='bcefhikpqrs:uvx'
 show_help () { cat << EOF
-	
-	Usage: ${0##*/} [-$flags]
-	
-	Jarvis.sh is a dead simple configurable multi-lang jarvis-like bot
- 	Meant for home automation running on slow computer (ex: Raspberry Pi)
-	Very few dependencies. Uses by default online speech recognition & synthesis
-	
-	-b	build (do not use)
-	-c	edit commands (what jarvis can recognize & execute)
-	-e	edit events (jarvis pro-active voice notifications)
-	-f	edit config
-	-h	display this help
-	-i	install (check dependencies & init config files)
-	-k	read from keyboard instead of microphone
-	-p	report a problem
-	-q	do not speak answer (just console)
-	-r	uninstall (remove config files)
-	-s	just say something, ex: ${0##*/} -s "hello world"
-	-u	update (git pull)
-	-v	verbose & VU meter - recommended for first launch / troubleshooting
+
+    Usage: ${0##*/} [-$flags]
+
+    Jarvis.sh is a dead simple configurable multi-lang jarvis-like bot
+    Meant for home automation running on slow computer (ex: Raspberry Pi)
+    Very few dependencies. Uses by default online speech recognition & synthesis
+
+    -b  run in background (will continue after terminal is closed)
+    -c  edit commands (what jarvis can recognize & execute)
+    -e  edit events (jarvis pro-active voice notifications)
+    -f  edit config
+    -h  display this help
+    -i  install (check dependencies & init config files)
+    -k  read from keyboard instead of microphone
+    -p  report a problem
+    -q  do not speak answer (just console)
+    -r  uninstall (remove config files)
+    -s  just say something, ex: ${0##*/} -s "hello world"
+    -u  update (git pull)
+    -v  verbose & VU meter - recommended for first launch / troubleshooting
+    -x  build (do not use)
 
 EOF
 }
@@ -97,6 +98,7 @@ autoupdate () { # usage autoupdate 1 to show changelog
 	updateconfig jarvis-commands-default jarvis-commands
 	updateconfig jarvis-events-default jarvis-events
 	rm *.old
+    clear
 	echo "Update completed"
     [ $1 ] || return
     echo "Recent changes:"
@@ -123,15 +125,14 @@ just_say=false
 while getopts ":$flags" o; do
     case "${o}" in
 		a)	all_matches=true;;
-		b)	cp jarvis-config.sh jarvis-config-default.sh
-			sed -i.old -E 's/(google_speech_api_key=").*(")/\1YOUR_GOOGLE_SPEECH_API_KEY\2/' jarvis-config-default.sh
-			sed -i.old -E 's/check_updates=false/check_updates=true/' jarvis-config-default.sh
-			cp jarvis-functions.sh jarvis-functions-default.sh
-			cp jarvis-commands jarvis-commands-default
-			sed -i.old '/#PRIVATE/d' jarvis-commands-default
-			rm *.old
-			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
-			exit;;
+		b)  ./jarvis.sh > jarvis.log 2>&1 &
+            disown
+            echo "Jarvis has been launched in backbround"
+            echo "To view Jarvis output: cat jarvis.log"
+            echo "To check if jarvis is running: pgrep jarvis"
+            echo "To stop Jarvis: pkill jarvis"
+            echo "You can now close this terminal"
+            exit;;
 		c)	nano jarvis-commands; exit;;
 		e)	echo "WARNING: JARVIS currently uses Crontab to schedule monitoring & notifications"
 			echo "This will erase crontab entries you may already have, check with:"
@@ -240,6 +241,15 @@ EOF
 		u)	autoupdate 1
 			exit;;
 		v)	verbose=true;;
+        x)	cp jarvis-config.sh jarvis-config-default.sh
+			sed -i.old -E 's/(google_speech_api_key=").*(")/\1YOUR_GOOGLE_SPEECH_API_KEY\2/' jarvis-config-default.sh
+			sed -i.old -E 's/check_updates=false/check_updates=true/' jarvis-config-default.sh
+			cp jarvis-functions.sh jarvis-functions-default.sh
+			cp jarvis-commands jarvis-commands-default
+			sed -i.old '/#PRIVATE/d' jarvis-commands-default
+			rm *.old
+			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
+			exit;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
     esac
 done

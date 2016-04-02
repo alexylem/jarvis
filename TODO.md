@@ -1,6 +1,6 @@
 # Installation
 
-- [ ] add to crontab @reboot - propose during install? Or Service?
+- [/] add to crontab @reboot - propose during install?
 - [X] automatic install of pocketsphinx
 
 # Update
@@ -37,6 +37,7 @@
 # Other
 
 - [ ] Automate inclusion of log in bug report & create issue on GitHub
+- [X] Execution in background
 - [ ] -t Troubleshooting guide and step-by-step diagnosis
 - [ ] Errors found in jarvis.log
     ./jarvis.sh: line 358: [: : integer expression expected
