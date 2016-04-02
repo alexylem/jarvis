@@ -129,8 +129,8 @@ while getopts ":$flags" o; do
             disown
             echo "Jarvis has been launched in backbround"
             echo "To view Jarvis output: cat jarvis.log"
-            echo "To check if jarvis is running: pgrep jarvis"
-            echo "To stop Jarvis: pkill jarvis"
+            echo "To check if jarvis is running: pgrep -l jarvis.sh"
+            echo "To stop Jarvis: pkill jarvis.sh"
             echo "You can now close this terminal"
             exit;;
 		c)	nano jarvis-commands; exit;;
