@@ -218,7 +218,7 @@ Here is a new comparison table in this context:
 | Speed         | :-)                          | :-)                         |
 
 Looks like we have a good match!
-I have `sudo apt-get install pocketsphinx` and updated my `jarvis-config.sh` accordingly:
+I have installed pocketsphinx (proposed during `jarvis.sh -i`) and updated my `jarvis-config.sh` accordingly:
 ```bash
 # choice of STT engine for magic word detection (google|pocketsphinx)
 trigger_stt=pocketsphinx
