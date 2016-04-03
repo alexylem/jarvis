@@ -110,9 +110,9 @@ autoupdate () { # usage autoupdate 1 to show changelog
 	updateconfig jarvis-commands-default jarvis-commands
 	updateconfig jarvis-events-default jarvis-events
 	rm *.old
-    clear
-	echo "Update completed"
     [ $1 ] || return
+    clean
+    echo "Update completed"
     echo "Recent changes:"
     head CHANGELOG.md
     echo "[...] To see the full change log: more CHANGELOG.md"
@@ -156,8 +156,8 @@ while getopts ":$flags" o; do
 			crontab jarvis-events -i; exit;;
 		f)	nano jarvis-config.sh; exit;;
 		h)	show_help; exit;;
-		i)	echo "JARVIS: Hello, my name is JARVIS, nice to meet you"
-            autoupdate
+		i)	autoupdate
+            echo "JARVIS: Hello, my name is JARVIS, nice to meet you"
             echo "JARVIS: in which language shall we interact?"
             select opt in "English" "Français"; do
                 case "$REPLY" in
