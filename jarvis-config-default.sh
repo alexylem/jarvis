@@ -19,11 +19,8 @@ always_listening=true
 # if always_listening is true, magic word to be said
 trigger='JARVIS' # also update at top of jarvis-commands file
 
-# google speech api key http://stackoverflow.com/a/26833337
-google_speech_api_key="YOUR_GOOGLE_SPEECH_API_KEY"
-
 # language
-language="fr_FR" # en_EN for english
+language=
 
 # execute all matching commands (default only first match)
 all_matches=false
@@ -43,10 +40,18 @@ min_silence_duration_to_stop="0.5" # default 0.5
 min_silence_level_to_stop="1%" # default 1%
 max_noise_duration_to_kill="10" # default 10
 
-# choice of STT engine for magic word detection (google|pocketsphinx)
-trigger_stt=google
-# choice of STT engine for command detection (google|pocketsphinx)
-command_stt=google
+# choice of STT engine for magic word detection (pocketsphinx|google)
+trigger_stt=
+# choice of STT engine for command detection (wit|google|pocketsphinx)
+command_stt=
+# choice of TTS engine (google|espeak|osx_say)
+tts_engine=
+
+# google speech api key http://stackoverflow.com/a/26833337
+google_speech_api_key=""
+
+# wit.ai speech api key https://wit.ai/apps/new
+wit_server_access_token=""
 
 # options for pocketsphinx (not enabled by default)
 dictionary="pocketsphinx/jarvis-dictionary.dic"

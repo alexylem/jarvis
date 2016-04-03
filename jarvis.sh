@@ -6,7 +6,7 @@ cat << EOF
 | by Alexandre Mély - alexandre.mely@gmail.com |
 +----------------------------------------------+
 EOF
-flags='bcefhikpqrs:tuvx'
+flags='bcefhikl:pqrs:tuvx'
 show_help () { cat << EOF
 
     Usage: ${0##*/} [-$flags]
@@ -22,6 +22,7 @@ show_help () { cat << EOF
     -h  display this help
     -i  install (dependencies, pocketsphinx, setup)
     -k  read from keyboard instead of microphone
+    -l  just listen to filename, ex: $0 -l "speech.wav"
     -p  report a problem
     -q  do not speak answer (just console)
     -r  uninstall (remove config files)
@@ -45,6 +46,18 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 else
 	echo "Unsupported platform"; exit 1
 fi
+
+ask () { # usage ask "question" "varname" "default"
+    if [ -z $3 ]; then
+        read -p "$1 " $2
+    elif [ ${BASH_VERSINFO[0]} -ge 4 ]; then
+        read -e -p "$1 " $2 -i "$3"
+    else
+        echo $1
+        read -p "(default: $3) "
+        eval $2="${REPLY:-$3}"
+    fi
+}
 
 updateconfig () { # usage updateconfig default-file ($1) user-file ($2)
 	if [ -f $2 ]; then
@@ -87,7 +100,6 @@ spinner(){ # call spinner $!
 autoupdate () { # usage autoupdate 1 to show changelog
 	printf "Updating..."
 	cp jarvis-config-default.sh jarvis-config-default.sh.old
-	cp jarvis-functions-default.sh jarvis-functions-default.sh.old
 	cp jarvis-commands-default jarvis-commands-default.old
 	cp jarvis-events-default jarvis-events-default.old
 	git reset --hard HEAD >/dev/null # override any local change
@@ -95,7 +107,6 @@ autoupdate () { # usage autoupdate 1 to show changelog
 	spinner $!
 	echo " " # remove spinner
 	updateconfig jarvis-config-default.sh jarvis-config.sh
-	updateconfig jarvis-functions-default.sh jarvis-functions.sh
 	updateconfig jarvis-commands-default jarvis-commands
 	updateconfig jarvis-events-default jarvis-events
 	rm *.old
@@ -108,11 +119,12 @@ autoupdate () { # usage autoupdate 1 to show changelog
 }
 
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$DIR" # needed now for git used in automatic update
 audiofile="jarvis-record.wav"
+cd "$DIR" # needed now for git used in automatic update
 rm -f $audiofile # sometimes, when error, previous recording is played
 testaudiofile="applause.wav"
 shopt -s nocasematch # string comparison case insensitive
+[[ -f jarvis-config.sh ]] && source jarvis-config.sh
 
 # default flags, use options to change see jarvis.sh -h
 verbose=false
@@ -123,6 +135,7 @@ play_export=''
 rec_hw=false
 rec_export=''
 just_say=false
+just_listen=false
 while getopts ":$flags" o; do
     case "${o}" in
 		a)	all_matches=true;;
@@ -145,31 +158,84 @@ while getopts ":$flags" o; do
 			crontab jarvis-events -i; exit;;
 		f)	nano jarvis-config.sh; exit;;
 		h)	show_help; exit;;
-		i)	echo "Checking dependencies:"
-			missing=false
+		i)	echo "JARVIS: Hello, my name is JARVIS, nice to meet you"
+            echo "JARVIS: in which language shall we interact?"
+            select opt in "English" "Français"; do
+                case "$REPLY" in
+                    1 )	language='en_EN'; break;;
+                    2 )	language='fr_FR'; echo "JARVIS: I can only speak English during the installation"; break;;
+                esac
+            done
+            ask "JARVIS: how do you want me to call you?" username $username
+            read -p "JARVIS: Ok $username, press [Enter] to start the installation"
+            clear
+            echo 'Which Speech-To-Text engine to use for Trigger recognition ("JARVIS")?'
+            select opt in "PocketSphinx (offline - recommended)" "Google (online)" "Wit.ai (online)"; do
+                case "$REPLY" in
+                    1 )	trigger_stt='pocketsphinx'; dependencies+=(wget perl); break;;
+                    2 )	trigger_stt='google'; dependencies+=(curl perl); break;;
+                    3 ) trigger_stt='wit'; break;;
+                esac
+            done
+            clear
+            echo 'Which Speech-To-Text engine to use for Command recognition?'
+            select opt in "Google (online - recommended)" "Wit.ai (online)" "PocketSphinx (offline - not possible in French)"; do
+                case "$REPLY" in
+                    1 )	command_stt='google'; dependencies+=(wget perl); break;;
+                    2 )	command_stt='wit'; dependencies+=(curl perl); break;;
+                    3 ) command_stt='pocketsphinx'; break;;
+                esac
+            done
+            clear
+            echo 'Which Text-To-Speech engine would you like to use?'
+            select opt in "Google (online - recommended)" "eSpeak (offline - Coming Soon)" "Say (offline - Mac OSX only)"; do
+                case "$REPLY" in
+                    1 )	tts_engine='google'; dependencies+=(wget mpg123); break;;
+                    2 )	tts_engine='espeak'; dependencies+=(espeak); break;;
+                    3 ) tts_engine='osx_say'; dependencies+=(say); break;;
+                esac
+            done
+            clear
+            echo "Checking dependencies:"
+            # remove dupplicates
+            dependencies=(`echo "${dependencies[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '`)
+            missing=()
 			for i in "${dependencies[@]}"; do
 		   		printf "$i: "
 				if hash $i 2>/dev/null; then
 					echo -e "[\033[32mInstalled\033[0m]"
 				else
 					echo -e "[\033[31mNot found\033[0m]"
-					missing=true
+					missing+=($i)
 				fi
 		  	done
-			$missing && echo "WARNING: You may want to install missing dependencies before going further"
-            # todo propose to try to install them if has apt-get
-			read -p "Press [Enter] to continue"
-            clear
-            hash pocketsphinx_continuous 2>/dev/null || {
-                read -p "Install PockeSphinx for offline keyword recognition? (Y/n):" -n 1 -r
-                if [[ $REPLY =~ ^[Yy]$ ]]; then
-                    echo
-                    cd pocketsphinx
-                    source install.sh || exit 1
-                    cd ../
-                    read -p "Press [Enter] to continue"
-                fi
+			[ ${#missing[@]} -gt 0 ] && {
+                echo "You must install missing dependencies before going further"
+                echo "ex: sudo apt-get install -y ${missing[@]}"
+                exit 1
             }
+			read -p "Press [Enter] to continue"
+            if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
+                clear
+                echo "Obtain a Google Speech API Key here: http://stackoverflow.com/a/26833337"
+                ask "Enter your Google Speech API Key:" google_speech_api_key $google_speech_api_key
+            fi
+            if [ $trigger_stt = 'wit' ] || [ $command_stt = 'wit' ]; then
+                clear
+                echo "Obtain a Wit Server Access Token here: https://wit.ai/apps/new"
+                ask "Enter your Wit Server Access Token:" wit_server_access_token $wit_server_access_token
+            fi
+            if [ $trigger_stt = 'pocketsphinx' ] || [ $command_stt = 'pocketsphinx' ]; then
+                hash pocketsphinx_continuous 2>/dev/null || {
+                    clear
+                    echo "PocketSphinx doesn't seem to be installed"
+                    read -p "Press [Enter] to install it"
+                    cd stt_engines/pocketsphinx
+                    source install.sh || exit 1
+                    cd ../../
+                    read -p "Press [Enter] to continue"
+                }
+            fi
 			while true; do
 				clear
 				read -p "Checking audio output, make sure your speakers are on and press [Enter]"
@@ -206,13 +272,13 @@ while getopts ":$flags" o; do
 			alsamixer -c $card -V capture
 			clear
             autoupdate
-			sed -i.old "s/play_hw=false/play_hw=$play_hw/" jarvis-config.sh
+			sed -i.old "s/username=.*/username=$username/" jarvis-config.sh
+            sed -i.old "s/language=.*/language=$language/" jarvis-config.sh
+            sed -i.old "s/play_hw=false/play_hw=$play_hw/" jarvis-config.sh
 			sed -i.old "s/rec_hw=false/rec_hw=$rec_hw/" jarvis-config.sh
-			clear
-			#read -p "How do you want me to call you?"
-            #sed -i.old "s/username=false/username=$REPLY/" jarvis-config.sh
-            read -p "Press [Enter] to edit the config file. Please follow instructions."
-			nano jarvis-config.sh
+            sed -i.old "s/trigger_stt=.*/trigger_stt=$trigger_stt/" jarvis-config.sh
+            sed -i.old "s/command_stt=.*/command_stt=$command_stt/" jarvis-config.sh
+            sed -i.old "s/tts_engine=.*/tts_engine=$tts_engine/" jarvis-config.sh
 			clear
 			cat << EOF
 Installation complete.
@@ -220,7 +286,7 @@ What to do now?
 
 Personalize JARVIS:
 	./jarvis.sh -f
-		to edit again the config file
+		to edit the config file
 	./jarvis.sh -c
 		to edit what JARVIS can understand and execute
 	./jarvis.sh -e
@@ -232,6 +298,8 @@ Start JARVIS
 EOF
 			exit;;
         k)	keyboard=true;;
+        l)  just_listen=${OPTARG}
+            echo "recording to: $just_listen";;
 		p)	echo "Create an issue on GitHub"
 			echo "https://github.com/alexylem/jarvis/issues/new"
 			exit;;
@@ -239,14 +307,21 @@ EOF
 		r)	rm -i $audiofile jarvis-config.sh jarvis-commands; exit;;
 		s)	just_say=${OPTARG}
 			echo "to say: $just_say";;
+        t)  echo "Visit http://alexylem.github.io/jarvis/#faq"
+            exit;;
 		u)	autoupdate 1
 			exit;;
 		v)	verbose=true;;
         x)	cp jarvis-config.sh jarvis-config-default.sh
-			sed -i.old -E 's/(google_speech_api_key=").*(")/\1YOUR_GOOGLE_SPEECH_API_KEY\2/' jarvis-config-default.sh
-			sed -i.old -E 's/check_updates=false/check_updates=true/' jarvis-config-default.sh
-			cp jarvis-functions.sh jarvis-functions-default.sh
-			cp jarvis-commands jarvis-commands-default
+            sed -i.old -E 's/username=.*/username="`whoami`"/' jarvis-config-default.sh
+            sed -i.old -E 's/language=.*/language=/' jarvis-config-default.sh
+            sed -i.old -E 's/check_updates=.*/check_updates=true/' jarvis-config-default.sh
+			sed -i.old -E 's/trigger_stt=.*/trigger_stt=/' jarvis-config-default.sh
+            sed -i.old -E 's/command_stt=.*/command_stt=/' jarvis-config-default.sh
+            sed -i.old -E 's/tts_engine=.*/tts_engine=/' jarvis-config-default.sh
+            sed -i.old -E 's/(google_speech_api_key=").*(")/\1\2/' jarvis-config-default.sh
+            sed -i.old -E 's/(wit_server_access_token=").*(")/\1\2/' jarvis-config-default.sh
+            cp jarvis-commands jarvis-commands-default
 			sed -i.old '/#PRIVATE/d' jarvis-commands-default
 			rm *.old
 			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
@@ -260,24 +335,7 @@ if [ ! -f jarvis-config.sh ]; then
 	echo "Missing config file. Install with command $>./jarvis -i" 1>&2
 	exit 1
 fi
-source jarvis-config.sh
 source jarvis-functions.sh
-
-rawurlencode() { # here because used in TTS
-  local string="${1}"
-  local strlen=${#string}
-  local encoded=""
-
-  for (( pos=0 ; pos<strlen ; pos++ )); do
-     c=${string:$pos:1}
-     case "$c" in
-        [-_.~a-zA-Z0-9] ) o="${c}" ;;
-        * )               printf -v o '%%%02x' "'$c"
-     esac
-     encoded+="${o}"
-  done
-  echo "${encoded}"
-}
 
 # say wrapper to be used in jarvis-commands
 say () { echo $trigger: $1; $quiet || TTS "$1"; }
@@ -285,6 +343,12 @@ say () { echo $trigger: $1; $quiet || TTS "$1"; }
 # if -s argument provided, just say it & exit (used in jarvis-events)
 if [[ "$just_say" != false ]]; then
 	say "$just_say"
+	exit
+fi
+
+# if -l argument provided, just listen it & exit
+if [[ "$just_listen" != false ]]; then
+    LISTEN "$just_listen"
 	exit
 fi
 

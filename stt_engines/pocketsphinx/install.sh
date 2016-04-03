@@ -18,7 +18,7 @@ else
 fi
 echo "2/4 Installation of SphinxBase"
 echo -e "\tDownloading..."
-wget -q --show-progress -O sphinxbase-5prealpha.tar.gz https://sourceforge.net/projects/cmusphinx/files/sphinxbase/5prealpha/sphinxbase-5prealpha.tar.gz/download || exit 1
+wget -q -O sphinxbase-5prealpha.tar.gz https://sourceforge.net/projects/cmusphinx/files/sphinxbase/5prealpha/sphinxbase-5prealpha.tar.gz/download || exit 1
 echo -e "\tUnpacking..."
 tar -xzf sphinxbase-5prealpha.tar.gz || exit 1
 cd sphinxbase-5prealpha
@@ -31,7 +31,7 @@ sudo make install >/dev/null || exit 1
 cd ../
 echo "3/4 Installation of PocketSphinx"
 echo -e "\tDownloading..."
-wget -q --show-progress -O pocketsphinx-5prealpha.tar.gz wget https://sourceforge.net/projects/cmusphinx/files/pocketsphinx/5prealpha/pocketsphinx-5prealpha.tar.gz/download
+wget -q -O pocketsphinx-5prealpha.tar.gz wget https://sourceforge.net/projects/cmusphinx/files/pocketsphinx/5prealpha/pocketsphinx-5prealpha.tar.gz/download
 echo -e "\tUnpacking..."
 tar -xzf pocketsphinx-5prealpha.tar.gz || exit 1
 cd pocketsphinx-5prealpha

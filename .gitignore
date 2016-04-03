@@ -3,10 +3,6 @@ jarvis-config.sh
 
 jarvis-commands
 
-jarvis-record.flac
-
-jarvis-functions.sh
-
 jarvis-record.wav
 
 jarvis-events

@@ -1,6 +1,10 @@
+03APR16 => YOU MUST RE-RUN ./jarvis.sh -i
+    Improved Install process with more interactions for config
+    Added new Speech Recognition: Wit.ai
+    Restructured stt and tts engines into seperate folders
+
 02APR16
     PocketSphinx automatic install
-        EXECUTE ./jarvis.sh -i to install PocketSphinx
     Run in background with -b (will continue after terminal is closed)
 
 28FEB16

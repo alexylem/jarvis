@@ -54,8 +54,8 @@ rm TAR$SID.tgz
 
 # STAGE IMPORTANT FILES IN SPECIFIED $LANGDIR 
 echo ":: staging..."
-mv *.dic $LANGDIR/$CORPUS.dic
-mv *.lm $LANGDIR/$CORPUS.lm
+mv $SID.dic $LANGDIR/$CORPUS.dic
+mv $SID.lm $LANGDIR/$CORPUS.lm
 
 # CONVERT LM TO DMP (BINARY LM FORMAT)
 echo ":: doing binary lm to dmp conversion..."
