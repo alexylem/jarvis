@@ -130,9 +130,7 @@ shopt -s nocasematch # string comparison case insensitive
 verbose=false
 keyboard=false
 quiet=false
-play_hw=false
 play_export=''
-rec_hw=false
 rec_export=''
 just_say=false
 just_listen=false
