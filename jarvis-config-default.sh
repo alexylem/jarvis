@@ -54,8 +54,8 @@ google_speech_api_key=""
 wit_server_access_token=""
 
 # options for pocketsphinx (not enabled by default)
-dictionary="pocketsphinx/jarvis-dictionary.dic"
-language_model="pocketsphinx/jarvis-languagemodel.lm"
+dictionary="stt_engines/pocketsphinx/jarvis-dictionary.dic"
+language_model="stt_engines/pocketsphinx/jarvis-languagemodel.lm"
 pocketsphinxlog="/dev/null" # can get very big on long run
 
 # temporary folder (ex: to store cached synthesised speech)
