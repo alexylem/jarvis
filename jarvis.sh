@@ -20,7 +20,7 @@ show_help () { cat << EOF
     -e  edit events (jarvis pro-active voice notifications)
     -f  edit config
     -h  display this help
-    -i  install (check dependencies & init config files)
+    -i  install (dependencies, pocketsphinx, setup)
     -k  read from keyboard instead of microphone
     -p  report a problem
     -q  do not speak answer (just console)
@@ -164,7 +164,7 @@ while getopts ":$flags" o; do
                 if [[ $REPLY =~ ^[Yy]$ ]]; then
                     echo
                     cd pocketsphinx
-                    ./install.sh || exit 1
+                    source install.sh || exit 1
                     cd ../
                     read -p "Press [Enter] to continue"
                 fi
@@ -172,7 +172,7 @@ while getopts ":$flags" o; do
 			while true; do
 				clear
 				read -p "Checking audio output, make sure your speakers are on and press [Enter]"
-				[ $play_hw ] && play_export="AUDIODEV=$play_hw AUDIODRIVER=alsa"
+				[ $play_hw != false ] && play_export="AUDIODEV=$play_hw AUDIODRIVER=alsa"
 				eval "$play_export play $testaudiofile"
 				read -p "Did you hear something? (y)es (n)o or error (r)etry: " -n 1 -r
 				if [[ $REPLY =~ ^[Yy]$ ]]; then break; fi
@@ -186,7 +186,7 @@ while getopts ":$flags" o; do
 			while true; do
 				clear
 				read -p "Checking audio input, make sure your microphone is on, press [Enter] and say something"
-				[ $rec_hw ] && rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa"
+				[ $play_hw != false ] && rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa"
 				eval "$rec_export rec $audiofile trim 0 3; $play_export play $audiofile"
 				read -p "Did you hear yourself? (y)es (n)o or error (r)etry: " -n 1 -r
 				echo # new line
