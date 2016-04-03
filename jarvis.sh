@@ -277,7 +277,9 @@ while getopts ":$flags" o; do
             sed -i.old "s/trigger_stt=.*/trigger_stt=$trigger_stt/" jarvis-config.sh
             sed -i.old "s/command_stt=.*/command_stt=$command_stt/" jarvis-config.sh
             sed -i.old "s/tts_engine=.*/tts_engine=$tts_engine/" jarvis-config.sh
-			clear
+			sed -i.old "s/google_speech_api_key=.*/google_speech_api_key=$google_speech_api_key/" jarvis-config.sh
+            sed -i.old "s/wit_server_access_token=.*/wit_server_access_token=$wit_server_access_token/" jarvis-config.sh
+            clear
 			cat << EOF
 Installation complete.
 What to do now?
