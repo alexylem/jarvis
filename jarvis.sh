@@ -157,6 +157,7 @@ while getopts ":$flags" o; do
 		f)	nano jarvis-config.sh; exit;;
 		h)	show_help; exit;;
 		i)	echo "JARVIS: Hello, my name is JARVIS, nice to meet you"
+            autoupdate
             echo "JARVIS: in which language shall we interact?"
             select opt in "English" "Français"; do
                 case "$REPLY" in
@@ -164,8 +165,10 @@ while getopts ":$flags" o; do
                     2 )	language='fr_FR'; echo "JARVIS: I can only speak English during the installation"; break;;
                 esac
             done
+            sed -i.old "s/language=.*/language=$language/" jarvis-config.sh
             ask "JARVIS: how do you want me to call you?" username $username
             read -p "JARVIS: Ok $username, press [Enter] to start the installation"
+            sed -i.old "s/username=.*/username=$username/" jarvis-config.sh
             clear
             echo 'Which Speech-To-Text engine to use for Trigger recognition ("JARVIS")?'
             select opt in "PocketSphinx (offline - recommended)" "Google (online)" "Wit.ai (online)"; do
@@ -175,6 +178,7 @@ while getopts ":$flags" o; do
                     3 ) trigger_stt='wit'; break;;
                 esac
             done
+            sed -i.old "s/trigger_stt=.*/trigger_stt=$trigger_stt/" jarvis-config.sh
             clear
             echo 'Which Speech-To-Text engine to use for Command recognition?'
             select opt in "Google (online - recommended)" "Wit.ai (online)" "PocketSphinx (offline - not possible in French)"; do
@@ -184,6 +188,7 @@ while getopts ":$flags" o; do
                     3 ) command_stt='pocketsphinx'; break;;
                 esac
             done
+            sed -i.old "s/command_stt=.*/command_stt=$command_stt/" jarvis-config.sh
             clear
             echo 'Which Text-To-Speech engine would you like to use?'
             select opt in "Google (online - recommended)" "eSpeak (offline - Coming Soon)" "Say (offline - Mac OSX only)"; do
@@ -193,6 +198,7 @@ while getopts ":$flags" o; do
                     3 ) tts_engine='osx_say'; dependencies+=(say); break;;
                 esac
             done
+            sed -i.old "s/tts_engine=.*/tts_engine=$tts_engine/" jarvis-config.sh
             clear
             echo "Checking dependencies:"
             # remove dupplicates
@@ -217,11 +223,13 @@ while getopts ":$flags" o; do
                 clear
                 echo "Obtain a Google Speech API Key here: http://stackoverflow.com/a/26833337"
                 ask "Enter your Google Speech API Key:" google_speech_api_key $google_speech_api_key
+                sed -i.old "s/google_speech_api_key=.*/google_speech_api_key=\"$google_speech_api_key\"/" jarvis-config.sh
             fi
             if [ $trigger_stt = 'wit' ] || [ $command_stt = 'wit' ]; then
                 clear
                 echo "Obtain a Wit Server Access Token here: https://wit.ai/apps/new"
                 ask "Enter your Wit Server Access Token:" wit_server_access_token $wit_server_access_token
+                sed -i.old "s/wit_server_access_token=.*/wit_server_access_token=\"$wit_server_access_token\"/" jarvis-config.sh
             fi
             if [ $trigger_stt = 'pocketsphinx' ] || [ $command_stt = 'pocketsphinx' ]; then
                 hash pocketsphinx_continuous 2>/dev/null || {
@@ -248,7 +256,8 @@ while getopts ":$flags" o; do
 				read -p "Indicate the device # to use [0-9]: " device
 				play_hw="hw:$card,$device"
 			done
-			while true; do
+			sed -i.old "s/play_hw=false/play_hw=$play_hw/" jarvis-config.sh
+            while true; do
 				clear
 				read -p "Checking audio input, make sure your microphone is on, press [Enter] and say something"
 				[ $rec_hw != false ] && rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa"
@@ -262,23 +271,13 @@ while getopts ":$flags" o; do
 				read -p "Indicate the card # to use [0-9]: " card
 				read -p "Indicate the device # to use [0-9]: " device
 				rec_hw="hw:$card,$device"
-			done
+            done
+            sed -i.old "s/rec_hw=false/rec_hw=$rec_hw/" jarvis-config.sh
 			clear
 			echo "We want to make sure the mic level is high enough"
 			echo "Hit [Enter] and use [Arrows] to select Mic and raise volume to maximum"
 			read
 			alsamixer -c $card -V capture
-			clear
-            autoupdate
-			sed -i.old "s/username=.*/username=$username/" jarvis-config.sh
-            sed -i.old "s/language=.*/language=$language/" jarvis-config.sh
-            sed -i.old "s/play_hw=false/play_hw=$play_hw/" jarvis-config.sh
-			sed -i.old "s/rec_hw=false/rec_hw=$rec_hw/" jarvis-config.sh
-            sed -i.old "s/trigger_stt=.*/trigger_stt=$trigger_stt/" jarvis-config.sh
-            sed -i.old "s/command_stt=.*/command_stt=$command_stt/" jarvis-config.sh
-            sed -i.old "s/tts_engine=.*/tts_engine=$tts_engine/" jarvis-config.sh
-			sed -i.old "s/google_speech_api_key=.*/google_speech_api_key=$google_speech_api_key/" jarvis-config.sh
-            sed -i.old "s/wit_server_access_token=.*/wit_server_access_token=$wit_server_access_token/" jarvis-config.sh
             clear
 			cat << EOF
 Installation complete.
