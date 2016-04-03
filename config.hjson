@@ -238,7 +238,19 @@ This is my current config and i'm very happy with it, except that I have to pron
 			title: Frequently Asked Questions
 			text: '''
 * Does it work on Raspberry Pi 3?
-  * It suppports Mac as well as all versions of the Raspberry Pi (1, 2 and 3)
+> It suppports Mac as well as all versions of the Raspberry Pi (1, 2 and 3)
+* What mic or speakers should I use?
+> USB mic or webcam with built-in mic (I use the Blue Yeti)
+> USB or jack-plugged speakers
+* Google Chromium Speech API now closed?
+> Jarvis still works with existing Chromium Speech API keys if you have already one
+> Google Cloud Speech API is in preview phase, once live will be used by Jarvis
+* Is it possible to perform an http GET request with Jarvis?
+> Yes `*DO*THAT*==wget -qO /dev/null "http://you_http_request" & say "Done"`
+* What is the meaning of - ? and # characters that are displayed when I speak?
+> - the recorded sound was too short (when waiting to hear "JARVIS")
+> # the recorded sound was too long (when waiting to hear "JARVIS")
+> ? the recoded sound couldn't be transcribed to valid text
 '''
 		},{
 			link: Support
