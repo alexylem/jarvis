@@ -233,6 +233,14 @@ This is my current config and i'm very happy with it, except that I have to pron
 > For a better French pronounciation recognition, I have generated the dictionary & language model with this spelling: `Jarvees`.
 '''
 		},{
+			link: FAQ
+			id: faq
+			title: Frequently Asked Questions
+			text: '''
+* Does it work on Raspberry Pi 3?
+  * It suppports Mac as well as all versions of the Raspberry Pi (1, 2 and 3)
+'''
+		},{
 			link: Support
 			id: support
 			title: Get support
