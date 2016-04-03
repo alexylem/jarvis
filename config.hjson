@@ -251,6 +251,9 @@ This is my current config and i'm very happy with it, except that I have to pron
 > `-` the recorded sound was too short (when waiting to hear "JARVIS")  
 > `#` the recorded sound was too long (when waiting to hear "JARVIS")  
 > `?` the recoded sound couldn't be transcribed to valid text
+* `rec FAIL formats: can't open input  `hw:1,0': snd_pcm_hw_params error: Input/output error`
+> Your USB mic has gone in error, quit jarvis & re-plug it or reset the USB port:  
+> `pkill jarvis.sh; sudo ./usbreset /dev/bus/usb/001/002; ./jarvis.sh`
 '''
 		},{
 			link: Support
