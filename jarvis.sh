@@ -51,7 +51,7 @@ ask () { # usage ask "question" "varname" "default"
     if [ -z $3 ]; then
         read -p "$1 " $2
     elif [ ${BASH_VERSINFO[0]} -ge 4 ]; then
-        read -e -p "$1 " $2 -i "$3"
+        read -e -p "$1 " -i "$3" $2
     else
         echo $1
         read -p "(default: $3) "
