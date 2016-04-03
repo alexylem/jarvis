@@ -6,7 +6,7 @@ cat << EOF
 | by Alexandre Mély - alexandre.mely@gmail.com |
 +----------------------------------------------+
 EOF
-flags='bcefhikpqrs:uvx'
+flags='bcefhikpqrs:tuvx'
 show_help () { cat << EOF
 
     Usage: ${0##*/} [-$flags]
@@ -26,6 +26,7 @@ show_help () { cat << EOF
     -q  do not speak answer (just console)
     -r  uninstall (remove config files)
     -s  just say something, ex: ${0##*/} -s "hello world"
+    -t  troubleshoot issues with jarvis
     -u  update (git pull)
     -v  verbose & VU meter - recommended for first launch / troubleshooting
     -x  build (do not use)
@@ -186,7 +187,7 @@ while getopts ":$flags" o; do
 			while true; do
 				clear
 				read -p "Checking audio input, make sure your microphone is on, press [Enter] and say something"
-				[ $play_hw != false ] && rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa"
+				[ $rec_hw != false ] && rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa"
 				eval "$rec_export rec $audiofile trim 0 3; $play_export play $audiofile"
 				read -p "Did you hear yourself? (y)es (n)o or error (r)etry: " -n 1 -r
 				echo # new line
