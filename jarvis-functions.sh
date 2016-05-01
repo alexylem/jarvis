@@ -18,6 +18,10 @@ LISTEN () { # LISTEN () {} Listens microhpone and record to audio file $1 when s
     $verbose && local quiet='' || local quiet='-q'
     [ "$rec_hw" != false ] && local rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa" || local rec_export=''
     eval "$rec_export rec -V1 $quiet -r 16000 -c 1 -b 16 -e signed-integer --endian little $1 silence 1 $min_noise_duration_to_start $min_noise_perc_to_start 1 $min_silence_duration_to_stop $min_silence_level_to_stop trim 0 $max_noise_duration_to_kill"
+    if [ "$?" -ne 0 ]; then
+        echo "ERROR: rec command failed"
+        exit 1
+    fi
 }
 STT () { # STT () {} Transcribes audio file $1 and writes corresponding text in $forder
     $bypass && local stt_function=$command_stt'_STT' || local stt_function=$trigger_stt'_STT'

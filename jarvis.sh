@@ -141,8 +141,8 @@ while getopts ":$flags" o; do
             disown
             echo "Jarvis has been launched in backbround"
             echo "To view Jarvis output: cat jarvis.log"
-            echo "To check if jarvis is running: pgrep -l jarvis.sh"
-            echo "To stop Jarvis: pkill jarvis.sh"
+            echo "To check if jarvis is running: pgrep -lf jarvis.sh"
+            echo "To stop Jarvis: pkill -f jarvis.sh"
             echo "You can now close this terminal"
             exit;;
 		c)	nano jarvis-commands; exit;;
@@ -191,7 +191,7 @@ while getopts ":$flags" o; do
             sed -i.old "s/command_stt=.*/command_stt=$command_stt/" jarvis-config.sh
             clear
             echo 'Which Text-To-Speech engine would you like to use?'
-            select opt in "Google (online - recommended)" "eSpeak (offline - Coming Soon)" "Say (offline - Mac OSX only)"; do
+            select opt in "Google (online - recommended)" "eSpeak (offline)" "Say (offline - Mac OSX only)"; do
                 case "$REPLY" in
                     1 )	tts_engine='google'; dependencies+=(wget mpg123); break;;
                     2 )	tts_engine='espeak'; dependencies+=(espeak); break;;

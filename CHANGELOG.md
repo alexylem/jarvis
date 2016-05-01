@@ -1,3 +1,6 @@
+01MAY16
+    Added eSpeak tts support (select during install)
+
 03APR16 => YOU MUST RE-RUN ./jarvis.sh -i
     Improved Install process with more interactions for config
     Added new Speech Recognition: Wit.ai
