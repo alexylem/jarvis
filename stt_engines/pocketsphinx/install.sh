@@ -1,5 +1,4 @@
 #!/bin/bash
-echo "platform=$platform"
 echo "1/4 Preparation of dependencies"
 if [[ "$platform" == "linux" ]]; then
     echo -e "\tUpdating..."

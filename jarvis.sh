@@ -274,11 +274,12 @@ while getopts ":$flags" o; do
             done
             sed -i.old "s/rec_hw=false/rec_hw=$rec_hw/" jarvis-config.sh
 			clear
-			echo "We want to make sure the mic level is high enough"
-			echo "Hit [Enter] and use [Arrows] to select Mic and raise volume to maximum"
-			read
-			alsamixer -c $card -V capture
-            clear
+			# below is commmented because sometimes high sensibility impacts recognition but is also not supported on osx
+            #echo "We want to make sure the mic level is high enough"
+			#echo "Hit [Enter] and use [Arrows] to select Mic and raise volume to maximum"
+			#read
+			#alsamixer -c $card -V capture
+            #clear
 			cat << EOF
 Installation complete.
 What to do now?

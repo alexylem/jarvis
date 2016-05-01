@@ -16,7 +16,8 @@ rawurlencode() { # here because used in TTS
 }
 
 google_TTS () { # TTS () {} Speaks text $1
-audio_file="$tmp_folder/`echo -n $1 | md5sum | awk '{print $1}'`.mp3"
+[[ "$platform" == "osx" ]] && md5='md5' || md5='md5sum'
+audio_file="$tmp_folder/`echo -n $1 | $md5 | awk '{print $1}'`.mp3"
 [ -f $audio_file ] || wget `$verbose || echo -q` -U Mozilla -O $audio_file "http://translate.google.com/translate_tts?tl=fr&client=tw-ob&ie=UTF-8&q=`rawurlencode \"$1\"`"
 mpg123 -q ` [ $play_hw = false ] || echo "-a $play_hw"` $audio_file # space between ` and [ is important
 }
