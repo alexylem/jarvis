@@ -1,10 +1,13 @@
+08MAY16
+    Directly listen for command (ex: physical button) using -l
+    
 01MAY16
     Added eSpeak tts support (select during install)
 
 03APR16 => YOU MUST RE-RUN ./jarvis.sh -i
     Improved Install process with more interactions for config
     Added new Speech Recognition: Wit.ai
-    Restructured stt and tts engines into seperate folders
+    Restructured stt and tts engines into separate folders
 
 02APR16
     PocketSphinx automatic install

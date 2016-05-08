@@ -6,7 +6,7 @@ cat << EOF
 | by Alexandre Mély - alexandre.mely@gmail.com |
 +----------------------------------------------+
 EOF
-flags='bcefhikl:pqrs:tuvx'
+flags='bcefhiklpqrs:tuvx'
 show_help () { cat << EOF
 
     Usage: ${0##*/} [-$flags]
@@ -22,7 +22,7 @@ show_help () { cat << EOF
     -h  display this help
     -i  install (dependencies, pocketsphinx, setup)
     -k  read from keyboard instead of microphone
-    -l  just listen to filename, ex: $0 -l "speech.wav"
+    -l  directly listen for one command (ex: launch from physical button)
     -p  report a problem
     -q  do not speak answer (just console)
     -r  uninstall (remove config files)
@@ -274,7 +274,7 @@ while getopts ":$flags" o; do
             done
             sed -i.old "s/rec_hw=false/rec_hw=$rec_hw/" jarvis-config.sh
 			clear
-			# below is commmented because sometimes high sensibility impacts recognition but is also not supported on osx
+			# below is commmented because sometimes high sensibility impacts recognition but is 
             #echo "We want to make sure the mic level is high enough"
 			#echo "Hit [Enter] and use [Arrows] to select Mic and raise volume to maximum"
 			#read
@@ -298,8 +298,7 @@ Start JARVIS
 EOF
 			exit;;
         k)	keyboard=true;;
-        l)  just_listen=${OPTARG}
-            echo "recording to: $just_listen";;
+        l)  just_listen=true;;
 		p)	echo "Create an issue on GitHub"
 			echo "https://github.com/alexylem/jarvis/issues/new"
 			exit;;
@@ -346,14 +345,17 @@ if [[ "$just_say" != false ]]; then
 	exit
 fi
 
-# if -l argument provided, just listen it & exit
-if [[ "$just_listen" != false ]]; then
-    LISTEN "$just_listen"
-	exit
+# don't check updates if directly in command mode
+if [ $just_listen = true ]; then
+    $check_updates = false
+    bypass=true
+else
+    say "$hello $username"
+    bypass=false
 fi
 
 # check for updates
-if "$check_updates"; then
+if [ $check_updates = true ]; then
 	printf "Checking for updates..."
 	git fetch origin -q &
 	spinner $!
@@ -398,8 +400,6 @@ handlecommand() {
 	say "$unknown_command: $order"
 }
 
-say "$hello $username"
-bypass=false
 trap "exit" INT # exit jarvis with Ctrl+C
 while true; do
 	if [ $keyboard = true ]; then
@@ -461,4 +461,5 @@ while true; do
 		echo # new line
 	fi
 	[ -n "$order" ] && handlecommand "$order"
+    $just_listen && [ $bypass = false ] && exit
 done
