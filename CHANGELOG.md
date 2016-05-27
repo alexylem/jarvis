@@ -1,3 +1,6 @@
+27MAY16
+    Allow to deactivate conversation mode to stop after command (in config)
+    
 08MAY16
     Directly listen for command (ex: physical button) using -l
     

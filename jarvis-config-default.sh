@@ -19,6 +19,10 @@ always_listening=true
 # if always_listening is true, magic word to be said
 trigger='JARVIS' # also update at top of jarvis-commands file
 
+# after first command is executed, wait for another command to be said
+# will wait again for trigger if nothing said for 10 secs
+conversation_mode=true
+
 # language
 language=
 

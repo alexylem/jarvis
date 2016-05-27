@@ -422,7 +422,7 @@ while true; do
 				$verbose && echo "DEBUG: speech duration was $duration"
 				if $bypass; then
 					if [ -z "$duration" ]; then
-						$verbose && echo "DEBUG: timeout, end of hot conversation" || printf '.'
+						$verbose && echo "DEBUG: timeout, end of conversation" || printf '.'
 						PLAY beep-low.wav
 						sleep 1 # BUG here despite timeout mic still busy can't rec again...
 						bypass=false
@@ -461,5 +461,6 @@ while true; do
 		echo # new line
 	fi
 	[ -n "$order" ] && handlecommand "$order"
+    $conversation_mode || bypass=false
     $just_listen && [ $bypass = false ] && exit
 done
