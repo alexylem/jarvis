@@ -1,3 +1,6 @@
+29MAY16
+    Text captures in commands, ex: *REPEAT (*) AND (*)==say "(1) (2)"
+
 27MAY16
     Allow to deactivate conversation mode to stop after command (in config)
     

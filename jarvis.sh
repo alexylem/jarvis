@@ -388,9 +388,10 @@ handlecommand() {
 		patterns=${line%==*} # *HELLO*|*GOOD*MORNING*==say Hi => *HELLO*|*GOOD*MORNING*
 		IFS='|' read -ra ARR <<< "$patterns" # *HELLO*|*GOOD*MORNING* => [*HELLO*, *GOOD*MORNING*]
 		for pattern in "${ARR[@]}"; do # *HELLO*
-			if [[ $order == $pattern ]]; then # HELLO THERE == *HELLO*
+			regex="^${pattern//'*'/.*}$" # .*HELLO.*
+            if [[ $order =~ $regex ]]; then # HELLO THERE =~ .*HELLO.*
 				action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
-				action="${action/.../$order}"
+				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'`
 				$verbose && echo "$> $action"
                 eval "$action" || say "$command_failed"
 				$all_matches || return

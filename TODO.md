@@ -20,7 +20,10 @@
 	*BAD*==say "oh no..."
 ```
 - [X] add an OR operator
-- [ ] remind me to...
+- [X] variable Recognition
+```
+*REPEAT (*) AND (*)==say "(1) (2)"
+```
 
 # Voice
 

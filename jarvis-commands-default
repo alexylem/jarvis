@@ -7,7 +7,7 @@ ANNULE*|TERMINE*==bypass=false; say "Ok"
 *AU REVOIR*|*BYE*==say "Au revoir $username"; exit
 *TEST*==say "Ca fonctionne!"
 *VERSION*==say "Je suis en version 0.1"
-*REPETE*==say "..."
+*REPETE (*) ET (*)==say "(1) (2)"
 *QUELLE HEURE*==say "il est `date +%H:%M`"
 *QUEL JOUR*==say "nous sommes le `date +"%A %d %h %Y"`"
 *SENS*VIE*==say "42"
