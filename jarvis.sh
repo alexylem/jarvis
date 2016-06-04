@@ -345,6 +345,15 @@ if [[ "$just_say" != false ]]; then
 	exit
 fi
 
+# troubleshooting info
+if [ $verbose = true ]; then
+    echo -e "\n------- Config (verbose) -------"
+    for parameter in platform language play_hw rec_hw trigger_stt command_stt tts_engine google_speech_api_key; do
+        printf "%-21s %s \n" "$parameter" "${!parameter}"
+    done
+    echo -e "--------------------------------\n"
+fi
+
 # don't check updates if directly in command mode
 if [ $just_listen = true ]; then
     $check_updates = false
@@ -417,10 +426,11 @@ while true; do
 		while true; do
 			#$quiet || PLAY beep-high.wav
 			while true; do
-				$bypass && timeout='settimeout 10' || timeout=''
+				$verbose && echo "(listening...)"
+                $bypass && timeout='settimeout 10' || timeout=''
 				eval "$timeout LISTEN $audiofile"
 				duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
-				$verbose && echo "DEBUG: speech duration was $duration"
+				$verbose && echo "DEBUG: speech duration was $duration (10 = 1 sec)"
 				if $bypass; then
 					if [ -z "$duration" ]; then
 						$verbose && echo "DEBUG: timeout, end of conversation" || printf '.'

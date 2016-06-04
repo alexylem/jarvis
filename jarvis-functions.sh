@@ -15,9 +15,9 @@ PLAY () { # PLAY () {} Play audio file $1
     eval "$play_export play -V1 -q $1";
 }
 LISTEN () { # LISTEN () {} Listens microhpone and record to audio file $1 when sound is detected until silence
-    $verbose && local quiet='' || local quiet='-q'
+    #$verbose && local quiet='' || local quiet='-q'
     [ "$rec_hw" != false ] && local rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa" || local rec_export=''
-    eval "$rec_export rec -V1 $quiet -r 16000 -c 1 -b 16 -e signed-integer --endian little $1 silence 1 $min_noise_duration_to_start $min_noise_perc_to_start 1 $min_silence_duration_to_stop $min_silence_level_to_stop trim 0 $max_noise_duration_to_kill"
+    eval "$rec_export rec -V1 -q -r 16000 -c 1 -b 16 -e signed-integer --endian little $1 silence 1 $min_noise_duration_to_start $min_noise_perc_to_start 1 $min_silence_duration_to_stop $min_silence_level_to_stop trim 0 $max_noise_duration_to_kill"
     if [ "$?" -ne 0 ]; then
         echo "ERROR: rec command failed"
         exit 1
