@@ -30,8 +30,11 @@ dialog_select () { # usage dialog_select "question" list[@] "default"
 dialog_menu () { # usage dialog_menu "question" list[@]
     declare -a list=("${!2}")
     local nb=${#list[@]}
-    local list=$(printf "%s '' " "${list[@]}")
-    whiptail --title "Jarvis" --menu "$1" --noitem 20 76 $nb $list 3>&1 1>&2 2>&3
+    local items=()
+    for item in "${list[@]}"; do
+        items+=("" "$item")
+    done
+    whiptail --title "Jarvis" --menu "$1" 20 76 $nb "${items[@]}" 3>&1 1>&2 2>&3
 }
 
 dialog_yesno () { # usage dialog_yesno "question" default(true/false)
