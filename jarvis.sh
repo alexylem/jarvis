@@ -88,7 +88,7 @@ checkupdates () {
 		"e") echo -e "[\033[31mError\033[0m]";;
 		"0") echo -e "[\033[32mUp-to-date\033[0m]";;
 		*)	echo -e "[\033[33mNew version available\033[0m]"
-			if [ dialog_yesno "A new version of JARVIS is available, would you like to update?" ]; then
+			if dialog_yesno "A new version of JARVIS is available, would you like to update?" false; then
 				autoupdate 1 # has spinner inside
 				dialog_msg "Please restart JARVIS"
 				exit
