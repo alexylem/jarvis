@@ -283,7 +283,6 @@ done
 
 # load default & user configuration
 configure "load" || wizard
-source jarvis-functions.sh
 update_commands
 
 # say wrapper to be used in jarvis-commands
@@ -440,6 +439,7 @@ EOM
         *) exit;;
     esac
 done
+
 # troubleshooting info
 if [ $verbose = true ]; then
     echo -e "\n------- Config (verbose) -------"
@@ -448,6 +448,8 @@ if [ $verbose = true ]; then
     done
     echo -e "--------------------------------\n"
 fi
+# not before because tts & stt may have changed in settings
+source jarvis-functions.sh
 
 settimeout () { # usage settimeout 10 command args
 	local timeout=$1
