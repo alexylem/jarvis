@@ -273,17 +273,7 @@ while getopts ":$flags" o; do
             exit;;
         l)  just_listen=true;;
 		s)	just_say=${OPTARG};;
-        x)	cp jarvis-config.sh jarvis-config-default.sh
-            sed -i.old -E 's/username=.*/username="`whoami`"/' jarvis-config-default.sh
-            sed -i.old -E 's/language=.*/language=/' jarvis-config-default.sh
-            sed -i.old -E 's/check_updates=.*/check_updates=true/' jarvis-config-default.sh
-			sed -i.old -E 's/trigger_stt=.*/trigger_stt=/' jarvis-config-default.sh
-            sed -i.old -E 's/command_stt=.*/command_stt=/' jarvis-config-default.sh
-            sed -i.old -E 's/tts_engine=.*/tts_engine=/' jarvis-config-default.sh
-            sed -i.old -E 's/(google_speech_api_key=").*(")/\1\2/' jarvis-config-default.sh
-            sed -i.old -E 's/(wit_server_access_token=").*(")/\1\2/' jarvis-config-default.sh
-            cp jarvis-commands jarvis-commands-default
-			sed -i.old '/#PRIVATE/d' jarvis-commands-default
+        x)	sed -i.old '/#PRIVATE/d' jarvis-commands-default
 			rm *.old
 			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
 			exit;;
