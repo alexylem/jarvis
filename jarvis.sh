@@ -71,7 +71,7 @@ autoupdate () { # usage autoupdate 1 to show changelog
 	spinner $!
 	echo " " # remove spinner
     [ $1 ] || return
-    clean
+    clear
     echo "Update completed"
     echo "Recent changes:"
     head CHANGELOG.md
