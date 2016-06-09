@@ -18,9 +18,12 @@ dialog_input () { # usage dialog_input "question" "default"
 dialog_select () { # usage dialog_select "question" list[@] "default"
     declare -a list=("${!2}")
     local nb=${#list[@]}
-    local list=$(printf "%s OFF " "${list[@]}")
+    local items=""
+    for item in "${list[@]}"; do
+        items="$items $item `[ "$item" = "$3" ] && echo "ON" || echo "OFF"` "
+    done
     # don't put local or else return code always O
-    result=`whiptail --radiolist "$1\n(Press space to Select, Enter to validate)" --noitem 20 76 $nb $list 3>&1 1>&2 2>&3`
+    result=`whiptail --radiolist "$1\n(Press space to Select, Enter to validate)" --noitem 20 76 $nb $items 3>&1 1>&2 2>&3`
     (( $? )) && echo "$3" || echo "$result"
 }
 
@@ -39,5 +42,6 @@ dialog_yesno () { # usage dialog_yesno "question" default(true/false)
         255) result="$2";;
     esac
     echo "$result"
-    [ "result" = false ] && return 1
+    [ "$result" = false ] && return 1
+    return 0
 }
