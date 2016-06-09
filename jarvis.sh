@@ -295,6 +295,9 @@ if [[ "$just_say" != false ]]; then
 	exit
 fi
 
+# check for updates
+[ $check_updates = true ] && [ $just_listen = false ] && checkupdates
+
 # main menu
 while true; do
     options=('Start Jarvis' 'Settings' 'Commands (what JARVIS can understand and execute)' 'Events (what JARVIS monitors and notifies you about)' 'Search for updates' 'Help / Report a problem' 'About')
@@ -446,18 +449,6 @@ if [ $verbose = true ]; then
     echo -e "--------------------------------\n"
 fi
 
-# don't check updates if directly in command mode
-if [ $just_listen = true ]; then
-    $check_updates = false
-    bypass=true
-else
-    say "$hello $username"
-    bypass=false
-fi
-
-# check for updates
-[ $check_updates = true ] && checkupdates
-
 settimeout () { # usage settimeout 10 command args
 	local timeout=$1
 	shift
@@ -484,6 +475,14 @@ handlecommand() {
 	done < jarvis-commands
 	say "$unknown_command: $order"
 }
+
+# don't check updates if directly in command mode
+if [ $just_listen = true ]; then
+    bypass=true
+else
+    say "$hello $username"
+    bypass=false
+fi
 
 trap "exit" INT # exit jarvis with Ctrl+C
 while true; do
