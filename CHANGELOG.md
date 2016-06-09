@@ -1,3 +1,6 @@
+09JUN16
+    New user interface, simplified updates
+
 29MAY16
     Text captures in commands, ex: *REPEAT (*) AND (*)==say "(1) (2)"
 
