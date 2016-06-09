@@ -32,7 +32,7 @@ dialog_menu () { # usage dialog_menu "question" list[@]
     local nb=${#list[@]}
     local items=()
     for item in "${list[@]}"; do
-        items+=("" "$item")
+        items+=("$item" "")
     done
     whiptail --title "Jarvis" --menu "$1" 20 76 $nb "${items[@]}" 3>&1 1>&2 2>&3
 }
