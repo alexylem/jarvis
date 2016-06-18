@@ -24,6 +24,13 @@ show_help () { cat <<EOF
 EOF
 }
 
+DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+audiofile="jarvis-record.wav"
+cd "$DIR" # needed now for git used in automatic update
+rm -f $audiofile # sometimes, when error, previous recording is played
+testaudiofile="applause.wav"
+shopt -s nocasematch # string comparison case insensitive
+
 if [ "$(uname)" == "Darwin" ]; then
 	platform="osx"
 	dependencies=(awk git iconv nano perl sed sox wget)
@@ -96,13 +103,6 @@ checkupdates () {
 			;;
 	esac
 }
-
-DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-audiofile="jarvis-record.wav"
-cd "$DIR" # needed now for git used in automatic update
-rm -f $audiofile # sometimes, when error, previous recording is played
-testaudiofile="applause.wav"
-shopt -s nocasematch # string comparison case insensitive
 
 # config
 configure () {
