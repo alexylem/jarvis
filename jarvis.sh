@@ -284,6 +284,7 @@ done
 # load default & user configuration
 configure "load" || wizard
 update_commands
+source jarvis-functions.sh
 
 # say wrapper to be used in jarvis-commands
 say () { echo $trigger: $1; $quiet || TTS "$1"; }
@@ -395,7 +396,9 @@ EOM
                     *) break;;
                 esac
             done
-            configure "save";;
+            configure "save"
+            source jarvis-functions.sh # because tts & stt may have changed in settings
+            ;;
         Commands*)
             editor jarvis-commands
             update_commands;;
@@ -448,8 +451,6 @@ if [ $verbose = true ]; then
     done
     echo -e "--------------------------------\n"
 fi
-# not before because tts & stt may have changed in settings
-source jarvis-functions.sh
 
 settimeout () { # usage settimeout 10 command args
 	local timeout=$1
