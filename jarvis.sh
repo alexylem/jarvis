@@ -4,7 +4,7 @@
 # | Site: http://alexylem.github.io/jarvis |
 # +----------------------------------------+
 
-flags='ihls:x'
+flags='bihlns:x'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -15,9 +15,11 @@ show_help () { cat <<EOF
     
     Main options are now accessible through the application menu
     
+    -b  run in background (no menu, continues after terminal is closed)
     -i  install (dependencies, pocketsphinx, setup)
     -h  display this help
     -l  directly listen for one command (ex: launch from physical button)
+    -n  directly start jarvis without menu
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
     -x  build (do not use)
 
@@ -264,14 +266,31 @@ verbose=false
 keyboard=false
 just_say=false
 just_listen=false
+no_menu=false
 while getopts ":$flags" o; do
     case "${o}" in
-		i)  configure "load"
+		b)  ./jarvis.sh -n > jarvis.log 2>&1 &
+            disown
+            cat <<EOM
+Jarvis has been launched in background
+
+To view Jarvis output:
+    cat jarvis.log
+To check if jarvis is running:
+    pgrep -lf jarvis.sh
+To stop Jarvis:
+    pkill -f jarvis.sh
+
+You can now close this terminal
+EOM
+            exit;;
+        i)  configure "load"
             wizard
             exit;;
         h)  show_help
             exit;;
         l)  just_listen=true;;
+        n)  no_menu=true;;
 		s)	just_say=${OPTARG};;
         x)	sed -i.old '/#PRIVATE/d' jarvis-commands-default
 			rm *.old
@@ -299,7 +318,7 @@ fi
 [ $check_updates = true ] && [ $just_listen = false ] && checkupdates
 
 # main menu
-while true; do
+while [ "$no_menu" = false ]; do
     options=('Start Jarvis' 'Settings' 'Commands (what JARVIS can understand and execute)' 'Events (what JARVIS monitors and notifies you about)' 'Search for updates' 'Help / Report a problem' 'About')
     case "`dialog_menu 'Welcome to Jarvis' options[@]`" in
         Start*)
@@ -318,20 +337,7 @@ while true; do
                         quiet=true
                         break 2;;
                     "Start as a service")
-                        #./jarvis.sh > jarvis.log 2>&1 &
-                        disown
-                        dialog_msg <<EOM
-Jarvis has been launched in background
-
-To view Jarvis output:
-    cat jarvis.log
-To check if jarvis is running:
-    pgrep -lf jarvis.sh
-To stop Jarvis:
-    pkill -f jarvis.sh
-
-You can now close this terminal
-EOM
+                        ./jarvis.sh -b
                         exit;;
                     *) break;;
                 esac
