@@ -6,14 +6,11 @@
 # MacOSX: http://sourceforge.net/projects/sox/files/sox/14.4.2/
 # Linux: "sudo apt-get install sox"
 
-source stt_engines/$trigger_stt/main.sh
-source stt_engines/$command_stt/main.sh
-source tts_engines/$tts_engine/main.sh
-
 PLAY () { # PLAY () {} Play audio file $1
     [ "$play_hw" != false ] && local play_export="AUDIODEV=$play_hw AUDIODRIVER=alsa" || local play_export=''
     eval "$play_export play -V1 -q $1";
 }
+
 LISTEN () { # LISTEN () {} Listens microhpone and record to audio file $1 when sound is detected until silence
     #$verbose && local quiet='' || local quiet='-q'
     [ "$rec_hw" != false ] && local rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa" || local rec_export=''

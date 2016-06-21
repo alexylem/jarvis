@@ -11,6 +11,7 @@
 
 - [ ] use lmgen to generate language_model based on command words & trigger (english only)
 - [ ] use hardward for recognition of the trigger
+- [ ] add gain in settings with alsamixer (or osx settings)
 
 # Commands 
 

@@ -1,3 +1,7 @@
+21JUN16
+    Added SVOX Pico voice synthesis
+    Automatic install of TTS & STT dependencies
+
 09JUN16
     New user interface, simplified updates
 

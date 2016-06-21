@@ -35,11 +35,11 @@ shopt -s nocasematch # string comparison case insensitive
 
 if [ "$(uname)" == "Darwin" ]; then
 	platform="osx"
-	dependencies=(awk git iconv nano perl sed sox wget)
+	dependencies=(awk git iconv nano osascript perl sed sox wget)
 	forder="/tmp/jarvis-order"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 	platform="linux"
-	dependencies=(alsamixer aplay arecord awk git iconv mpg123 nano perl sed sox wget)
+	dependencies=(alsamixer aplay arecord awk git iconv mpg123 nano perl sed sox wget whiptail)
 	forder="/dev/shm/jarvis-order"
 else
 	echo "Unsupported platform"; exit 1
@@ -136,7 +136,8 @@ configure () {
         all_matches) eval $1=`dialog_yesno "Execute all matching commands (else only first match)" "${!1}"`;;
         check_updates) eval $1=`dialog_yesno "Check Updates when Jarvis starts up (recommended)" "${!1}"`;;
         command_stt) options=('google' 'wit' 'pocketsphinx')
-                     eval $1=`dialog_select "Which engine to use for the recognition of commands\nRecommended: google" options[@] "${!1}"`;;
+                     eval $1=`dialog_select "Which engine to use for the recognition of commands\nRecommended: google" options[@] "${!1}"`
+                     source stt_engines/$command_stt/main.sh;;
         conversation_mode) eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
         dictionary) eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
         google_speech_api_key) eval $1=`dialog_input "Google Speech API Key\nHow to get one: http://stackoverflow.com/a/26833337" "${!1}"`;;
@@ -194,10 +195,12 @@ configure () {
         trigger_mode) options=("magic_word" "enter_key" "physical_button")
                  eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`;;
         trigger_stt) options=('pocketsphinx' 'google')
-                     eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nRecommended: pocketsphinx" options[@] "${!1}"`;;
-        tts_engine) options=('google' 'espeak' 'osx_say')
+                     eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nRecommended: pocketsphinx" options[@] "${!1}"`
+                     source stt_engines/$trigger_stt/main.sh;;
+        tts_engine) options=('google' 'svox_pico' 'espeak' 'osx_say')
                     recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'google'`
-                    eval $1=`dialog_select "Which engine to use for the speech synthesis\nRecommended for your platform: $recommended" options[@] "${!1}"`;;
+                    eval $1=`dialog_select "Which engine to use for the speech synthesis\nRecommended for your platform: $recommended" options[@] "${!1}"`
+                    source tts_engines/$tts_engine/main.sh;;
         username) eval $1=`dialog_input "How would you like to be called?" "${!1}"`;;
         wit_server_access_token) eval $1=`dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}"`;;
         *) echo "ERROR: Unknown configure $1";;
@@ -206,16 +209,6 @@ configure () {
 
 wizard () {
     checkupdates
-    dialog_msg "Hello, my name is JARVIS, nice to meet you"
-    configure "language"
-    
-    [ "$language" != "en_EN" ] && dialog_msg "Note: the installation & menus are only in English for the moment."
-    
-    configure "username"
-    configure "trigger_stt"
-    configure "command_stt"
-    configure "tts_engine"
-    
     echo "Checking dependencies:"
     # remove dupplicates
     dependencies=(`echo "${dependencies[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '`)
@@ -236,23 +229,23 @@ wizard () {
     }
     read -p "Press [Enter] to continue"
     
+    dialog_msg "Hello, my name is JARVIS, nice to meet you"
+    configure "language"
+    
+    [ "$language" != "en_EN" ] && dialog_msg "Note: the installation & menus are only in English for the moment."
+    
+    configure "username"
+    configure "trigger_stt"
+    configure "command_stt"
+    configure "tts_engine"
+    
     if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
         configure "google_speech_api_key"
     fi
     if [ $trigger_stt = 'wit' ] || [ $command_stt = 'wit' ]; then
         configure "wit_server_access_token"
     fi
-    if [ $trigger_stt = 'pocketsphinx' ] || [ $command_stt = 'pocketsphinx' ]; then
-        hash pocketsphinx_continuous 2>/dev/null || {
-            clear
-            echo "PocketSphinx doesn't seem to be installed"
-            read -p "Press [Enter] to install it"
-            cd stt_engines/pocketsphinx
-            source install.sh || exit 1
-            cd ../../
-            read -p "Press [Enter] to continue"
-        }
-    fi
+    
     configure "play_hw"
     configure "rec_hw"
     
@@ -289,7 +282,8 @@ EOM
             exit;;
         h)  show_help
             exit;;
-        l)  just_listen=true;;
+        l)  just_listen=true
+            no_menu=true;;
         n)  no_menu=true;;
 		s)	just_say=${OPTARG};;
         x)	sed -i.old '/#PRIVATE/d' jarvis-commands-default
@@ -304,6 +298,9 @@ done
 configure "load" || wizard
 update_commands
 source jarvis-functions.sh
+source stt_engines/$trigger_stt/main.sh
+source stt_engines/$command_stt/main.sh
+source tts_engines/$tts_engine/main.sh
 
 # say wrapper to be used in jarvis-commands
 say () { echo $trigger: $1; $quiet || TTS "$1"; }
@@ -362,10 +359,12 @@ while [ "$no_menu" = false ]; do
                         done;;
                     "Audio")
                         while true; do
-                            options=("Speaker ($play_hw)" "Mic ($rec_hw)" "Min noise duration to start ($min_noise_duration_to_start)" "Min noise perc to start ($min_noise_perc_to_start)" "Min silence duration to stop ($min_silence_duration_to_stop)" "Min silence level to stop ($min_silence_level_to_stop)" "Max noise duration to kill ($max_noise_duration_to_kill)")
+                            options=("Speaker ($play_hw)" "Mic ($rec_hw)" "Volume" "Sensitvity" "Min noise duration to start ($min_noise_duration_to_start)" "Min noise perc to start ($min_noise_perc_to_start)" "Min silence duration to stop ($min_silence_duration_to_stop)" "Min silence level to stop ($min_silence_level_to_stop)" "Max noise duration to kill ($max_noise_duration_to_kill)")
                             case "`dialog_menu 'Configuration > Audio' options[@]`" in
                                 Speaker*) configure "play_hw";;
                                 Mic*) configure "rec_hw";;
+                                Volume) alsamixer;;
+                                Sensitvity) alsamixer;;
                                 *duration*start*) configure "min_noise_duration_to_start";;
                                 *perc*start*) configure "min_noise_perc_to_start";;
                                 *duration*stop*) configure "min_silence_duration_to_stop";;
@@ -402,9 +401,7 @@ while [ "$no_menu" = false ]; do
                     *) break;;
                 esac
             done
-            configure "save"
-            source jarvis-functions.sh # because tts & stt may have changed in settings
-            ;;
+            configure "save";;
         Commands*)
             editor jarvis-commands
             update_commands;;
