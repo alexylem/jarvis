@@ -20,6 +20,6 @@ hash 'pico2wave' 2>/dev/null || {
 
 svox_pico_TTS () { # TTS () {} Speaks text $1
     wavfile="$tmp_folder/tts.wav"
-    /usr/bin/pico2wave -l ${language:0:2} -w "$wavfile" "$1"
+    /usr/bin/pico2wave -l ${language//_/-} -w "$wavfile" "$1"
     PLAY "$wavfile"
 }
