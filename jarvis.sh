@@ -4,7 +4,7 @@
 # | Site: http://alexylem.github.io/jarvis |
 # +----------------------------------------+
 
-flags='bihlns:x'
+flags='bihlns:'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -21,7 +21,6 @@ show_help () { cat <<EOF
     -l  directly listen for one command (ex: launch from physical button)
     -n  directly start jarvis without menu
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
-    -x  build (do not use)
 
 EOF
 }
@@ -286,10 +285,6 @@ EOM
             no_menu=true;;
         n)  no_menu=true;;
 		s)	just_say=${OPTARG};;
-        x)	sed -i.old '/#PRIVATE/d' jarvis-commands-default
-			rm *.old
-			open -a "GitHub Desktop" /Users/alex/Documents/jarvis
-			exit;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
     esac
 done
@@ -363,8 +358,29 @@ while [ "$no_menu" = false ]; do
                             case "`dialog_menu 'Configuration > Audio' options[@]`" in
                                 Speaker*) configure "play_hw";;
                                 Mic*) configure "rec_hw";;
-                                Volume) alsamixer;;
-                                Sensitvity) alsamixer;;
+                                Volume) if [ "$platform" == "osx" ]; then
+                                            osascript <<EOM
+                                                tell application "System Preferences"
+                                                    activate
+                                                    set current pane to pane "com.apple.preference.sound"
+                                                    reveal (first anchor of current pane whose name is "output")
+                                                end tell
+EOM
+                                        else
+                                            alsamixer -c ${play_hw:3:1} -V playback
+                                        fi;;
+                                Sensitvity) 
+                                if [ "$platform" == "osx" ]; then
+                                            osascript <<EOM
+                                                tell application "System Preferences"
+                                                    activate
+                                                    set current pane to pane "com.apple.preference.sound"
+                                                    reveal (first anchor of current pane whose name is "input")
+                                                end tell
+EOM
+                                        else
+                                            alsamixer -c ${rec_hw:3:1} -V capture
+                                        fi;;
                                 *duration*start*) configure "min_noise_duration_to_start";;
                                 *perc*start*) configure "min_noise_perc_to_start";;
                                 *duration*stop*) configure "min_silence_duration_to_stop";;

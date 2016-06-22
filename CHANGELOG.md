@@ -1,3 +1,6 @@
+22JUN16
+    Volume & sensitivity settings
+
 21JUN16
     Added SVOX Pico voice synthesis
     Automatic install of TTS & STT dependencies
