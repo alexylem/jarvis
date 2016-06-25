@@ -1,3 +1,7 @@
+25JUN16
+    Added Snowboy trigger recognition https://github.com/alexylem/jarvis/issues/8
+    Improved audio hardware selection
+    
 22JUN16
     Volume & sensitivity settings
 

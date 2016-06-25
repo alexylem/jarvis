@@ -51,6 +51,8 @@ hash 'pocketsphinx_continuous' 2>/dev/null || {
     }
 }
 
-pocketsphinx_STT () { # STT () {} Transcribes audio file $1 and writes corresponding text in $forder
-LD_LIBRARY_PATH=/usr/local/lib PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pocketsphinx_continuous -lm $language_model -dict $dictionary -logfn $pocketsphinxlog -infile $1 > $forder
+pocketsphinx_STT () { # STT () {} Listen & transcribes audio file then writes corresponding text in $forder
+LISTEN $audiofile
+LD_LIBRARY_PATH=/usr/local/lib PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pocketsphinx_continuous -lm $language_model -dict $dictionary -logfn $pocketsphinxlog -infile $audiofile > $forder &
+spinner $!
 }

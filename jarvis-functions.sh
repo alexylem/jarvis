@@ -7,23 +7,62 @@
 # Linux: "sudo apt-get install sox"
 
 PLAY () { # PLAY () {} Play audio file $1
-    [ "$play_hw" != false ] && local play_export="AUDIODEV=$play_hw AUDIODRIVER=alsa" || local play_export=''
-    eval "$play_export play -V1 -q $1";
+    play -V1 -q $1
 }
 
-LISTEN () { # LISTEN () {} Listens microhpone and record to audio file $1 when sound is detected until silence
+RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is detected until silence
     #$verbose && local quiet='' || local quiet='-q'
-    [ "$rec_hw" != false ] && local rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa" || local rec_export=''
-    eval "$rec_export rec -V1 -q -r 16000 -c 1 -b 16 -e signed-integer --endian little $1 silence 1 $min_noise_duration_to_start $min_noise_perc_to_start 1 $min_silence_duration_to_stop $min_silence_level_to_stop trim 0 $max_noise_duration_to_kill"
+    rec -V1 -q -r 16000 -c 1 -b 16 -e signed-integer --endian little $1 silence 1 $min_noise_duration_to_start $min_noise_perc_to_start 1 $min_silence_duration_to_stop $min_silence_level_to_stop trim 0 $max_noise_duration_to_kill
     if [ "$?" -ne 0 ]; then
         echo "ERROR: rec command failed"
         exit 1
     fi
 }
-STT () { # STT () {} Transcribes audio file $1 and writes corresponding text in $forder
-    $bypass && local stt_function=$command_stt'_STT' || local stt_function=$trigger_stt'_STT'
-    $stt_function "$1"
+
+LISTEN_COMMAND () {
+    while true; do
+        settimeout 10 RECORD "$audiofile"
+        duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
+        $verbose && echo "DEBUG: speech duration was $duration (10 = 1 sec)"
+        if [ -z "$duration" ]; then
+            $verbose && echo "DEBUG: timeout, end of conversation" || printf '.'
+            PLAY beep-low.wav
+            sleep 1 # BUG here despite timeout mic still busy can't rec again...
+            bypass=false
+            order='' # clean previous order
+            break 2
+        elif [ "$duration" -gt 40 ]; then
+            $verbose && echo "DEBUG: too long for a command (max 4 secs), ignoring..." || printf '#'
+            continue
+        else
+            break
+        fi
+    done
 }
+
+LISTEN_TRIGGER () {
+    while true; do
+        RECORD "$audiofile"
+        duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
+        $verbose && echo "DEBUG: speech duration was $duration (10 = 1 sec)"
+        if [ "$duration" -lt 2 ]; then
+            $verbose && echo "DEBUG: too short for a trigger (min 0.2 max 1.5 sec), ignoring..." || printf '-'
+            continue
+        elif [ "$duration" -gt 20 ]; then
+            $verbose && echo "DEBUG: too long for a trigger (min 0.5 max 1.5 sec), ignoring..." || printf '#'
+            sleep 1 # BUG 
+            continue
+        else
+            break
+        fi
+    done
+}
+
+LISTEN () {
+    $bypass && LISTEN_COMMAND || LISTEN_TRIGGER
+    $verbose && PLAY "$audiofile"
+}
+
 TTS () { # TTS () {} Speaks text $1
     $tts_engine'_TTS' "$1"
 }

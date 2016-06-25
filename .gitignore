@@ -56,3 +56,21 @@ config/tts_engine
 config/username
 
 config/wit_server_access_token
+
+stt_engines/snowboy/_snowboydetect.so
+
+stt_engines/snowboy/resources/common.res
+
+stt_engines/snowboy/resources/ding.wav
+
+stt_engines/snowboy/resources/dong.wav
+
+stt_engines/snowboy/resources/snowboy.umdl
+
+stt_engines/snowboy/snowboydecoder.py
+
+stt_engines/snowboy/snowboydecoder.pyc
+
+stt_engines/snowboy/snowboydetect.py
+
+stt_engines/snowboy/snowboydetect.pyc

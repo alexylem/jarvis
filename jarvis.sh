@@ -29,7 +29,6 @@ DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 audiofile="jarvis-record.wav"
 cd "$DIR" # needed now for git used in automatic update
 rm -f $audiofile # sometimes, when error, previous recording is played
-testaudiofile="applause.wav"
 shopt -s nocasematch # string comparison case insensitive
 
 if [ "$(uname)" == "Darwin" ]; then
@@ -157,16 +156,16 @@ configure () {
         min_silence_duration_to_stop) eval $1=`dialog_input "Min silence duration to stop" "${!1}"`;;
         min_silence_level_to_stop) eval $1=`dialog_input "Min silence level to stop" "${!1}"`;;
         play_hw)
-            play_export=''
             while true; do
                 dialog_msg "Checking audio output, make sure your speakers are on and press [Ok]"
-                [ $play_hw != false ] && play_export="AUDIODEV=$play_hw AUDIODRIVER=alsa"
-                eval "$play_export play $testaudiofile"
+                play "applause.wav"
                 dialog_yesno "Did you hear something?" true && break
-                aplay -l
-                read -p "Indicate the card # to use [0-9]: " card
-                read -p "Indicate the device # to use [0-9]: " device
-                play_hw="hw:$card,$device"
+                clear
+                IFS=$'\n'
+                devices=(`aplay -l | grep ^card`)
+                device=`dialog_select "Select a speaker" devices[@]`
+                play_hw=`echo $device | sed -rn 's/card ([0-9]+)[^,]*, device ([0-9]+).*/hw:\1,\2/p'`
+                update_alsa $play_hw $rec_hw
             done
             ;;
         pocketsphinxlog) eval $1=`dialog_input "File to store PocketSphinx logs" "${!1}"`;;
@@ -174,13 +173,15 @@ configure () {
             rec_export=''
             while true; do
                 dialog_msg "Checking audio input, make sure your microphone is on, press [Ok] and say something"
-                [ $rec_hw != false ] && rec_export="AUDIODEV=$rec_hw AUDIODRIVER=alsa"
-                eval "$rec_export rec $audiofile trim 0 3; $play_export play $audiofile"
+                rec $audiofile trim 0 3
+                play $audiofile
                 dialog_yesno "Did you hear yourself?" true && break
-                arecord -l
-                read -p "Indicate the card # to use [0-9]: " card
-                read -p "Indicate the device # to use [0-9]: " device
-                rec_hw="hw:$card,$device"
+                clear
+                IFS=$'\n'
+                devices=(`arecord -l | grep ^card`)
+                device=`dialog_select "Select a microphone" devices[@]`
+                rec_hw=`echo $device | sed -rn 's/card ([0-9]+)[^,]*, device ([0-9]+).*/hw:\1,\2/p'`
+                update_alsa $play_hw $rec_hw
             done
             ;;
         save) for varname in "${variables[@]}"; do
@@ -193,8 +194,17 @@ configure () {
             update_commands;;
         trigger_mode) options=("magic_word" "enter_key" "physical_button")
                  eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`;;
-        trigger_stt) options=('pocketsphinx' 'google')
+        trigger_stt) options=('snowboy' 'pocketsphinx' 'google')
                      eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nRecommended: pocketsphinx" options[@] "${!1}"`
+                     if [ "$trigger_stt" = "snowboy" ]; then
+                        dialog_msg <<EOM
+For now, Jarvis only accepts the default trigger \"SNOWBOY\"
+In a next version it will be possible to change the trigger
+Your trigger has to be updated to \"SNOWBOY\"
+EOM
+                        trigger="SNOWBOY"
+                        configure "trigger"
+                    fi
                      source stt_engines/$trigger_stt/main.sh;;
         tts_engine) options=('google' 'svox_pico' 'espeak' 'osx_say')
                     recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'google'`
@@ -296,6 +306,8 @@ source jarvis-functions.sh
 source stt_engines/$trigger_stt/main.sh
 source stt_engines/$command_stt/main.sh
 source tts_engines/$tts_engine/main.sh
+source utils/utils.sh
+[ $play_hw = false ] && [ $rec_hw = false ] || update_alsa $play_hw $rec_hw  # retro compatibility
 
 # say wrapper to be used in jarvis-commands
 say () { echo $trigger: $1; $quiet || TTS "$1"; }
@@ -521,42 +533,16 @@ while true; do
 		$quiet || PLAY beep-high.wav
 		while true; do
 			#$quiet || PLAY beep-high.wav
-			while true; do
-				$verbose && echo "(listening...)"
-                $bypass && timeout='settimeout 10' || timeout=''
-				eval "$timeout LISTEN $audiofile"
-				duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
-				$verbose && echo "DEBUG: speech duration was $duration (10 = 1 sec)"
-				if $bypass; then
-					if [ -z "$duration" ]; then
-						$verbose && echo "DEBUG: timeout, end of conversation" || printf '.'
-						PLAY beep-low.wav
-						sleep 1 # BUG here despite timeout mic still busy can't rec again...
-						bypass=false
-						order='' # clean previous order
-						break 2
-					elif [ "$duration" -gt 40 ]; then
-						$verbose && echo "DEBUG: too long for a command (max 4 secs), ignoring..." || printf '#'
-						continue
-					else
-						break
-					fi
-				else
-					if [ "$duration" -lt 2 ]; then
-						$verbose && echo "DEBUG: too short for a trigger (min 0.2 max 1.5 sec), ignoring..." || printf '-'
-						continue
-					elif [ "$duration" -gt 20 ]; then
-						$verbose && echo "DEBUG: too long for a trigger (min 0.5 max 1.5 sec), ignoring..." || printf '#'
-						continue
-					else
-						break
-					fi
-				fi
-			done
+			
+            $verbose && echo "(listening...)"
+            
+            if $bypass; then
+                eval ${command_stt}_STT
+            else
+                eval ${trigger_stt}_STT
+            fi
 			$verbose && PLAY beep-low.wav
-			$verbose && PLAY "$audiofile"
-			STT "$audiofile" &
-			spinner $!
+            
 			order=`cat $forder`
 			printf "$order"
 			[ -z "$order" ] && printf '?' && continue
