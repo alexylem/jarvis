@@ -197,10 +197,11 @@ configure () {
         trigger_stt) options=('snowboy' 'pocketsphinx' 'google')
                      eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nRecommended: pocketsphinx" options[@] "${!1}"`
                      if [ "$trigger_stt" = "snowboy" ]; then
+                        # use ' instead of " in dialog_msg
                         dialog_msg <<EOM
-For now, Jarvis only accepts the default trigger \"SNOWBOY\"
+For now, Jarvis only accepts the default trigger 'SNOWBOY'
 In a next version it will be possible to change the trigger
-Your trigger has to be updated to \"SNOWBOY\"
+Your trigger has to be updated to 'SNOWBOY'
 EOM
                         trigger="SNOWBOY"
                         configure "trigger"
@@ -307,7 +308,15 @@ source stt_engines/$trigger_stt/main.sh
 source stt_engines/$command_stt/main.sh
 source tts_engines/$tts_engine/main.sh
 source utils/utils.sh
-[ $play_hw = false ] && [ $rec_hw = false ] || update_alsa $play_hw $rec_hw  # retro compatibility
+if ( [ "$play_hw" != "false" ] || [ "$rec_hw" != "false" ] ) && [ ! -f ~/.asoundrc ]; then
+    update_alsa $play_hw $rec_hw  # retro compatibility
+    dialog_msg<<EOM
+JARVIS has created .asoundrc in your homefolder
+YOU MUST REBOOT YOUR SYSTEM TO TAKE IT INTO ACCOUNT
+EOM
+    echo "Please reboot: sudo reboot"
+    exit
+fi
 
 # say wrapper to be used in jarvis-commands
 say () { echo $trigger: $1; $quiet || TTS "$1"; }
