@@ -161,10 +161,14 @@ configure () {
                 play "applause.wav"
                 dialog_yesno "Did you hear something?" true && break
                 clear
-                IFS=$'\n'
-                devices=(`aplay -l | grep ^card`)
-                device=`dialog_select "Select a speaker" devices[@]`
-                play_hw=`echo $device | sed -rn 's/card ([0-9]+)[^,]*, device ([0-9]+).*/hw:\1,\2/p'`
+                aplay -l
+                read -p "Indicate the card # to use [0-9]: " card
+                read -p "Indicate the device # to use [0-9]: " device
+                play_hw="hw:$card,$device"
+                #IFS=$'\n'
+                #devices=(`aplay -l | grep ^card`)
+                #device=`dialog_select "Select a speaker" devices[@]`
+                #play_hw=`echo $device | sed -rn 's/card ([0-9]+)[^,]*, device ([0-9]+).*/hw:\1,\2/p'`
                 update_alsa $play_hw $rec_hw
             done
             ;;
@@ -177,10 +181,14 @@ configure () {
                 play $audiofile
                 dialog_yesno "Did you hear yourself?" true && break
                 clear
-                IFS=$'\n'
-                devices=(`arecord -l | grep ^card`)
-                device=`dialog_select "Select a microphone" devices[@]`
-                rec_hw=`echo $device | sed -rn 's/card ([0-9]+)[^,]*, device ([0-9]+).*/hw:\1,\2/p'`
+                arecord -l
+                read -p "Indicate the card # to use [0-9]: " card
+                read -p "Indicate the device # to use [0-9]: " device
+                rec_hw="hw:$card,$device"
+                #IFS=$'\n'
+                #devices=(`arecord -l | grep ^card`)
+                #device=`dialog_select "Select a microphone" devices[@]`
+                #rec_hw=`echo $device | sed -rn 's/card ([0-9]+)[^,]*, device ([0-9]+).*/hw:\1,\2/p'`
                 update_alsa $play_hw $rec_hw
             done
             ;;
@@ -263,16 +271,6 @@ wizard () {
     dialog_msg "Setup wizard completed."
 }
 
-# Check if Jarvis is already running in background
-#if [ `pgrep -f jarvis.sh | wc -l` -gt 1 ]; then
-#    options=('Show Jarvis output' 'Stop Jarvis')
-#    case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
-#        Show*) cat jarvis.log;;
-#        Stop*) pkill -f jarvis.sh;;
-#    esac
-#    exit
-#fi
-
 # default flags, use options to change see jarvis.sh -h
 quiet=false
 verbose=false
@@ -339,6 +337,16 @@ fi
 
 # check for updates
 [ $check_updates = true ] && [ $just_listen = false ] && checkupdates
+
+# Check if Jarvis is already running in background
+#if [ `pgrep -f jarvis.sh | wc -l` -gt 1 ]; then
+#    options=('Show Jarvis output' 'Stop Jarvis')
+#    case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
+#        Show*) cat jarvis.log;;
+#        Stop*) pkill -f jarvis.sh;;
+#    esac
+#    exit
+#fi
 
 # main menu
 while [ "$no_menu" = false ]; do
