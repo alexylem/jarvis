@@ -264,14 +264,14 @@ wizard () {
 }
 
 # Check if Jarvis is already running in background
-if [ `pgrep -f jarvis.sh | wc -l` -gt 1 ]; then
-    options=('Show Jarvis output' 'Stop Jarvis')
-    case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
-        Show*) cat jarvis.log;;
-        Stop*) pkill -f jarvis.sh; echo "Jarvis has been stopped";;
-    esac
-    exit
-fi
+#if [ `pgrep -f jarvis.sh | wc -l` -gt 1 ]; then
+#    options=('Show Jarvis output' 'Stop Jarvis')
+#    case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
+#        Show*) cat jarvis.log;;
+#        Stop*) pkill -f jarvis.sh;;
+#    esac
+#    exit
+#fi
 
 # default flags, use options to change see jarvis.sh -h
 quiet=false
