@@ -8,10 +8,10 @@ flags='bihlns:'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
-
-    Jarvis.sh is a dead simple configurable multi-lang jarvis-like bot
+    
+    Jarvis.sh is a lightweight configurable multi-lang jarvis-like bot
     Meant for home automation running on slow computer (ex: Raspberry Pi)
-    Very few dependencies. Uses by default online speech recognition & synthesis
+    It installs automatically speech recognition & synthesis engines of your choice
     
     Main options are now accessible through the application menu
     
@@ -474,21 +474,21 @@ EOM
         Help*)
             dialog_msg <<EOM
 A question?
-http://alexylem.github.io/jarvis/#faq
+https://github.com/alexylem/jarvis/wiki/support
 
 A problem or enhancement request?
 Create a ticket on GitHub
 https://github.com/alexylem/jarvis/issues/new
-    
+
 Just want to discuss?
-http://alexylem.github.io/jarvis/#disqus_thread
+https://disqus.com/home/discussion/coinche/jarvis/
 EOM
             ;;
         "About") dialog_msg <<EOM
 JARVIS
 By Alexandre Mély
 
-http://alexylem.github.io/jarvis
+https://github.com/alexylem/jarvis/wiki
 alexandre.mely@gmail.com
 (I don't give support via email, please check Help)
 
