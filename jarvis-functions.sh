@@ -8,6 +8,11 @@
 
 PLAY () { # PLAY () {} Play audio file $1
     play -V1 -q $1
+    if [ "$?" -ne 0 ]; then
+        echo "ERROR: play command failed"
+        echo "HELP: Verify your speaker in Settings > Audio > Speaker"
+        exit 1
+    fi
 }
 
 RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is detected until silence
@@ -15,6 +20,7 @@ RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is det
     rec -V1 -q -r 16000 -c 1 -b 16 -e signed-integer --endian little $1 silence 1 $min_noise_duration_to_start $min_noise_perc_to_start 1 $min_silence_duration_to_stop $min_silence_level_to_stop trim 0 $max_noise_duration_to_kill
     if [ "$?" -ne 0 ]; then
         echo "ERROR: rec command failed"
+        echo "HELP: Verify your mic in Settings > Audio > Mic"
         exit 1
     fi
 }
