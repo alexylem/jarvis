@@ -5,19 +5,18 @@
         echo "1/2 Preparation of dependencies"
         if [[ "$platform" == "linux" ]]; then
             sudo apt-get install python-pyaudio python3-pyaudio
-            pip install pyaudio
             binaries="rpi-arm-raspbian-8.0-1.0.2"
         elif [[ "$platform" == "osx" ]]; then
             brew install portaudio
-            wget https://bootstrap.pypa.io/get-pip.py
-            sudo python get-pip.py
-            rm get-pip.py
-            sudo pip install pyaudio
             binaries="osx-x86_64-1.0.2"
         else
             dialog_msg "Unknown platform"
             exit 1
         fi
+        wget https://bootstrap.pypa.io/get-pip.py
+        sudo python get-pip.py
+        rm get-pip.py
+        sudo pip install pyaudio
         echo "2/2 Installation of Snowboy"
         cd `dirname "${BASH_SOURCE[0]}"`
         wget https://s3-us-west-2.amazonaws.com/snowboy/snowboy-releases/$binaries.tar.bz2
