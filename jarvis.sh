@@ -203,7 +203,7 @@ configure () {
         trigger_mode) options=("magic_word" "enter_key" "physical_button")
                  eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`;;
         trigger_stt) options=('snowboy' 'pocketsphinx' 'google')
-                     eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nRecommended: pocketsphinx" options[@] "${!1}"`
+                     eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nhttps://github.com/alexylem/jarvis/wiki/stt\nRecommended: snowboy" options[@] "${!1}"`
                      if [ "$trigger_stt" = "snowboy" ]; then
                         # use ' instead of " in dialog_msg
                         dialog_msg <<EOM
@@ -217,7 +217,7 @@ EOM
                      source stt_engines/$trigger_stt/main.sh;;
         tts_engine) options=('svox_pico' 'google' 'espeak' 'osx_say')
                     recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico'`
-                    eval $1=`dialog_select "Which engine to use for the speech synthesis\nRecommended for your platform: $recommended" options[@] "${!1}"`
+                    eval $1=`dialog_select "Which engine to use for the speech synthesis\nhttps://github.com/alexylem/jarvis/wiki/stt\nRecommended for your platform: $recommended" options[@] "${!1}"`
                     source tts_engines/$tts_engine/main.sh;;
         username) eval $1=`dialog_input "How would you like to be called?" "${!1}"`;;
         wit_server_access_token) eval $1=`dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}"`;;
