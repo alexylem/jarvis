@@ -215,8 +215,8 @@ EOM
                         configure "trigger"
                     fi
                      source stt_engines/$trigger_stt/main.sh;;
-        tts_engine) options=('google' 'svox_pico' 'espeak' 'osx_say')
-                    recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'google'`
+        tts_engine) options=('svox_pico' 'google' 'espeak' 'osx_say')
+                    recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico'`
                     eval $1=`dialog_select "Which engine to use for the speech synthesis\nRecommended for your platform: $recommended" options[@] "${!1}"`
                     source tts_engines/$tts_engine/main.sh;;
         username) eval $1=`dialog_input "How would you like to be called?" "${!1}"`;;
@@ -534,7 +534,7 @@ handlecommand() {
 			fi
 		done
 	done < jarvis-commands
-	say "$unknown_command: $order"
+	say "$unknown_command: $order" # TODO not used anymore as in commands?
 }
 
 # don't check updates if directly in command mode
@@ -580,7 +580,8 @@ while true; do
 		done
 		echo # new line
 	fi
+    was_in_conversation=$bypass
 	[ -n "$order" ] && handlecommand "$order"
-    $conversation_mode || bypass=false
+    $was_in_conversation && [ $conversation_mode = false ] && bypass=false
     $just_listen && [ $bypass = false ] && exit
 done
