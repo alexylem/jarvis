@@ -1,3 +1,6 @@
+26JUN16
+    Detects if Jarvis is already running in background
+
 25JUN16
     Added Snowboy trigger recognition https://github.com/alexylem/jarvis/issues/8
     Improved audio hardware selection
