@@ -4,7 +4,7 @@
         set -e
         echo "1/2 Preparation of dependencies"
         if [[ "$platform" == "linux" ]]; then
-            sudo apt-get install python-pyaudio python3-pyaudio
+            sudo apt-get install -y python-pyaudio python3-pyaudio libatlas-base-dev
             binaries="rpi-arm-raspbian-8.0-1.0.2"
         elif [[ "$platform" == "osx" ]]; then
             brew install portaudio
