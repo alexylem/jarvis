@@ -13,6 +13,8 @@ def interrupt_callback():
     return interrupted
 
 def detected_callback():
+    #global detector #makes is slower to react
+    #detector.terminate() #makes is slower to react
     sys.exit()
 
 if len(sys.argv) == 1:

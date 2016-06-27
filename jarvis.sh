@@ -1,9 +1,8 @@
 #!/bin/bash
 # +----------------------------------------+
 # | JARVIS by Alexandre Mély - MIT license |
-# | Site: http://alexylem.github.io/jarvis |
+# | http://github.com/alexylem/jarvis/wiki |
 # +----------------------------------------+
-
 flags='bihlns:'
 show_help () { cat <<EOF
 
@@ -27,6 +26,7 @@ EOF
 
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 audiofile="jarvis-record.wav"
+lockfile="/tmp/jarvis.lock"
 cd "$DIR" # needed now for git used in automatic update
 rm -f $audiofile # sometimes, when error, previous recording is played
 shopt -s nocasematch # string comparison case insensitive
@@ -280,7 +280,13 @@ just_listen=false
 no_menu=false
 while getopts ":$flags" o; do
     case "${o}" in
-		b)  ./jarvis.sh -n > jarvis.log 2>&1 &
+		b)  # Check if Jarvis is already running in background
+            if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
+                echo "Jarvis is already running"
+                echo "run ./jarvis.sh to detect and stop it"
+                exit 1
+            fi
+            ./jarvis.sh -n > jarvis.log 2>&1 &
             disown
             cat <<EOM
 Jarvis has been launched in background
@@ -290,7 +296,7 @@ To view Jarvis output:
 To check if jarvis is running:
     pgrep -lf jarvis.sh
 To stop Jarvis:
-    pkill -f jarvis.sh
+    ./jarvis.sh and select "Stop Jarvis"
 
 You can now close this terminal
 EOM
@@ -339,14 +345,20 @@ fi
 [ $check_updates = true ] && [ $just_listen = false ] && checkupdates
 
 # Check if Jarvis is already running in background
-#if [ `pgrep -f jarvis.sh | wc -l` -gt 1 ]; then
-#    options=('Show Jarvis output' 'Stop Jarvis')
-#    case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
-#        Show*) cat jarvis.log;;
-#        Stop*) pkill -f jarvis.sh;;
-#    esac
-#    exit
-#fi
+if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
+    options=('Show Jarvis output' 'Stop Jarvis')
+    case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
+        Show*) cat jarvis.log;;
+        Stop*)
+            pid=`cat $lockfile` # process id de jarvis
+            gid=`ps -p $pid -o pgid=` # group id de jarvis
+            kill -TERM -$gid;; # tuer le group complet
+    esac
+    exit
+fi
+# make sure the lockfile is removed when we exit and then claim it
+trap "rm -f $lockfile; exit" INT TERM EXIT
+echo $$ > $lockfile
 
 # main menu
 while [ "$no_menu" = false ]; do
@@ -545,7 +557,6 @@ else
     bypass=false
 fi
 
-trap "exit" INT # exit jarvis with Ctrl+C
 while true; do
 	if [ $keyboard = true ]; then
 		echo; echo $trigger: $welcome
@@ -557,8 +568,10 @@ while true; do
 		fi
 		! $bypass && echo "$trigger: Waiting to hear '$trigger'"
 		printf "$username: "
-		$quiet || PLAY beep-high.wav
-		while true; do
+		
+        $quiet || ( $bypass && PLAY beep-high.wav || PLAY beep-low.wav )
+		
+        while true; do
 			#$quiet || PLAY beep-high.wav
 			
             $verbose && echo "(listening...)"

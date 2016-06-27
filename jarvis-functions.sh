@@ -32,7 +32,7 @@ LISTEN_COMMAND () {
         $verbose && echo "DEBUG: speech duration was $duration (10 = 1 sec)"
         if [ -z "$duration" ]; then
             $verbose && echo "DEBUG: timeout, end of conversation" || printf '.'
-            PLAY beep-low.wav
+            #PLAY beep-low.wav
             sleep 1 # BUG here despite timeout mic still busy can't rec again...
             bypass=false
             order='' # clean previous order
