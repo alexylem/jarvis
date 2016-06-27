@@ -522,14 +522,6 @@ if [ $verbose = true ]; then
     echo -e "--------------------------------\n"
 fi
 
-settimeout () { # usage settimeout 10 command args
-	local timeout=$1
-	shift
-	( $@ ) & pid=$!
-	( sleep $timeout && kill -HUP $pid ) 2>/dev/null & watcher=$!
-	wait $pid 2>/dev/null && pkill -HUP -P $watcher
-}
-
 handlecommand() {
 	order=`echo $1 | iconv -f utf8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719	
 	while read line; do

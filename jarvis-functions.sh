@@ -7,7 +7,8 @@
 # Linux: "sudo apt-get install sox"
 
 PLAY () { # PLAY () {} Play audio file $1
-    play -V1 -q $1
+    [ $platform = "linux" ] && local play_export="AUDIODRIVER=alsa" || local play_export=''
+    eval "$play_export play -V1 -q $1"
     if [ "$?" -ne 0 ]; then
         echo "ERROR: play command failed"
         echo "HELP: Verify your speaker in Settings > Audio > Speaker"

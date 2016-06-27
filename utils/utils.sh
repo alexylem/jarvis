@@ -17,3 +17,11 @@ EOM
     echo "Reloading Alsa..."
     sudo /etc/init.d/alsa-utils restart
 }
+
+settimeout () { # usage settimeout 10 command args
+	local timeout=$1
+	shift
+	( $@ ) & pid=$!
+	( sleep $timeout && kill -HUP $pid ) 2>/dev/null & watcher=$!
+	wait $pid 2>/dev/null && pkill -HUP -P $watcher
+}
