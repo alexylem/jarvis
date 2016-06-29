@@ -271,6 +271,23 @@ wizard () {
     dialog_msg "Setup wizard completed."
 }
 
+start_in_background () {
+    ./jarvis.sh -n > jarvis.log 2>&1 &
+    disown
+    cat <<EOM
+Jarvis has been launched in background
+
+To view Jarvis output:
+cat jarvis.log
+To check if jarvis is running:
+pgrep -lf jarvis.sh
+To stop Jarvis:
+./jarvis.sh and select "Stop Jarvis"
+
+You can now close this terminal
+EOM
+}
+
 # default flags, use options to change see jarvis.sh -h
 quiet=false
 verbose=false
@@ -286,20 +303,7 @@ while getopts ":$flags" o; do
                 echo "run ./jarvis.sh to detect and stop it"
                 exit 1
             fi
-            ./jarvis.sh -n > jarvis.log 2>&1 &
-            disown
-            cat <<EOM
-Jarvis has been launched in background
-
-To view Jarvis output:
-    cat jarvis.log
-To check if jarvis is running:
-    pgrep -lf jarvis.sh
-To stop Jarvis:
-    ./jarvis.sh and select "Stop Jarvis"
-
-You can now close this terminal
-EOM
+            start_in_background
             exit;;
         i)  configure "load"
             wizard
@@ -380,7 +384,7 @@ while [ "$no_menu" = false ]; do
                         quiet=true
                         break 2;;
                     "Start as a service")
-                        ./jarvis.sh -b
+                        start_in_background
                         exit;;
                     *) break;;
                 esac
