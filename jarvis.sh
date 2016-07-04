@@ -357,7 +357,7 @@ if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
         Stop*)
             pid=`cat $lockfile` # process id de jarvis
             gid=`ps -p $pid -o pgid=` # group id de jarvis
-            kill -TERM -$gid;; # tuer le group complet
+            kill -TERM -`echo $gid`;; # tuer le group complet
     esac
     exit
 fi
