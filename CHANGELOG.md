@@ -1,3 +1,6 @@
+04JUL16
+    Use your own Snowboy hotword with Jarvis https://github.com/alexylem/jarvis/issues/13
+
 27JUN16
     Detects if Jarvis is already running in background https://github.com/alexylem/jarvis/issues/19
     

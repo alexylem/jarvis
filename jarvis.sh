@@ -199,6 +199,7 @@ configure () {
         tmp_folder) eval $1=`dialog_input "Cache folder" "${!1}"`;;
         trigger)
             eval $1=`dialog_input "Magic word to be said?" "${!1}"`
+            trigger=`echo "$trigger" | tr '[:upper:]' '[:lower:]'` # to lowercase (for snowboy)
             update_commands;;
         trigger_mode) options=("magic_word" "enter_key" "physical_button")
                  eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`;;
@@ -207,11 +208,11 @@ configure () {
                      if [ "$trigger_stt" = "snowboy" ]; then
                         # use ' instead of " in dialog_msg
                         dialog_msg <<EOM
-For now, Jarvis only accepts the default trigger 'SNOWBOY'
-In a next version it will be possible to change the trigger
-Your trigger has to be updated to 'SNOWBOY'
+You can record your own hotword with the following steps:
+https://github.com/alexylem/jarvis/wiki/snowboy
+Or you can immediately use the default universal hotword 'snowboy'
 EOM
-                        trigger="SNOWBOY"
+                        trigger="snowboy"
                         configure "trigger"
                     fi
                      source stt_engines/$trigger_stt/main.sh;;

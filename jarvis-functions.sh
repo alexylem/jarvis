@@ -18,7 +18,7 @@ PLAY () { # PLAY () {} Play audio file $1
 
 RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is detected until silence
     #$verbose && local quiet='' || local quiet='-q'
-    [ -n $2 ] && timeout="settimeout $2"
+    [ -n $2 ] && timeout="./timeout.sh $2"
     [ $platform = "linux" ] && export AUDIODRIVER=alsa
     eval "$timeout rec -V1 -q -r 16000 -c 1 -b 16 -e signed-integer --endian little $1 silence 1 $min_noise_duration_to_start $min_noise_perc_to_start 1 $min_silence_duration_to_stop $min_silence_level_to_stop trim 0 $max_noise_duration_to_kill"
     if [ "$?" -ne 0 ]; then

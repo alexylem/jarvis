@@ -18,7 +18,8 @@ EOM
     sudo /etc/init.d/alsa-utils restart
 }
 
-settimeout() { ( set +b; sleep "$1" & "${@:2}" & wait -n; r=$?; kill -TERM `jobs -p`; exit $r; ) }
+# now in timeout.sh
+#settimeout() { ( set +b; sleep "$1" & "${@:2}" & wait -n; r=$?; kill -TERM `jobs -p`; exit $r; ) }
 
 #settimeout () { # usage settimeout 10 command args
 #	local timeout=$1
