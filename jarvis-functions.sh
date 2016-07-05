@@ -20,7 +20,9 @@ RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is det
     #$verbose && local quiet='' || local quiet='-q'
     [ -n $2 ] && timeout="./timeout.sh $2"
     [ $platform = "linux" ] && export AUDIODRIVER=alsa
-    eval "$timeout rec -V1 -q -r 16000 -c 1 -b 16 -e signed-integer --endian little $1 silence 1 $min_noise_duration_to_start $min_noise_perc_to_start 1 $min_silence_duration_to_stop $min_silence_level_to_stop trim 0 $max_noise_duration_to_kill"
+    local cmd="$timeout rec -V1 -q -r 16000 -c 1 -b 16 -e signed-integer --endian little $1 silence 1 $min_noise_duration_to_start $min_noise_perc_to_start 1 $min_silence_duration_to_stop $min_silence_level_to_stop trim 0 $max_noise_duration_to_kill"
+    $verbose && echo $cmd
+    eval $cmd
     if [ "$?" -ne 0 ]; then
         echo "ERROR: rec command failed"
         echo "HELP: Verify your mic in Settings > Audio > Mic"
