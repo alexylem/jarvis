@@ -320,13 +320,13 @@ while getopts ":$flags" o; do
 done
 
 # load default & user configuration
+source utils/utils.sh # needed for wizard
 configure "load" || wizard
 update_commands
 source jarvis-functions.sh
 source stt_engines/$trigger_stt/main.sh
 source stt_engines/$command_stt/main.sh
 source tts_engines/$tts_engine/main.sh
-source utils/utils.sh
 if ( [ "$play_hw" != "false" ] || [ "$rec_hw" != "false" ] ) && [ ! -f ~/.asoundrc ]; then
     update_alsa $play_hw $rec_hw  # retro compatibility
     dialog_msg<<EOM
