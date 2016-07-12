@@ -199,7 +199,6 @@ configure () {
         tmp_folder) eval $1=`dialog_input "Cache folder" "${!1}"`;;
         trigger)
             eval $1=`dialog_input "Magic word to be said?" "${!1}"`
-            trigger=`echo "$trigger" | tr '[:upper:]' '[:lower:]'` # to lowercase (for snowboy)
             update_commands;;
         trigger_mode) options=("magic_word" "enter_key" "physical_button")
                  eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`;;
