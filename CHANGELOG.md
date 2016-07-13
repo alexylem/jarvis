@@ -1,3 +1,4 @@
+13JUL16 Multiple orders at once https://github.com/alexylem/jarvis/issues/38
 13JUL16 Preview changes before choose to update https://github.com/alexylem/jarvis/issues/14
 12JUL16 Improved display of trigger https://github.com/alexylem/jarvis/issues/30
 10JUL16 Fixed alsa_command not found https://github.com/alexylem/jarvis/issues/40

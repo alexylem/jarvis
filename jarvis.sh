@@ -124,6 +124,7 @@ configure () {
                'play_hw'
                'pocketsphinxlog'
                'rec_hw'
+               'separator'
                'tmp_folder'
                'trigger'
                'trigger_stt'
@@ -146,11 +147,14 @@ configure () {
         load) 
             source jarvis-config-default.sh
             [ -f jarvis-config.sh ] && source jarvis-config.sh # backward compatibility
-            missing=0
+            local not_installed=1
             for varname in "${variables[@]}"; do
-                [ -f "config/$varname" ] &&  eval $varname=`cat config/$varname` || missing=1
+                if [ -f "config/$varname" ]; then
+                    eval $varname=`cat config/$varname`
+                    not_installed=0
+                fi
             done
-            return $missing;;
+            return $not_installed;;
         max_noise_duration_to_kill) eval $1=`dialog_input "Max noise duration to kill" "${!1}"`;;
         min_noise_duration_to_start) eval $1=`dialog_input "Min noise duration to start" "${!1}"`;;
         min_noise_perc_to_start) eval $1=`dialog_input "Min noise durpercentageation to start" "${!1}"`;;
@@ -197,6 +201,7 @@ configure () {
                   #echo "DEBUG: saving ${!varname} into config/$varname"
                   echo "${!varname}" > config/$varname
               done;;
+        separator) eval $1=`dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}"`;;
         tmp_folder) eval $1=`dialog_input "Cache folder" "${!1}"`;;
         trigger)
             eval $1=`dialog_input "Magic word to be said?" "${!1}"`
@@ -396,11 +401,12 @@ while [ "$no_menu" = false ]; do
                 case "`dialog_menu 'Configuration' options[@]`" in
                     "General")
                         while true; do
-                            options=("Username ($username)" "Trigger ($trigger_mode)" "Magic word ($trigger)" "Conversation mode ($conversation_mode)" "Language ($language)" "All Matches ($all_matches)" "Check Updates on Startup ($check_updates)")
+                            options=("Username ($username)" "Trigger ($trigger_mode)" "Magic word ($trigger)" "Multi-command separator ($separator)" "Conversation mode ($conversation_mode)" "Language ($language)" "All Matches ($all_matches)" "Check Updates on Startup ($check_updates)")
                             case "`dialog_menu 'Configuration > General' options[@]`" in
                                 Username*) configure "username";;
                                 Trigger*) configure "trigger_mode";;
                                 Magic*word*) configure "trigger";;
+                                Multi-command*separator*) configure "separator";;
                                 Conversation*) configure "conversation_mode";;
                                 Language*) configure "language";;
                                 All*Matches*) configure "all_matches";;
@@ -527,8 +533,8 @@ if [ $verbose = true ]; then
     echo -e "--------------------------------\n"
 fi
 
-handlecommand() {
-	order=`echo $1 | iconv -f utf8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719	
+handle_order() {
+    order=`echo $1 | iconv -f utf8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
 	while read line; do
 		patterns=${line%==*} # *HELLO*|*GOOD*MORNING*==say Hi => *HELLO*|*GOOD*MORNING*
 		IFS='|' read -ra ARR <<< "$patterns" # *HELLO*|*GOOD*MORNING* => [*HELLO*, *GOOD*MORNING*]
@@ -544,6 +550,16 @@ handlecommand() {
 		done
 	done < jarvis-commands
 	say "$unknown_command: $order" # TODO not used anymore as in commands?
+}
+
+handle_orders() {
+    if [ -z "$separator" ]; then
+        handle_order "$1"
+    else
+        echo "$1" | awk "BEGIN {FS=\" `echo $separator` \"} {for(i=1;i<=NF;i++)print \$i}" | while read order; do
+            handle_order "$order"
+        done
+    fi
 }
 
 # don't check updates if directly in command mode
@@ -591,7 +607,7 @@ while true; do
 		echo # new line
 	fi
     was_in_conversation=$bypass
-	[ -n "$order" ] && handlecommand "$order"
+	[ -n "$order" ] && handle_orders "$order"
     $was_in_conversation && [ $conversation_mode = false ] && bypass=false
     $just_listen && [ $bypass = false ] && exit
 done

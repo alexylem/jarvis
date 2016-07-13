@@ -14,6 +14,7 @@ min_silence_level_to_stop="1%" # default 1%
 play_hw=false
 pocketsphinxlog="/dev/null" # can get very big on long run
 rec_hw=false
+separator=""
 tmp_folder="/tmp"
 trigger='jarvis'
 trigger_mode="magic_word"
