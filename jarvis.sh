@@ -95,9 +95,10 @@ checkupdates () {
 		"e") echo -e "[\033[31mError\033[0m]";;
 		"0") echo -e "[\033[32mUp-to-date\033[0m]";;
 		*)	echo -e "[\033[33mNew version available\033[0m]"
-			if dialog_yesno "A new version of JARVIS is available, would you like to update?" false; then
+            changes=$(git fetch -q 2>&1 && git log HEAD..origin/master --oneline --format="- %s (%ar)" | head -5)
+            if dialog_yesno "A new version of JARVIS is available, recent changes:\n$changes\n\nWould you like to update?" false >/dev/null; then
 				autoupdate 1 # has spinner inside
-				dialog_msg "Please restart JARVIS"
+				#dialog_msg "Please restart JARVIS"
 				exit
 			fi
 			;;
