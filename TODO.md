@@ -11,11 +11,11 @@
 
 - [ ] use lmgen to generate language_model based on command words & trigger (english only)
 - [ ] use hardward for recognition of the trigger
-- [ ] add gain in settings with alsamixer (or osx settings)
+- [X] add gain in settings with alsamixer (or osx settings)
 
 # Commands 
 
-- [ ] Possibility for discussions with nested commands like:
+- [/] Possibility for discussions with nested commands like:
 ```
 *HOW ARE YOU*==say "fine and you?"
 	*GOOD*==say "glad to hear"
@@ -33,7 +33,7 @@
 
 # Notifications
 
-- [/] Add notification features such as mails, alarm, hour, easily configurable
+- [X] Add notification features such as mails, alarm, hour, easily configurable
 	crontab based? difficult to write but not more difficult than command pattern...
 - [ ] Human cron: DAILY at 9am (human writing into crontab) that keep crontab updated?
 - [ ] Wait for silence to speak
@@ -41,9 +41,9 @@
 
 # Other
 
-- [ ] Automate inclusion of log in bug report & create issue on GitHub
+- [/] Automate inclusion of log in bug report & create issue on GitHub
 - [X] Execution in background
 - [ ] -t Troubleshooting guide and step-by-step diagnosis
-- [ ] Errors found in jarvis.log
+- [X] Errors found in jarvis.log
     ./jarvis.sh: line 358: [: : integer expression expected
     ?./jarvis.sh: line 355: [: : integer expression expected

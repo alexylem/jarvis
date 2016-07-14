@@ -44,6 +44,7 @@ LISTEN_COMMAND () {
             break 2
         elif [ "$duration" -gt 40 ]; then
             $verbose && echo "DEBUG: too long for a command (max 4 secs), ignoring..." || printf '#'
+            sleep 1 # https://github.com/alexylem/jarvis/issues/32
             continue
         else
             break
