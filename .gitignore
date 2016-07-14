@@ -76,3 +76,5 @@ stt_engines/snowboy/snowboydetect.py
 stt_engines/snowboy/snowboydetect.pyc
 
 *.pmdl
+
+config/separator

@@ -572,7 +572,6 @@ fi
 
 while true; do
 	if [ $keyboard = true ]; then
-		echo; echo $trigger: $welcome
 		read -p "$username: " order
 	else
 		if [ "$trigger_mode" = "enter_key" ]; then
