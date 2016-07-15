@@ -556,9 +556,10 @@ handle_orders() {
     if [ -z "$separator" ]; then
         handle_order "$1"
     else
-        echo "$1" | awk "BEGIN {FS=\" `echo $separator` \"} {for(i=1;i<=NF;i++)print \$i}" | while read order; do
+        orders=$(echo "$1" | awk "BEGIN {FS=\" `echo $separator` \"} {for(i=1;i<=NF;i++)print \$i}")
+        while read order; do
             handle_order "$order"
-        done
+        done <<< "$orders"
     fi
 }
 
