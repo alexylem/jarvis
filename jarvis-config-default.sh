@@ -1,4 +1,3 @@
-all_matches=false
 check_updates=true
 command_stt="google"
 conversation_mode=true

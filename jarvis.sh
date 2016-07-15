@@ -107,8 +107,7 @@ checkupdates () {
 
 # config
 configure () {
-    variables=('all_matches'
-               'check_updates'
+    variables=('check_updates'
                'command_stt'
                'conversation_mode'
                'dictionary'
@@ -133,7 +132,6 @@ configure () {
                'username'
                'wit_server_access_token')
     case "$1" in
-        all_matches) eval $1=`dialog_yesno "Execute all matching commands (else only first match)" "${!1}"`;;
         check_updates) eval $1=`dialog_yesno "Check Updates when Jarvis starts up (recommended)" "${!1}"`;;
         command_stt) options=('google' 'wit' 'pocketsphinx')
                      eval $1=`dialog_select "Which engine to use for the recognition of commands\nRecommended: google" options[@] "${!1}"`
@@ -401,7 +399,7 @@ while [ "$no_menu" = false ]; do
                 case "`dialog_menu 'Configuration' options[@]`" in
                     "General")
                         while true; do
-                            options=("Username ($username)" "Trigger ($trigger_mode)" "Magic word ($trigger)" "Multi-command separator ($separator)" "Conversation mode ($conversation_mode)" "Language ($language)" "All Matches ($all_matches)" "Check Updates on Startup ($check_updates)")
+                            options=("Username ($username)" "Trigger ($trigger_mode)" "Magic word ($trigger)" "Multi-command separator ($separator)" "Conversation mode ($conversation_mode)" "Language ($language)" "Check Updates on Startup ($check_updates)")
                             case "`dialog_menu 'Configuration > General' options[@]`" in
                                 Username*) configure "username";;
                                 Trigger*) configure "trigger_mode";;
@@ -409,7 +407,6 @@ while [ "$no_menu" = false ]; do
                                 Multi-command*separator*) configure "separator";;
                                 Conversation*) configure "conversation_mode";;
                                 Language*) configure "language";;
-                                All*Matches*) configure "all_matches";;
                                 Check*Updates*) configure "check_updates";;
                                 *) break;;
                             esac
@@ -545,7 +542,7 @@ handle_order() {
 				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'`
 				$verbose && echo "$> $action"
                 eval "$action" || say "$command_failed"
-				$all_matches || return
+				return
 			fi
 		done
 	done < jarvis-commands
