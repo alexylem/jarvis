@@ -530,23 +530,44 @@ if [ $verbose = true ]; then
     echo -e "--------------------------------\n"
 fi
 
+commands=`cat jarvis-commands`
 handle_order() {
     order=`echo $1 | iconv -f utf8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
-	while read line; do
-		patterns=${line%==*} # *HELLO*|*GOOD*MORNING*==say Hi => *HELLO*|*GOOD*MORNING*
-		IFS='|' read -ra ARR <<< "$patterns" # *HELLO*|*GOOD*MORNING* => [*HELLO*, *GOOD*MORNING*]
-		for pattern in "${ARR[@]}"; do # *HELLO*
-			regex="^${pattern//'*'/.*}$" # .*HELLO.*
-            if [[ $order =~ $regex ]]; then # HELLO THERE =~ .*HELLO.*
-				action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
-				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'`
-				$verbose && echo "$> $action"
-                eval "$action" || say "$command_failed"
-				return
-			fi
-		done
-	done < jarvis-commands
-	say "$unknown_command: $order" # TODO not used anymore as in commands?
+	local check_indented=false
+    while read line; do
+		if $check_indented; then
+            #echo "checking if possible answers in: $line"
+            if [ "${line:0:1}" = ">" ]; then
+                newline=$'\n'
+                commands="$commands$newline${line:1}"
+            else
+                if [ -z "$commands" ]; then
+                    commands=`cat jarvis-commands`
+                fi
+                #echo "$commands"
+                check_indented=false
+                return
+            fi
+        else
+            patterns=${line%==*} # *HELLO*|*GOOD*MORNING*==say Hi => *HELLO*|*GOOD*MORNING*
+    		IFS='|' read -ra ARR <<< "$patterns" # *HELLO*|*GOOD*MORNING* => [*HELLO*, *GOOD*MORNING*]
+    		for pattern in "${ARR[@]}"; do # *HELLO*
+    			regex="^${pattern//'*'/.*}$" # .*HELLO.*
+                if [[ $order =~ $regex ]]; then # HELLO THERE =~ .*HELLO.*
+    				action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
+    				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'`
+    				$verbose && echo "$> $action"
+                    eval "$action" || say "$command_failed"
+                    check_indented=true
+                    commands=""
+                    break
+    			fi
+    		done
+        fi
+	done <<< "$commands"
+    if [ -z "$commands" ]; then
+        commands=`cat jarvis-commands`
+    fi
 }
 
 handle_orders() {
