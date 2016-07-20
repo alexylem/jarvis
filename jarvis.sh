@@ -431,7 +431,7 @@ while [ "$no_menu" = false ]; do
                     "Phrases")
                         while true; do
                             options=("Startup greetings ($phrase_welcome)" "Trigger reply ($phrase_triggered)" "Unknown order ($phrase_misunderstood)" "Command failed ($phrase_failed)")
-                            case "`dialog_menu 'Configuration > Hooks' options[@]`" in
+                            case "`dialog_menu 'Configuration > Phrases' options[@]`" in
                                 Startup*greetings*) configure "phrase_welcome";;
                                 Trigger*reply*)     configure "phrase_triggered";;
                                 Unknown*order*)     configure "phrase_misunderstood";;
