@@ -24,6 +24,7 @@ show_help () { cat <<EOF
 EOF
 }
 
+headline="NEW! Check Settings > Phrases to reconfigure system phrases"
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 audiofile="jarvis-record.wav"
 lockfile="/tmp/jarvis.lock"
@@ -62,13 +63,11 @@ spinner(){ # call spinner $!
 	done
 }
 
-update_commands () { # adds trigger and don't know commands
-    line=$(head -n 1 jarvis-commands)
-    pattern=${line%==*}
-    [ "$pattern" != "*$trigger*" ] && echo "*$trigger*==bypass=true; say \"Oui?\"" | cat - jarvis-commands > /tmp/out && mv /tmp/out jarvis-commands
-    line=$(tail -n 1 jarvis-commands)
-    pattern=${line%==*}
-    [ "$pattern" != "*" ] && echo "*==say \"Je ne comprends pas: \$order\"" >> jarvis-commands
+update_commands () { # only for retrocompatibility
+    # remove heading "Yes?" system trigger response, now a phrase
+    grep -iv "^\*==" jarvis-commands > cmd.tmp; mv cmd.tmp jarvis-commands 
+    # remove traling "I don't understand" system command, now a phrase
+    grep -iv "^\*$trigger\*==" jarvis-commands > cmd.tmp; mv cmd.tmp jarvis-commands 
 }
 
 autoupdate () { # usage autoupdate 1 to show changelog
@@ -107,57 +106,78 @@ checkupdates () {
 
 # config
 configure () {
-    variables=('check_updates'
-               'command_stt'
-               'conversation_mode'
-               'dictionary'
-               'google_speech_api_key'
-               'language'
-               'language_model'
-               'trigger_mode'
-               'max_noise_duration_to_kill'
-               'min_noise_duration_to_start'
-               'min_noise_perc_to_start'
-               'min_silence_duration_to_stop'
-               'min_silence_level_to_stop'
-               'play_hw'
-               'pocketsphinxlog'
-               'rec_hw'
-               'separator'
-               'tmp_folder'
-               'trigger'
-               'trigger_stt'
-               'trigger_mode'
-               'tts_engine'
-               'username'
-               'wit_server_access_token')
+    local variables=('check_updates'
+                   'command_stt'
+                   'conversation_mode'
+                   'dictionary'
+                   'google_speech_api_key'
+                   'language'
+                   'language_model'
+                   'trigger_mode'
+                   'max_noise_duration_to_kill'
+                   'min_noise_duration_to_start'
+                   'min_noise_perc_to_start'
+                   'min_silence_duration_to_stop'
+                   'min_silence_level_to_stop'
+                   'phrase_failed'
+                   'phrase_misunderstood'
+                   'phrase_triggered'
+                   'phrase_welcome'
+                   'play_hw'
+                   'pocketsphinxlog'
+                   'rec_hw'
+                   'separator'
+                   'tmp_folder'
+                   'trigger'
+                   'trigger_stt'
+                   'trigger_mode'
+                   'tts_engine'
+                   'username'
+                   'wit_server_access_token')
+    local hooks=(  'entering_cmd'
+                   'exiting_cmd'
+                   'program_startup'
+                   'program_exit')
     case "$1" in
-        check_updates) eval $1=`dialog_yesno "Check Updates when Jarvis starts up (recommended)" "${!1}"`;;
-        command_stt) options=('google' 'wit' 'pocketsphinx')
-                     eval $1=`dialog_select "Which engine to use for the recognition of commands\nRecommended: google" options[@] "${!1}"`
-                     source stt_engines/$command_stt/main.sh;;
-        conversation_mode) eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
-        dictionary) eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
-        google_speech_api_key) eval $1=`dialog_input "Google Speech API Key\nHow to get one: http://stackoverflow.com/a/26833337" "${!1}"`;;
-        language) options=("en_EN" "fr_FR")
-                  eval $1=`dialog_select "Language" options[@] "${!1}"`;;
-        language_model) eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;
+        check_updates)          eval $1=`dialog_yesno "Check Updates when Jarvis starts up (recommended)" "${!1}"`;;
+        command_stt)            options=('google' 'wit' 'pocketsphinx')
+                                eval $1=`dialog_select "Which engine to use for the recognition of commands\nRecommended: google" options[@] "${!1}"`
+                                source stt_engines/$command_stt/main.sh;;
+        conversation_mode)      eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
+        dictionary)             eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
+        google_speech_api_key)  eval $1=`dialog_input "Google Speech API Key\nHow to get one: http://stackoverflow.com/a/26833337" "${!1}"`;;
+        program_startup)        editor hooks/$1;;
+        program_exit)           editor hooks/$1;;
+        entering_cmd)           editor hooks/$1;;
+        exiting_cmd)            editor hooks/$1;;
+        language)               options=("en_EN" "fr_FR")
+                                eval $1=`dialog_select "Language" options[@] "${!1}"`;;
+        language_model)         eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;
         load) 
             source jarvis-config-default.sh
             [ -f jarvis-config.sh ] && source jarvis-config.sh # backward compatibility
+            for hook in "${hooks[@]}"; do
+                if [ ! -f "hooks/$hook" ]; then
+                    cp hooks/$hook.default hooks/$hook
+                fi
+            done
             local not_installed=1
             for varname in "${variables[@]}"; do
                 if [ -f "config/$varname" ]; then
-                    eval $varname=`cat config/$varname`
+                    eval "$varname=\"`cat config/$varname`\""
                     not_installed=0
                 fi
             done
             return $not_installed;;
-        max_noise_duration_to_kill) eval $1=`dialog_input "Max noise duration to kill" "${!1}"`;;
-        min_noise_duration_to_start) eval $1=`dialog_input "Min noise duration to start" "${!1}"`;;
-        min_noise_perc_to_start) eval $1=`dialog_input "Min noise durpercentageation to start" "${!1}"`;;
-        min_silence_duration_to_stop) eval $1=`dialog_input "Min silence duration to stop" "${!1}"`;;
-        min_silence_level_to_stop) eval $1=`dialog_input "Min silence level to stop" "${!1}"`;;
+        max_noise_duration_to_kill)     eval $1=`dialog_input "Max noise duration to kill" "${!1}"`;;
+        min_noise_duration_to_start)    eval $1=`dialog_input "Min noise duration to start" "${!1}"`;;
+        min_noise_perc_to_start)        eval $1=`dialog_input "Min noise durpercentageation to start" "${!1}"`;;
+        min_silence_duration_to_stop)   eval $1=`dialog_input "Min silence duration to stop" "${!1}"`;;
+        min_silence_level_to_stop)      eval $1=`dialog_input "Min silence level to stop" "${!1}"`;;
+        phrase_failed)                  eval "$1=\"`dialog_input 'What to say if user command failed' "${!1}"`\"";;
+        phrase_misunderstood)           eval "$1=\"`dialog_input 'What to say if order not recognized' "${!1}"`\"";;
+        phrase_triggered)               eval "$1=\"`dialog_input 'What to say when magic word is heard' "${!1}"`\"";;
+        phrase_welcome)                 eval "$1=\"`dialog_input 'What to say at program startup' "${!1}"`\"";;
         play_hw)
             while true; do
                 dialog_msg "Checking audio output, make sure your speakers are on and press [Ok]"
@@ -202,7 +222,7 @@ configure () {
         separator) eval $1=`dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}"`;;
         tmp_folder) eval $1=`dialog_input "Cache folder" "${!1}"`;;
         trigger)
-            eval $1=`dialog_input "Magic word to be said?" "${!1}"`
+            eval "$1='`dialog_input \"Magic word to be said\" \"${!1}\"`'"
             update_commands;;
         trigger_mode) options=("magic_word" "enter_key" "physical_button")
                  eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`;;
@@ -364,14 +384,11 @@ if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
     esac
     exit
 fi
-# make sure the lockfile is removed when we exit and then claim it
-trap "rm -f $lockfile; exit" INT TERM EXIT
-echo $$ > $lockfile
 
 # main menu
 while [ "$no_menu" = false ]; do
     options=('Start Jarvis' 'Settings' 'Commands (what JARVIS can understand and execute)' 'Events (what JARVIS monitors and notifies you about)' 'Search for updates' 'Help / Report a problem' 'About')
-    case "`dialog_menu 'Welcome to Jarvis' options[@]`" in
+    case "`dialog_menu \"Welcome to Jarvis\n$headline\" options[@]`" in
         Start*)
             while true; do
                 options=('Start normally' 'Troubleshooting mode' 'Keyboard mode' 'Mute mode' 'Start as a service')
@@ -395,7 +412,7 @@ while [ "$no_menu" = false ]; do
             done;;
         Settings)
             while true; do
-                options=('General' 'Audio' 'Voice recognition' 'Speech synthesis' 'Step-by-step wizard')
+                options=('General' 'Phrases' 'Hooks' 'Audio' 'Voice recognition' 'Speech synthesis' 'Step-by-step wizard')
                 case "`dialog_menu 'Configuration' options[@]`" in
                     "General")
                         while true; do
@@ -411,6 +428,28 @@ while [ "$no_menu" = false ]; do
                                 *) break;;
                             esac
                         done;;
+                    "Phrases")
+                        while true; do
+                            options=("Startup greetings ($phrase_welcome)" "Trigger reply ($phrase_triggered)" "Unknown order ($phrase_misunderstood)" "Command failed ($phrase_failed)")
+                            case "`dialog_menu 'Configuration > Hooks' options[@]`" in
+                                Startup*greetings*) configure "phrase_welcome";;
+                                Trigger*reply*)     configure "phrase_triggered";;
+                                Unknown*order*)     configure "phrase_misunderstood";;
+                                Command*failed*)    configure "phrase_failed";;
+                                *) break;;
+                            esac
+                        done;;
+                    "Hooks")
+                    while true; do
+                        options=("Program startup" "Program exit" "Entering command mode" "Exiting command mode")
+                        case "`dialog_menu 'Configuration > Hooks' options[@]`" in
+                            Program*startup*) configure "program_startup";;
+                            Program*exit*) configure "program_exit";;
+                            Entering*) configure "entering_cmd";;
+                            Exiting*) configure "exiting_cmd";;
+                            *) break;;
+                        esac
+                    done;;
                     "Audio")
                         while true; do
                             options=("Speaker ($play_hw)" "Mic ($rec_hw)" "Volume" "Sensitivity" "Min noise duration to start ($min_noise_duration_to_start)" "Min noise perc to start ($min_noise_perc_to_start)" "Min silence duration to stop ($min_silence_duration_to_stop)" "Min silence level to stop ($min_silence_level_to_stop)" "Max noise duration to kill ($max_noise_duration_to_kill)")
@@ -557,7 +596,7 @@ handle_order() {
     				action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
     				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'`
     				$verbose && echo "$> $action"
-                    eval "$action" || say "$command_failed"
+                    eval "$action" || say "$phrase_failed"
                     check_indented=true
                     commands=""
                     break
@@ -565,7 +604,9 @@ handle_order() {
     		done
         fi
 	done <<< "$commands"
-    if [ -z "$commands" ]; then
+    if ! $check_indented; then
+        say "$phrase_misunderstood: $order"
+    elif [ -z "$commands" ]; then
         commands=`cat jarvis-commands`
     fi
 }
@@ -581,13 +622,19 @@ handle_orders() {
     fi
 }
 
-# don't check updates if directly in command mode
-if [ $just_listen = true ]; then
-    bypass=true
-else
-    say "$hello $username"
-    bypass=false
-fi
+source hooks/program_startup
+[ $just_listen = false ] && [ ! -z "$phrase_welcome" ] && say "$phrase_welcome"
+bypass=$just_listen
+
+program_exit () {
+    $verbose && echo "DEBUG: program exit handler"
+    source hooks/program_exit $1
+    # make sure the lockfile is removed when we exit and then claim it
+    rm -f $lockfile
+    exit $1
+}
+trap "program_exit" INT TERM
+echo $$ > $lockfile
 
 while true; do
 	if [ $keyboard = true ]; then
@@ -617,8 +664,13 @@ while true; do
 			order=`cat $forder`
 			printf "$order"
 			[ -z "$order" ] && printf '?' && continue
-			if $bypass || [[ "$order" == *$trigger* ]]; then
-				break
+			$bypass && break
+            if [[ "$order" == *$trigger* ]]; then
+                bypass=true
+                echo # new line
+                source hooks/entering_cmd
+                say "$phrase_triggered"
+                continue 2
 			fi
 			$verbose && PLAY beep-error.wav
 		done
@@ -626,6 +678,9 @@ while true; do
 	fi
     was_in_conversation=$bypass
 	[ -n "$order" ] && handle_orders "$order"
-    $was_in_conversation && [ $conversation_mode = false ] && bypass=false
-    $just_listen && [ $bypass = false ] && exit
+    $was_in_conversation && [ $conversation_mode = false ] && (
+        bypass=false;
+        source hooks/exiting_cmd;
+    )
+    $just_listen && [ $bypass = false ] && program_exit
 done

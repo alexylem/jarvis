@@ -1,0 +1,1 @@
+$verbose && echo "DEBUG: program_exit hook"

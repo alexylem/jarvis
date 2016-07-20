@@ -12,7 +12,7 @@ PLAY () { # PLAY () {} Play audio file $1
     if [ "$?" -ne 0 ]; then
         echo "ERROR: play command failed"
         echo "HELP: Verify your speaker in Settings > Audio > Speaker"
-        exit 1
+        program_exit 1
     fi
 }
 
@@ -26,7 +26,7 @@ RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is det
     if [ "$?" -ne 0 ]; then
         echo "ERROR: rec command failed"
         echo "HELP: Verify your mic in Settings > Audio > Mic"
-        exit 1
+        program_exit 1
     fi
 }
 
@@ -40,6 +40,7 @@ LISTEN_COMMAND () {
             #PLAY beep-low.wav
             sleep 1 # BUG here despite timeout mic still busy can't rec again...
             bypass=false
+            source hooks/exiting_cmd
             order='' # clean previous order
             break 2
         elif [ "$duration" -gt 40 ]; then

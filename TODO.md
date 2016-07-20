@@ -15,7 +15,7 @@
 
 # Commands 
 
-- [/] Possibility for discussions with nested commands like:
+- [X] Possibility for discussions with nested commands like:
 ```
 *HOW ARE YOU*==say "fine and you?"
 	*GOOD*==say "glad to hear"
