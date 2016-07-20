@@ -1,7 +1,7 @@
 
-17JUL16 Hooks to personalize Jarvis even more https://github.com/alexylem/jarvis/issues/54
-        WARNING: re-configure your system phrases in Settings > Hooks (default to English)
-17JUL16 Configurable system phrases https://github.com/alexylem/jarvis/issues/53
+20JUL16 Hooks to personalize Jarvis even more https://github.com/alexylem/jarvis/issues/54
+20JUL16 Configurable system phrases https://github.com/alexylem/jarvis/issues/53
+        WARNING: re-configure your system phrases in Settings > Phrases
 15JUL16 Nested commands https://github.com/alexylem/jarvis/issues/42
 13JUL16 Multiple orders at once https://github.com/alexylem/jarvis/issues/38
 13JUL16 Preview changes before choose to update https://github.com/alexylem/jarvis/issues/14
