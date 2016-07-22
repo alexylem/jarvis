@@ -3,7 +3,7 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://github.com/alexylem/jarvis/wiki |
 # +----------------------------------------+
-flags='bihlns:'
+flags='bc:ihlns:'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -15,6 +15,7 @@ show_help () { cat <<EOF
     Main options are now accessible through the application menu
     
     -b  run in background (no menu, continues after terminal is closed)
+    -c  overrides conversation mode setting (true/false)
     -i  install (dependencies, pocketsphinx, setup)
     -h  display this help
     -l  directly listen for one command (ex: launch from physical button)
@@ -329,6 +330,7 @@ while getopts ":$flags" o; do
             fi
             start_in_background
             exit;;
+        c)  conversation_mode_override=${OPTARG};;
         i)  configure "load"
             wizard
             exit;;
@@ -345,6 +347,7 @@ done
 # load default & user configuration
 source utils/utils.sh # needed for wizard
 configure "load" || wizard
+[ -n "$conversation_mode_override" ] && conversation_mode=$conversation_mode_override
 update_commands
 source jarvis-functions.sh
 source stt_engines/$trigger_stt/main.sh
@@ -563,7 +566,7 @@ done
 # troubleshooting info
 if [ $verbose = true ]; then
     echo -e "\n------- Config (verbose) -------"
-    for parameter in platform language play_hw rec_hw trigger_stt command_stt tts_engine google_speech_api_key; do
+    for parameter in platform language play_hw rec_hw trigger_stt command_stt tts_engine google_speech_api_key conversation_mode; do
         printf "%-21s %s \n" "$parameter" "${!parameter}"
     done
     echo -e "--------------------------------\n"

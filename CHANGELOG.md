@@ -1,4 +1,4 @@
-
+22JUL16 Conversation mode override flag https://github.com/alexylem/jarvis/issues/60
 20JUL16 Hooks to personalize Jarvis even more https://github.com/alexylem/jarvis/issues/54
 20JUL16 Configurable system phrases https://github.com/alexylem/jarvis/issues/53
         WARNING: re-configure your system phrases in Settings > Phrases
