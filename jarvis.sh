@@ -641,6 +641,7 @@ echo $$ > $lockfile
 
 while true; do
 	if [ $keyboard = true ]; then
+        bypass=true
 		read -p "$username: " order
 	else
 		if [ "$trigger_mode" = "enter_key" ]; then
@@ -681,9 +682,9 @@ while true; do
 	fi
     was_in_conversation=$bypass
 	[ -n "$order" ] && handle_orders "$order"
-    $was_in_conversation && [ $conversation_mode = false ] && (
+    if $was_in_conversation && [ $conversation_mode = false ]; then
         bypass=false;
         source hooks/exiting_cmd;
-    )
+    fi
     $just_listen && [ $bypass = false ] && program_exit
 done
