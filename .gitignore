@@ -79,10 +79,6 @@ stt_engines/snowboy/snowboydetect.pyc
 
 config/separator
 
-config/empty
-
-config/empty
-
 config/phrase_failed
 
 config/phrase_triggered
@@ -92,8 +88,6 @@ config/phrase_welcome
 hooks/entering_cmd
 
 config/phrase_misunderstood
-
-config/empty
 
 hooks/exiting_cmd
 
