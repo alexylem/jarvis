@@ -3,8 +3,6 @@ touch /tmp/jarvis_bing_token # initiate if don't exist
 touch /tmp/jarvis_bing_expires # initiate if don't exist
 
 _bing_transcribe () {
-    
-    
     if [ -z "$bing_speech_api_key1" ] || [ -z "$bing_speech_api_key2" ]; then
         echo "" # new line
         echo "ERROR: missing bing speech api key"

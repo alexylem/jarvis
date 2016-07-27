@@ -11,7 +11,7 @@ spinner(){ # usage: command &; spinner $!
 update_alsa () { # usage: update_alsa $play_hw $rec_hw
     echo "Updating ~/.asoundrc..."
     cat<<EOM > ~/.asoundrc
-pcm.!sysdefault {
+pcm.!default {
   type asym
    playback.pcm {
      type plug
