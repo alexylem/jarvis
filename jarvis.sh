@@ -35,11 +35,11 @@ shopt -s nocasematch # string comparison case insensitive
 
 if [ "$(uname)" == "Darwin" ]; then
 	platform="osx"
-	dependencies=(awk git iconv nano osascript perl sed sox wget)
+	dependencies=(awk curl git iconv nano osascript perl sed sox wget)
 	forder="/tmp/jarvis-order"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 	platform="linux"
-	dependencies=(alsamixer aplay arecord awk git iconv mpg123 nano perl sed sox wget whiptail)
+	dependencies=(alsamixer aplay arecord awk curl git iconv mpg123 nano perl sed sox wget whiptail)
 	forder="/dev/shm/jarvis-order"
 else
 	echo "Unsupported platform"; exit 1
@@ -53,15 +53,6 @@ editor () {
     else
         nano "$1"
     fi
-}
-
-spinner(){ # call spinner $!
-	while kill -0 $1 2>/dev/null; do
-		for i in \| / - \\; do
-			printf '%c\b' $i
-			sleep .1
-		done
-	done
 }
 
 update_commands () { # only for retrocompatibility
@@ -107,7 +98,9 @@ checkupdates () {
 
 # config
 configure () {
-    local variables=('check_updates'
+    local variables=('bing_speech_api_key1'
+                   'bing_speech_api_key2'
+                   'check_updates'
                    'command_stt'
                    'conversation_mode'
                    'dictionary'
@@ -140,9 +133,11 @@ configure () {
                    'program_startup'
                    'program_exit')
     case "$1" in
+        bing_speech_api_key1)   eval $1=`dialog_input "Bing Speech API Key 1\nHow to get one: https://github.com/alexylem/jarvis/wiki/bing" "${!1}"`;;
+        bing_speech_api_key2)   eval $1=`dialog_input "Bing Speech API Key 2\nHow to get one: https://github.com/alexylem/jarvis/wiki/bing" "${!1}"`;;
         check_updates)          eval $1=`dialog_yesno "Check Updates when Jarvis starts up (recommended)" "${!1}"`;;
-        command_stt)            options=('google' 'wit' 'pocketsphinx')
-                                eval $1=`dialog_select "Which engine to use for the recognition of commands\nRecommended: google" options[@] "${!1}"`
+        command_stt)            options=('google' 'wit' 'bing' 'pocketsphinx')
+                                eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit https://github.com/alexylem/jarvis/wiki/stt\nRecommended: google" options[@] "${!1}"`
                                 source stt_engines/$command_stt/main.sh;;
         conversation_mode)      eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
         dictionary)             eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
@@ -228,7 +223,7 @@ configure () {
         trigger_mode) options=("magic_word" "enter_key" "physical_button")
                  eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`;;
         trigger_stt) options=('snowboy' 'pocketsphinx' 'google')
-                     eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nhttps://github.com/alexylem/jarvis/wiki/stt\nRecommended: snowboy" options[@] "${!1}"`
+                     eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nVisit https://github.com/alexylem/jarvis/wiki/stt\nRecommended: snowboy" options[@] "${!1}"`
                      if [ "$trigger_stt" = "snowboy" ]; then
                         # use ' instead of " in dialog_msg
                         dialog_msg <<EOM
@@ -242,7 +237,7 @@ EOM
                      source stt_engines/$trigger_stt/main.sh;;
         tts_engine) options=('svox_pico' 'google' 'espeak' 'osx_say')
                     recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico'`
-                    eval $1=`dialog_select "Which engine to use for the speech synthesis\nhttps://github.com/alexylem/jarvis/wiki/stt\nRecommended for your platform: $recommended" options[@] "${!1}"`
+                    eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit https://github.com/alexylem/jarvis/wiki/stt\nRecommended for your platform: $recommended" options[@] "${!1}"`
                     source tts_engines/$tts_engine/main.sh;;
         username) eval $1=`dialog_input "How would you like to be called?" "${!1}"`;;
         wit_server_access_token) eval $1=`dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}"`;;
@@ -287,6 +282,10 @@ wizard () {
     fi
     if [ $trigger_stt = 'wit' ] || [ $command_stt = 'wit' ]; then
         configure "wit_server_access_token"
+    fi
+    if [ $trigger_stt = 'bing' ] || [ $command_stt = 'bing' ]; then
+        configure "bing_speech_api_key1"
+        configure "bing_speech_api_key2"
     fi
     
     configure "play_hw"
@@ -492,15 +491,17 @@ EOM
                         done;;
                     "Voice recognition")
                         while true; do
-                            options=("Recognition of magic word ($trigger_stt)" "Recognition of commands ($command_stt)" "Google key ($google_speech_api_key)" "Wit key ($wit_server_access_token)" "PocketSphinx dictionary ($dictionary)" "PocketSphinx language model ($language_model)" "PocketSphinx logs ($pocketsphinxlog)")
+                            options=("Recognition of magic word ($trigger_stt)" "Recognition of commands ($command_stt)" "Google key ($google_speech_api_key)" "Wit key ($wit_server_access_token)" "Bing key1 ($bing_speech_api_key1)" "Bing key2 ($bing_speech_api_key2)" "PocketSphinx dictionary ($dictionary)" "PocketSphinx language model ($language_model)" "PocketSphinx logs ($pocketsphinxlog)")
                             case "`dialog_menu 'Configuration > Voice recognition' options[@]`" in
                                 Recognition*magic*word*) configure "trigger_stt";;
-                                Recognition*command*) configure "command_stt";;
-                                Google*) configure "google_speech_api_key";;
-                                Wit*) configure "wit_server_access_token";;
-                                PocketSphinx*dictionary*) configure "dictionary";;
-                                PocketSphinx*model*) configure "language_model";;
-                                PocketSphinx*logs*) configure "pocketsphinxlog";;
+                                Recognition*command*)       configure "command_stt";;
+                                Google*)                    configure "google_speech_api_key";;
+                                Wit*)                       configure "wit_server_access_token";;
+                                Bing*key1*)                 configure "bing_speech_api_key1";;
+                                Bing*key2*)                 configure "bing_speech_api_key2";;
+                                PocketSphinx*dictionary*)   configure "dictionary";;
+                                PocketSphinx*model*)        configure "language_model";;
+                                PocketSphinx*logs*)         configure "pocketsphinxlog";;
                                 *) break;;
                             esac
                         done;;
@@ -566,7 +567,7 @@ done
 # troubleshooting info
 if [ $verbose = true ]; then
     echo -e "\n------- Config (verbose) -------"
-    for parameter in platform language play_hw rec_hw trigger_stt command_stt tts_engine google_speech_api_key conversation_mode; do
+    for parameter in platform language play_hw rec_hw trigger_stt command_stt tts_engine conversation_mode; do
         printf "%-21s %s \n" "$parameter" "${!parameter}"
     done
     echo -e "--------------------------------\n"

@@ -35,7 +35,7 @@ LISTEN_COMMAND () {
         RECORD "$audiofile" 10
         duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
         $verbose && echo "DEBUG: speech duration was $duration (10 = 1 sec)"
-        if [ -z "$duration" ] || [ "$duration" = "00" ]; then
+        if [ -z "$duration" ]; then
             $verbose && echo "DEBUG: timeout, end of conversation" || printf '.'
             #PLAY beep-low.wav
             sleep 1 # BUG here despite timeout mic still busy can't rec again...
