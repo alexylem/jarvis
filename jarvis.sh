@@ -667,6 +667,7 @@ while true; do
 			$verbose && PLAY beep-low.wav
             
 			order=`cat $forder`
+            > $forder # empty $forder
 			printf "$order"
 			[ -z "$order" ] && printf '?' && continue
 			$bypass && break
