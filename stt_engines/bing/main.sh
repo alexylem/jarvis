@@ -40,9 +40,11 @@ _bing_transcribe () {
         $verbose && echo "DEBUG: token will expire in $(( $stt_bing_expires - `date +%s` )) seconds"
     fi
     
+    [ "$platform" = "osx" ] && uuid=$(uuidgen) || uuid=$(cat /proc/sys/kernel/random/uuid)
+    
     local request="https://speech.platform.bing.com/recognize/query"
     request+="?version=3.0"
-    request+="&requestid=`uuidgen`"
+    request+="&requestid=$uuid"
     request+="&appid=D4D52672-91D7-4C74-8AD8-42B1D98141A5"
     request+="&format=json"
     request+="&locale=${language//_/-}" # fr_FR => fr-FR
