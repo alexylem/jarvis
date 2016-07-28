@@ -25,7 +25,7 @@ show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW! Check Settings > Phrases to reconfigure system phrases"
+headline="NEW! Bing now available in Settings > Speech Recognition > of Commands"
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 audiofile="jarvis-record.wav"
 lockfile="/tmp/jarvis.lock"
@@ -98,8 +98,7 @@ checkupdates () {
 
 # config
 configure () {
-    local variables=('bing_speech_api_key1'
-                   'bing_speech_api_key2'
+    local variables=('bing_speech_api_key'
                    'check_updates'
                    'command_stt'
                    'conversation_mode'
@@ -133,22 +132,21 @@ configure () {
                    'program_startup'
                    'program_exit')
     case "$1" in
-        bing_speech_api_key1)   eval $1=`dialog_input "Bing Speech API Key 1\nHow to get one: https://github.com/alexylem/jarvis/wiki/bing" "${!1}"`;;
-        bing_speech_api_key2)   eval $1=`dialog_input "Bing Speech API Key 2\nHow to get one: https://github.com/alexylem/jarvis/wiki/bing" "${!1}"`;;
-        check_updates)          eval $1=`dialog_yesno "Check Updates when Jarvis starts up (recommended)" "${!1}"`;;
-        command_stt)            options=('google' 'wit' 'bing' 'pocketsphinx')
-                                eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit https://github.com/alexylem/jarvis/wiki/stt\nRecommended: google" options[@] "${!1}"`
-                                source stt_engines/$command_stt/main.sh;;
-        conversation_mode)      eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
-        dictionary)             eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
-        google_speech_api_key)  eval $1=`dialog_input "Google Speech API Key\nHow to get one: http://stackoverflow.com/a/26833337" "${!1}"`;;
-        program_startup)        editor hooks/$1;;
-        program_exit)           editor hooks/$1;;
-        entering_cmd)           editor hooks/$1;;
-        exiting_cmd)            editor hooks/$1;;
-        language)               options=("en_EN" "fr_FR")
-                                eval $1=`dialog_select "Language" options[@] "${!1}"`;;
-        language_model)         eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;
+        bing_speech_api_key)   eval $1=`dialog_input "Bing Speech API Key 1\nHow to get one: https://github.com/alexylem/jarvis/wiki/bing" "${!1}"`;;
+        check_updates)         eval $1=`dialog_yesno "Check Updates when Jarvis starts up (recommended)" "${!1}"`;;
+        command_stt)           options=('bing' 'google' 'wit' 'pocketsphinx')
+                               eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit https://github.com/alexylem/jarvis/wiki/stt\nRecommended: bing" options[@] "${!1}"`
+                               source stt_engines/$command_stt/main.sh;;
+        conversation_mode)     eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
+        dictionary)            eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
+        google_speech_api_key) eval $1=`dialog_input "Google Speech API Key\nHow to get one: http://stackoverflow.com/a/26833337" "${!1}"`;;
+        program_startup)       editor hooks/$1;;
+        program_exit)          editor hooks/$1;;
+        entering_cmd)          editor hooks/$1;;
+        exiting_cmd)           editor hooks/$1;;
+        language)              options=("en_EN" "fr_FR")
+                               eval $1=`dialog_select "Language" options[@] "${!1}"`;;
+        language_model)        eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;
         load) 
             source jarvis-config-default.sh
             [ -f jarvis-config.sh ] && source jarvis-config.sh # backward compatibility
@@ -491,14 +489,13 @@ EOM
                         done;;
                     "Voice recognition")
                         while true; do
-                            options=("Recognition of magic word ($trigger_stt)" "Recognition of commands ($command_stt)" "Google key ($google_speech_api_key)" "Wit key ($wit_server_access_token)" "Bing key1 ($bing_speech_api_key1)" "Bing key2 ($bing_speech_api_key2)" "PocketSphinx dictionary ($dictionary)" "PocketSphinx language model ($language_model)" "PocketSphinx logs ($pocketsphinxlog)")
+                            options=("Recognition of magic word ($trigger_stt)" "Recognition of commands ($command_stt)" "Bing key ($bing_speech_api_key)" "Google key ($google_speech_api_key)" "Wit key ($wit_server_access_token)" "PocketSphinx dictionary ($dictionary)" "PocketSphinx language model ($language_model)" "PocketSphinx logs ($pocketsphinxlog)")
                             case "`dialog_menu 'Configuration > Voice recognition' options[@]`" in
                                 Recognition*magic*word*) configure "trigger_stt";;
                                 Recognition*command*)       configure "command_stt";;
                                 Google*)                    configure "google_speech_api_key";;
                                 Wit*)                       configure "wit_server_access_token";;
-                                Bing*key1*)                 configure "bing_speech_api_key1";;
-                                Bing*key2*)                 configure "bing_speech_api_key2";;
+                                Bing*key*)                  configure "bing_speech_api_key";;
                                 PocketSphinx*dictionary*)   configure "dictionary";;
                                 PocketSphinx*model*)        configure "language_model";;
                                 PocketSphinx*logs*)         configure "pocketsphinxlog";;

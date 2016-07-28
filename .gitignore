@@ -95,6 +95,4 @@ hooks/program_exit
 
 hooks/program_startup
 
-config/bing_speech_api_key1
-
-config/bing_speech_api_key2
+config/bing_speech_api_key

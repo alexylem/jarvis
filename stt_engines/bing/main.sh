@@ -3,10 +3,10 @@ touch /tmp/jarvis_bing_token # initiate if don't exist
 touch /tmp/jarvis_bing_expires # initiate if don't exist
 
 _bing_transcribe () {
-    if [ -z "$bing_speech_api_key1" ] || [ -z "$bing_speech_api_key2" ]; then
+    if [ -z "$bing_speech_api_key" ]; then
         echo "" # new line
         echo "ERROR: missing bing speech api key"
-        echo "HELP: define bing keys in Settings > Voice recognition"
+        echo "HELP: define bing key in Settings > Voice recognition"
         echo "" > $forder # clean previous order to show "?"
         exit 1 # TODO doesn't really exit because launched with & for spinner
     fi
@@ -19,8 +19,8 @@ _bing_transcribe () {
         local json=`curl -X POST "https://oxford-speech.cloudapp.net/token/issueToken" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             -d "grant_type=client_credentials" \
-            -d "client_id=$bing_speech_api_key1" \
-            -d "client_secret=$bing_speech_api_key2" \
+            -d "client_id=$bing_speech_api_key" \
+            -d "client_secret=$bing_speech_api_key" \
             -d "scope=https://speech.platform.bing.com" \
             --silent`
         $verbose && echo "DEBUG: json=$json"
