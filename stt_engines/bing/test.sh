@@ -5,6 +5,6 @@ verbose=true
 platform="osx"
 language="en-US"
 audiofile="test.wav"
-stt_bing_key="bc4fae4fb12345f8ac1861bb9ea9bcdc"
+bing_speech_api_key="$(cat ../../config/bing_speech_api_key)"
 
 _bing_transcribe
