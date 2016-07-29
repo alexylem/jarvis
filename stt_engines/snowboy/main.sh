@@ -34,14 +34,20 @@
 
 snowboy_STT () { # STT () {} Transcribes audio file $1 and writes corresponding text in $forder
     shopt -s nocasematch
-    $verbose && local quiet='' || local quiet='2>/dev/null'
+    if $verbose; then
+        local quiet=''
+        printf $_gray
+    else
+        local quiet='2>/dev/null'
+    fi;
     local model="snowboy.umdl"
     [ $trigger != "SNOWBOY" ] && model="$(tr '[:upper:]' '[:lower:]' <<< $trigger).pmdl"
     eval python stt_engines/snowboy/main.py stt_engines/snowboy/resources/$model $quiet #WARNING:  140: This application, or a library it uses, is using the deprecated Carbon Component Manager for hosting Audio Units. Support for this will be removed in a future release. Also, this makes the host incompatible with version 3 audio units. Please transition to the API's in AudioComponent.h.
     if (( $? )); then
-        echo "ERROR: snowboy recognition failed"
+        my_error "ERROR: snowboy recognition failed"
         exit 1
     else
         echo "$trigger" > $forder
     fi
+    printf $_reset
 }

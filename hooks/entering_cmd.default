@@ -1,1 +1,1 @@
-$verbose && echo "DEBUG: entering_cmd hook"
+$verbose && my_debug "DEBUG: entering_cmd hook"

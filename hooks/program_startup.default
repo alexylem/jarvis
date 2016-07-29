@@ -1,1 +1,1 @@
-$verbose && echo "DEBUG: program_startup hook"
+$verbose && my_debug "DEBUG: program_startup hook"

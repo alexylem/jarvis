@@ -5,8 +5,8 @@ touch /tmp/jarvis_bing_expires # initiate if don't exist
 _bing_transcribe () {
     if [ -z "$bing_speech_api_key" ]; then
         echo "" # new line
-        echo "ERROR: missing bing speech api key"
-        echo "HELP: define bing key in Settings > Voice recognition"
+        my_error "ERROR: missing bing speech api key"
+        my_warning "HELP: define bing key in Settings > Voice recognition"
         echo "" > $forder # clean previous order to show "?"
         exit 1 # TODO doesn't really exit because launched with & for spinner
     fi
@@ -15,7 +15,7 @@ _bing_transcribe () {
     stt_bing_expires="`cat /tmp/jarvis_bing_expires`"
     
     if [ -z "$stt_bing_expires" ] || [ "$stt_bing_expires" -lt "`date +%s`" ]; then
-        $verbose && echo "DEBUG: token missing or expired"
+        $verbose && my_debug "DEBUG: token missing or expired"
         local json=`curl -X POST "https://oxford-speech.cloudapp.net/token/issueToken" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             -d "grant_type=client_credentials" \
@@ -23,21 +23,21 @@ _bing_transcribe () {
             -d "client_secret=$bing_speech_api_key" \
             -d "scope=https://speech.platform.bing.com" \
             --silent`
-        $verbose && echo "DEBUG: json=$json"
+        $verbose && my_debug "DEBUG: json=$json"
         
         stt_bing_token=`echo $json | perl -lne 'print $1 if m{"access_token":"([^"]*)"}'`
         echo $stt_bing_token > /tmp/jarvis_bing_token
         
         if [ -z "$stt_bing_token" ]; then
             error=`echo $json | perl -lne 'print $1 if m{"message": "([^"]*)"}'`
-            echo "ERROR: $error"
+            my_error "ERROR: $error"
             exit 1
         fi
         
         local expires_in=`echo $json | perl -lne 'print $1 if m{"expires_in":"([^"]*)"}'`
         stt_bing_expires=`echo $(( $(date +%s) + $expires_in - 10 ))` # -10 to compensate webservice call duration
         echo $stt_bing_expires > /tmp/jarvis_bing_expires
-        $verbose && echo "DEBUG: token will expire in $(( $stt_bing_expires - `date +%s` )) seconds"
+        $verbose && my_debug "DEBUG: token will expire in $(( $stt_bing_expires - `date +%s` )) seconds"
     fi
     
     [ "$platform" = "osx" ] && uuid=$(uuidgen) || uuid=$(cat /proc/sys/kernel/random/uuid)
@@ -52,7 +52,7 @@ _bing_transcribe () {
     request+="&scenarios=ulm"
     request+="&instanceid=E043E4FE-51EF-4B74-8133-B728C4FEA8AA"
     
-    $verbose && echo "DEBUG: curl $request"
+    $verbose && my_debug "DEBUG: curl $request"
     # don't use local or else $? will not work
     json=`curl "$request" \
         -H "Host: speech.platform.bing.com" \
@@ -61,10 +61,10 @@ _bing_transcribe () {
         --data-binary "@$audiofile" \
         --silent --fail`
     if (( $? )); then
-        echo "ERROR: bing recognition curl failed"
+        my_error "ERROR: bing recognition curl failed"
         exit 1
     fi
-    $verbose && echo "DEBUG: json=$json"
+    $verbose && my_debug "DEBUG: json=$json"
     local status=`echo $json | perl -lne 'print $1 if m{"status":"([^"]*)"}'`
     
     if [ "$status" = "success" ]; then

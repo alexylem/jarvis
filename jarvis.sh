@@ -42,7 +42,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 	dependencies=(alsamixer aplay arecord awk curl git iconv mpg123 nano perl sed sox wget whiptail)
 	forder="/dev/shm/jarvis-order"
 else
-	echo "Unsupported platform"; exit 1
+	my_error "ERROR: Unsupported platform"; exit 1
 fi
 source utils/dialog_$platform.sh
 
@@ -239,7 +239,7 @@ EOM
                     source tts_engines/$tts_engine/main.sh;;
         username) eval $1=`dialog_input "How would you like to be called?" "${!1}"`;;
         wit_server_access_token) eval $1=`dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}"`;;
-        *) echo "ERROR: Unknown configure $1";;
+        *) my_error "ERROR: Unknown configure $1";;
     esac
 }
 
@@ -563,11 +563,11 @@ done
 
 # troubleshooting info
 if [ $verbose = true ]; then
-    echo -e "\n------- Config (verbose) -------"
+    echo -e "$_gray\n------------ Config ------------"
     for parameter in platform language play_hw rec_hw trigger_stt command_stt tts_engine conversation_mode; do
         printf "%-21s %s \n" "$parameter" "${!parameter}"
     done
-    echo -e "--------------------------------\n"
+    echo -e "--------------------------------\n$_reset"
 fi
 
 commands=`cat jarvis-commands`
@@ -596,7 +596,7 @@ handle_order() {
                 if [[ $order =~ $regex ]]; then # HELLO THERE =~ .*HELLO.*
     				action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
     				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'`
-    				$verbose && echo "$> $action"
+    				$verbose && my_debug "$> $action"
                     eval "$action" || say "$phrase_failed"
                     check_indented=true
                     commands=""
@@ -628,7 +628,7 @@ source hooks/program_startup
 bypass=$just_listen
 
 program_exit () {
-    $verbose && echo "DEBUG: program exit handler"
+    $verbose && my_debug "DEBUG: program exit handler"
     source hooks/program_exit $1
     # make sure the lockfile is removed when we exit and then claim it
     rm -f $lockfile
@@ -654,7 +654,7 @@ while true; do
         while true; do
 			#$quiet || PLAY beep-high.wav
 			
-            $verbose && echo "(listening...)"
+            $verbose && my_debug "(listening...)"
             
             if $bypass; then
                 eval ${command_stt}_STT

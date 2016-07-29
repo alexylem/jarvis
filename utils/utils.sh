@@ -26,3 +26,14 @@ EOM
     echo "Reloading Alsa..."
     sudo /etc/init.d/alsa-utils restart
 }
+
+_reset="\033[0m"
+_red="\033[91m"
+_orange="\033[93m"
+_green="\033[92m"
+_gray="\033[2m"
+
+my_error() { echo -e "$_red$@$_reset" ;}
+my_warning() { echo -e "$_orange$@$_reset" ;}
+my_success() { echo -e "$_green$@$_reset" ;}
+my_debug() { echo -e "$_gray$@$_reset" ;}
