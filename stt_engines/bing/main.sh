@@ -40,7 +40,7 @@ _bing_transcribe () {
         $verbose && my_debug "DEBUG: token will expire in $(( $stt_bing_expires - `date +%s` )) seconds"
     fi
     
-    [ "$platform" = "osx" ] && uuid=$(uuidgen) || uuid=$(cat /proc/sys/kernel/random/uuid)
+    [[ $OSTYPE = darwin* ]] && uuid=$(uuidgen) || uuid=$(cat /proc/sys/kernel/random/uuid)
     
     local request="https://speech.platform.bing.com/recognize/query"
     request+="?version=3.0"
