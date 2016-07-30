@@ -37,7 +37,7 @@ LISTEN_COMMAND () {
         $verbose && my_debug "DEBUG: speech duration was $duration (10 = 1 sec)"
         if [ -z "$duration" ]; then
             $verbose && my_debug "DEBUG: timeout, end of conversation" || printf '.'
-            #PLAY beep-low.wav
+            PLAY sounds/timeout.wav
             sleep 1 # BUG here despite timeout mic still busy can't rec again...
             bypass=false
             source hooks/exiting_cmd

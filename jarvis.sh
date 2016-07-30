@@ -175,7 +175,7 @@ configure () {
         play_hw)
             while true; do
                 dialog_msg "Checking audio output, make sure your speakers are on and press [Ok]"
-                play "applause.wav"
+                play "sounds/applause.wav"
                 dialog_yesno "Did you hear something?" true && break
                 clear
                 aplay -l
@@ -649,7 +649,7 @@ while true; do
 		! $bypass && echo "$trigger: Waiting to hear '$trigger'"
 		printf "$username: "
 		
-        $quiet || ( $bypass && PLAY beep-high.wav || PLAY beep-low.wav )
+        $quiet || ( $bypass && PLAY sounds/triggered.wav || PLAY sounds/listening.wav )
 		
         while true; do
 			#$quiet || PLAY beep-high.wav
@@ -661,12 +661,16 @@ while true; do
             else
                 eval ${trigger_stt}_STT
             fi
-			$verbose && PLAY beep-low.wav
+			#$verbose && PLAY beep-low.wav
             
 			order=`cat $forder`
             > $forder # empty $forder
 			printf "$order"
-			[ -z "$order" ] && printf '?' && continue
+			if [ -z "$order" ]; then
+                 printf '?'
+                 PLAY sounds/error.wav
+                 continue
+            fi
 			$bypass && break
             if [[ "$order" == *$trigger* ]]; then
                 bypass=true
@@ -675,7 +679,7 @@ while true; do
                 say "$phrase_triggered"
                 continue 2
 			fi
-			$verbose && PLAY beep-error.wav
+			#$verbose && PLAY beep-error.wav
 		done
 		echo # new line
 	fi
