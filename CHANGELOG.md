@@ -1,3 +1,4 @@
+30JUL16 Quick commands with Snowboy https://github.com/alexylem/jarvis/issues/15
 27JUL16 Added Bing voice recognition https://github.com/alexylem/jarvis/issues/49
 22JUL16 Conversation mode override flag https://github.com/alexylem/jarvis/issues/60
 20JUL16 Hooks to personalize Jarvis even more https://github.com/alexylem/jarvis/issues/54

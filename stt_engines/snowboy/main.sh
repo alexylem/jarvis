@@ -32,22 +32,38 @@
     }
 }
 
+# build list of models to pass in parameter
+snowboy_models=()
+snowboy_smodels=""
+for model in stt_engines/snowboy/resources/*mdl; do
+    snowboy_model=$(basename "$model")
+    snowboy_models+=("${snowboy_model%.*}")
+    snowboy_smodels+=" \"$model\"" # in case there are spaces in models for quick commands
+done
+
 snowboy_STT () { # STT () {} Transcribes audio file $1 and writes corresponding text in $forder
-    shopt -s nocasematch
     if $verbose; then
+        $verbose && (IFS=','; my_debug "DEBUG: models=${snowboy_models[*]}")
         local quiet=''
         printf $_gray
     else
         local quiet='2>/dev/null'
     fi;
-    local model="snowboy.umdl"
-    [ $trigger != "SNOWBOY" ] && model="$(tr '[:upper:]' '[:lower:]' <<< $trigger).pmdl"
-    eval python stt_engines/snowboy/main.py stt_engines/snowboy/resources/$model $quiet #WARNING:  140: This application, or a library it uses, is using the deprecated Carbon Component Manager for hosting Audio Units. Support for this will be removed in a future release. Also, this makes the host incompatible with version 3 audio units. Please transition to the API's in AudioComponent.h.
-    if (( $? )); then
+    
+    #local model="snowboy.umdl"
+    #[ $trigger != "SNOWBOY" ] && model="$(tr '[:upper:]' '[:lower:]' <<< $trigger).pmdl"
+    
+    eval python stt_engines/snowboy/main.py $snowboy_smodels $quiet #TODO on mac: WARNING:  140: This application, or a library it uses, is using the deprecated Carbon Component Manager for hosting Audio Units. Support for this will be removed in a future release. Also, this makes the host incompatible with version 3 audio units. Please transition to the API's in AudioComponent.h.
+    modelid=$(($?-1))
+    $verbose && echo "DEBUG: modelid=$modelid"
+    if [ "$modelid" -gt 100 ]; then
         my_error "ERROR: snowboy recognition failed"
         exit 1
     else
-        echo "$trigger" > $forder
+        local order="${snowboy_models[$modelid]}"
+        shopt -s nocasematch
+        [[ "$order" == "$trigger" ]] || bypass=true
+        echo "$order" > $forder
     fi
     printf $_reset
 }
