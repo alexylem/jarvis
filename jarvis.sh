@@ -120,6 +120,7 @@ configure () {
                    'pocketsphinxlog'
                    'rec_hw'
                    'separator'
+                   'snowboy_sensitivity'
                    'tmp_folder'
                    'trigger'
                    'trigger_stt'
@@ -214,6 +215,7 @@ configure () {
                   echo "${!varname}" > config/$varname
               done;;
         separator) eval $1=`dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}"`;;
+        snowboy_sensitivity) eval $1=`dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.5" "${!1}"`;;
         tmp_folder) eval $1=`dialog_input "Cache folder" "${!1}"`;;
         trigger)
             eval "$1='`dialog_input \"Magic word to be said\" \"${!1}\"`'"
@@ -489,10 +491,11 @@ EOM
                         done;;
                     "Voice recognition")
                         while true; do
-                            options=("Recognition of magic word ($trigger_stt)" "Recognition of commands ($command_stt)" "Bing key ($bing_speech_api_key)" "Google key ($google_speech_api_key)" "Wit key ($wit_server_access_token)" "PocketSphinx dictionary ($dictionary)" "PocketSphinx language model ($language_model)" "PocketSphinx logs ($pocketsphinxlog)")
+                            options=("Recognition of magic word ($trigger_stt)" "Recognition of commands ($command_stt)" "Snowboy sensitivity ($snowboy_sensitivity)" "Bing key ($bing_speech_api_key)" "Google key ($google_speech_api_key)" "Wit key ($wit_server_access_token)" "PocketSphinx dictionary ($dictionary)" "PocketSphinx language model ($language_model)" "PocketSphinx logs ($pocketsphinxlog)")
                             case "`dialog_menu 'Configuration > Voice recognition' options[@]`" in
                                 Recognition*magic*word*) configure "trigger_stt";;
                                 Recognition*command*)       configure "command_stt";;
+                                Snowboy*)                   configure "snowboy_sensitivity";;
                                 Google*)                    configure "google_speech_api_key";;
                                 Wit*)                       configure "wit_server_access_token";;
                                 Bing*key*)                  configure "bing_speech_api_key";;

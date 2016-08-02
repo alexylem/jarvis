@@ -12,7 +12,8 @@ hash 'say' 2>/dev/null || {
     }
 }
 
+osx_say_voice=`/usr/bin/say -v ? | grep $language | head -n 1 | awk '{print $1}'`
+
 osx_say_TTS () { # TTS () {} Speaks text $1
-    voice=`/usr/bin/say -v ? | grep $language | head -n 1 | awk '{print $1}'`
-    /usr/bin/say -v $voice "$1"
+    /usr/bin/say -v $osx_say_voice "$1"
 }

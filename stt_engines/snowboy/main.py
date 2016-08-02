@@ -20,22 +20,23 @@ def detected_callback(modelid):
     #detector.terminate() #makes is slower to react
     sys.exit(modelid)
 
-if len(sys.argv) == 1:
-    print("Error: need to specify at least one model")
-    print("Usage: python main.py resources/model1.pmdl resources/model2.pmdl [...]")
+if len(sys.argv) < 3:
+    print("Error: need to specify the sensitivity and at least one model")
+    print("Usage: python main.py 0.5 resources/model1.pmdl resources/model2.pmdl [...]")
     sys.exit(-1)
 
-models = sys.argv[1:]
+# capture SIGINT signal, e.g., Ctrl+C
+signal.signal(signal.SIGINT, signal_handler)
+
+models = sys.argv[2:]
 nbmodel = len(models)
 callbacks = []
 for i in range(1,nbmodel+1):
     callbacks.append(lambda i=i: detected_callback(i))
 
-# capture SIGINT signal, e.g., Ctrl+C
-signal.signal(signal.SIGINT, signal_handler)
-
-sensitivity = [0.5]*nbmodel
-detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
+sensitivity = sys.argv[1]
+sensitivities = [sensitivity]*nbmodel
+detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivities)
 
 # main loop
 # make sure you have the same numbers of callbacks and models

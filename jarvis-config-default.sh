@@ -18,6 +18,7 @@ play_hw=false
 pocketsphinxlog="/dev/null" # can get very big on long run
 rec_hw=false
 separator=""
+snowboy_sensitivity="0.5"
 tmp_folder="/tmp"
 trigger='jarvis'
 trigger_mode="magic_word"

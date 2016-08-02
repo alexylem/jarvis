@@ -1,4 +1,5 @@
-03JUL16 Improved Jarvis sounds https://github.com/alexylem/jarvis/issues/62
+02AUG16 Snowboy sensitivity setting https://github.com/alexylem/jarvis/issues/84
+30JUL16 Improved Jarvis sounds https://github.com/alexylem/jarvis/issues/62
 30JUL16 Quick commands with Snowboy https://github.com/alexylem/jarvis/issues/15
 27JUL16 Added Bing voice recognition https://github.com/alexylem/jarvis/issues/49
 22JUL16 Conversation mode override flag https://github.com/alexylem/jarvis/issues/60
