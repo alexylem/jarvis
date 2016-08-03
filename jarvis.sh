@@ -566,9 +566,13 @@ done
 
 # troubleshooting info
 if [ $verbose = true ]; then
+    [ "$play_hw" != "false" ] && speaker=$(lsusb -d $(cat /proc/asound/card${play_hw:3:1}/usbid) | cut -c 34-) || speaker='Default'
+    [ "$rec_hw" != "false" ] && microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || microphone='Default'
+    [[ "$OSTYPE" = darwin* ]] && os="$(sw_vers -productVersion)" || os="$(head -n1 /etc/*release | cut -f2 -d=)"
+    system="$(uname -mrs)"
     echo -e "$_gray\n------------ Config ------------"
-    for parameter in platform language play_hw rec_hw trigger_stt command_stt tts_engine conversation_mode; do
-        printf "%-21s %s \n" "$parameter" "${!parameter}"
+    for parameter in system os language play_hw rec_hw speaker microphone trigger_stt command_stt tts_engine conversation_mode; do
+        printf "%-20s %s \n" "$parameter" "${!parameter}"
     done
     echo -e "--------------------------------\n$_reset"
 fi

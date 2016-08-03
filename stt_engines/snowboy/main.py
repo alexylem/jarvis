@@ -18,7 +18,7 @@ def interrupt_callback():
 def detected_callback(modelid):
     #global detector #makes is slower to react
     #detector.terminate() #makes is slower to react
-    sys.exit(modelid)
+    sys.exit(modelid+10) # main.sh substracts 10
 
 if len(sys.argv) < 3:
     print("Error: need to specify the sensitivity and at least one model")
