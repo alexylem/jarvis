@@ -566,11 +566,13 @@ done
 
 # troubleshooting info
 if [ $verbose = true ]; then
-    if [ "$play_hw" != "false" ]
+    if [ "$play_hw" != "false" ]; then
         play_path="/proc/asound/card${play_hw:3:1}"
         [ -e "$play_path/usbid" ] && speaker=$(lsusb -d $(cat "$play_path/usbid") | cut -c 34-) || speaker=$(cat "$play_path/id")
+    else
+        speaker="Default"
     fi
-    [ "$rec_hw" != "false" ] && microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-)
+    [ "$rec_hw" != "false" ] && microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || microphone="Default"
     [[ "$OSTYPE" = darwin* ]] && os="$(sw_vers -productVersion)" || os="$(head -n1 /etc/*release | cut -f2 -d=)"
     system="$(uname -mrs)"
     echo -e "$_gray\n------------ Config ------------"
