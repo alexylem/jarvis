@@ -679,9 +679,18 @@ while true; do
             > $forder # empty $forder
 			printf "$order"
 			if [ -z "$order" ]; then
-                 printf '?'
-                 PLAY sounds/error.wav
-                 continue
+                printf '?'
+                PLAY sounds/error.wav
+                if [ $((++nb_failed)) -eq 3 ]; then
+                    nb_failed=0
+                    echo # new line
+                    $verbose && my_debug "DEBUG: 3 attempts failed, end of conversation"
+                    PLAY sounds/timeout.wav
+                    bypass=false
+                    source hooks/exiting_cmd
+                    continue 2
+                fi
+                continue
             fi
 			$bypass && break
             if [[ "$order" == *$trigger* ]]; then
@@ -698,8 +707,8 @@ while true; do
     was_in_conversation=$bypass
 	[ -n "$order" ] && handle_orders "$order"
     if $was_in_conversation && [ $conversation_mode = false ]; then
-        bypass=false;
-        source hooks/exiting_cmd;
+        bypass=false
+        source hooks/exiting_cmd
     fi
     $just_listen && [ $bypass = false ] && program_exit
 done
