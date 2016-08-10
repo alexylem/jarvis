@@ -7,13 +7,13 @@ flags='bc:ihlns:'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
-    
+
     Jarvis.sh is a lightweight configurable multi-lang jarvis-like bot
     Meant for home automation running on slow computer (ex: Raspberry Pi)
     It installs automatically speech recognition & synthesis engines of your choice
-    
+
     Main options are now accessible through the application menu
-    
+
     -b  run in background (no menu, continues after terminal is closed)
     -c  overrides conversation mode setting (true/false)
     -i  install (dependencies, pocketsphinx, setup)
@@ -35,11 +35,11 @@ shopt -s nocasematch # string comparison case insensitive
 
 if [ "$(uname)" == "Darwin" ]; then
 	platform="osx"
-	dependencies=(awk curl git iconv nano osascript perl sed sox wget)
+	dependencies=(awk curl git iconv nano osascript perl sed sox wget jq)
 	forder="/tmp/jarvis-order"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 	platform="linux"
-	dependencies=(alsamixer aplay arecord awk curl git iconv mpg123 nano perl sed sox wget whiptail)
+	dependencies=(alsamixer aplay arecord awk curl git iconv mpg123 nano perl sed sox wget whiptail jq)
 	forder="/dev/shm/jarvis-order"
 else
 	my_error "ERROR: Unsupported platform"; exit 1
@@ -57,9 +57,9 @@ editor () {
 
 update_commands () { # only for retrocompatibility
     # remove heading "Yes?" system trigger response, now a phrase
-    grep -iv "^\*==" jarvis-commands > cmd.tmp; mv cmd.tmp jarvis-commands 
+    grep -iv "^\*==" jarvis-commands > cmd.tmp; mv cmd.tmp jarvis-commands
     # remove traling "I don't understand" system command, now a phrase
-    grep -iv "^\*$trigger\*==" jarvis-commands > cmd.tmp; mv cmd.tmp jarvis-commands 
+    grep -iv "^\*$trigger\*==" jarvis-commands > cmd.tmp; mv cmd.tmp jarvis-commands
 }
 
 autoupdate () { # usage autoupdate 1 to show changelog
@@ -78,7 +78,7 @@ autoupdate () { # usage autoupdate 1 to show changelog
 
 checkupdates () {
     [ -f jarvis-commands ] || cp jarvis-commands-default jarvis-commands
-    [ -f jarvis-events ] || cp jarvis-events-default jarvis-events 
+    [ -f jarvis-events ] || cp jarvis-events-default jarvis-events
 	printf "Checking for updates..."
 	git fetch origin -q &
 	spinner $!
@@ -148,7 +148,7 @@ configure () {
         language)              options=("en_EN" "fr_FR")
                                eval $1=`dialog_select "Language" options[@] "${!1}"`;;
         language_model)        eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;
-        load) 
+        load)
             source jarvis-config-default.sh
             [ -f jarvis-config.sh ] && source jarvis-config.sh # backward compatibility
             for hook in "${hooks[@]}"; do
@@ -266,17 +266,17 @@ wizard () {
         exit 1
     }
     read -p "Press [Enter] to continue"
-    
+
     dialog_msg "Hello, my name is JARVIS, nice to meet you"
     configure "language"
-    
+
     [ "$language" != "en_EN" ] && dialog_msg "Note: the installation & menus are only in English for the moment."
-    
+
     configure "username"
     configure "trigger_stt"
     configure "command_stt"
     configure "tts_engine"
-    
+
     if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
         configure "google_speech_api_key"
     fi
@@ -287,10 +287,10 @@ wizard () {
         configure "bing_speech_api_key1"
         configure "bing_speech_api_key2"
     fi
-    
+
     configure "play_hw"
     configure "rec_hw"
-    
+
     configure "save"
     dialog_msg "Setup wizard completed."
 }
@@ -469,7 +469,7 @@ EOM
                                         else
                                             alsamixer -c ${play_hw:3:1} -V playback || read -p "ERROR: check above"
                                         fi;;
-                                Sensitivity) 
+                                Sensitivity)
                                 if [ "$platform" == "osx" ]; then
                                             osascript <<EOM
                                                 tell application "System Preferences"
@@ -660,21 +660,21 @@ while true; do
 		fi
 		! $bypass && echo "$trigger: Waiting to hear '$trigger'"
 		printf "$username: "
-		
+
         $quiet || ( $bypass && PLAY sounds/triggered.wav || PLAY sounds/listening.wav )
-		
+
         while true; do
 			#$quiet || PLAY beep-high.wav
-			
+
             $verbose && my_debug "(listening...)"
-            
+
             if $bypass; then
                 eval ${command_stt}_STT
             else
                 eval ${trigger_stt}_STT
             fi
 			#$verbose && PLAY beep-low.wav
-            
+
 			order=`cat $forder`
             > $forder # empty $forder
 			printf "$order"
