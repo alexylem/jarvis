@@ -1,3 +1,4 @@
+22AUG16 Ability to select OSX voice https://github.com/alexylem/jarvis/issues/97
 02AUG16 Snowboy sensitivity setting https://github.com/alexylem/jarvis/issues/84
 30JUL16 Improved Jarvis sounds https://github.com/alexylem/jarvis/issues/62
 30JUL16 Quick commands with Snowboy https://github.com/alexylem/jarvis/issues/15

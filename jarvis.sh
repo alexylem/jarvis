@@ -112,6 +112,7 @@ configure () {
                    'min_noise_perc_to_start'
                    'min_silence_duration_to_stop'
                    'min_silence_level_to_stop'
+                   'osx_say_voice'
                    'phrase_failed'
                    'phrase_misunderstood'
                    'phrase_triggered'
@@ -169,6 +170,9 @@ configure () {
         min_noise_perc_to_start)        eval $1=`dialog_input "Min noise durpercentageation to start" "${!1}"`;;
         min_silence_duration_to_stop)   eval $1=`dialog_input "Min silence duration to stop" "${!1}"`;;
         min_silence_level_to_stop)      eval $1=`dialog_input "Min silence level to stop" "${!1}"`;;
+        osx_say_voice)
+            local voices=(`/usr/bin/say -v ? | grep $language | awk '{print $1}'`)
+            eval $1=`dialog_select "Select a voice for $language" voices[@] $osx_say_voice`;;
         phrase_failed)                  eval "$1=\"`dialog_input 'What to say if user command failed' "${!1}"`\"";;
         phrase_misunderstood)           eval "$1=\"`dialog_input 'What to say if order not recognized' "${!1}"`\"";;
         phrase_triggered)               eval "$1=\"`dialog_input 'What to say when magic word is heard' "${!1}"`\"";;
@@ -507,10 +511,11 @@ EOM
                         done;;
                     "Speech synthesis")
                         while true; do
-                            options=("Speech engine ($tts_engine)" "Cache folder ($tmp_folder)")
+                            options=("Speech engine ($tts_engine)" "OSX voice ($osx_say_voice)" "Cache folder ($tmp_folder)")
                             case "`dialog_menu 'Configuration > Speech synthesis' options[@]`" in
                                 Speech*engine*) configure "tts_engine";;
-                                Cache*folder*) configure "tmp_folder";;
+                                OSX*voice*)     configure "osx_say_voice";;
+                                Cache*folder*)  configure "tmp_folder";;
                                 *) break;;
                             esac
                         done;;

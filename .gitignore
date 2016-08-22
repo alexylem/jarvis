@@ -98,3 +98,5 @@ hooks/program_startup
 config/bing_speech_api_key
 
 config/snowboy_sensitivity
+
+config/osx_say_voice
