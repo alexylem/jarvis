@@ -584,7 +584,7 @@ fi
 
 commands=`cat jarvis-commands`
 handle_order() {
-    order=`echo $1 | iconv -f utf8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
+    order=`echo $1 | iconv -f utf-8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
 	local check_indented=false
     while read line; do
 		if $check_indented; then
