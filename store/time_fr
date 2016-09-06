@@ -1,0 +1,6 @@
+Donne l'heure qu'il est
+
+you: S'il te plaît quelle heure est-il?
+jarvis: Il est 09:00
+
+*QUELLE HEURE*==say "il est `date +%H:%M`"

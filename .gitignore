@@ -100,3 +100,11 @@ config/bing_speech_api_key
 config/snowboy_sensitivity
 
 config/osx_say_voice
+
+stt_engines/snowboy/.DS_Store
+
+config/.DS_Store
+
+sounds/.DS_Store
+
+.DS_Store
