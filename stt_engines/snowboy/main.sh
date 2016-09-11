@@ -57,6 +57,9 @@ snowboy_STT () { # STT () {} Transcribes audio file $1 and writes corresponding 
     for model in ${snowboy_models[*]}; do
         [[ "$model" == "$trigger" ]] && trigger_missing=false
     done
+    if [ -f "stt_engines/snowboy/resources/${trigger}.pmdl" ]; then
+        trigger_missing=false
+    fi
     if $trigger_missing; then
         my_error "\nERROR: personal model for '$trigger' not found"
         my_success "HELP: See how to create '$(echo $trigger | tr '[:upper:]' '[:lower:]').pmdl' here:"
