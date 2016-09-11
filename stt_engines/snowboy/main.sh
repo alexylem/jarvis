@@ -53,11 +53,8 @@ snowboy_STT () { # STT () {} Transcribes audio file $1 and writes corresponding 
     fi;
     
     # checking if model exists for trigger
-    local trigger_missing=true
-    for model in ${snowboy_models[*]}; do
-        [[ "$model" == "$trigger" ]] && trigger_missing=false
-    done
-    if $trigger_missing; then
+    shopt -s nocaseglob # for ls pattern to be case insensitive
+    if ! ls "stt_engines/snowboy/resources/$trigger."?mdl >/dev/null 2>&1; then
         my_error "\nERROR: personal model for '$trigger' not found"
         my_success "HELP: See how to create '$(echo $trigger | tr '[:upper:]' '[:lower:]').pmdl' here:"
         my_success "HELP: https://github.com/alexylem/jarvis/wiki/snowboy"
