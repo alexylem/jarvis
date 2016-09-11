@@ -26,6 +26,7 @@ EOF
 }
 
 headline="NEW! Bing now available in Settings > Speech Recognition > of Commands"
+
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 audiofile="jarvis-record.wav"
 lockfile="/tmp/jarvis.lock"
@@ -33,6 +34,7 @@ cd "$DIR" # needed now for git used in automatic update
 rm -f $audiofile # sometimes, when error, previous recording is played
 shopt -s nocasematch # string comparison case insensitive
 
+# Check platform compatibility
 if [ "$(uname)" == "Darwin" ]; then
 	platform="osx"
 	dependencies=(awk curl git iconv nano osascript perl sed sox wget)
@@ -44,7 +46,13 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 else
 	my_error "ERROR: Unsupported platform"; exit 1
 fi
-source utils/dialog_$platform.sh
+source utils/dialog_$platform.sh # load default & user configuration
+source utils/utils.sh # needed for wizard
+# Check not ran as root
+if [ "$EUID" -eq 0 ]; then
+    my_error "ERROR: Jarvis must not be used as root"
+    exit 1
+fi
 
 editor () {
     if [ $platform = 'osx' ]; then
@@ -347,8 +355,6 @@ while getopts ":$flags" o; do
     esac
 done
 
-# load default & user configuration
-source utils/utils.sh # needed for wizard
 configure "load" || wizard
 [ -n "$conversation_mode_override" ] && conversation_mode=$conversation_mode_override
 update_commands
