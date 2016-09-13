@@ -296,8 +296,7 @@ wizard () {
         configure "wit_server_access_token"
     fi
     if [ $trigger_stt = 'bing' ] || [ $command_stt = 'bing' ]; then
-        configure "bing_speech_api_key1"
-        configure "bing_speech_api_key2"
+        configure "bing_speech_api_key"
     fi
     
     configure "play_hw"
