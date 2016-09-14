@@ -1,5 +1,5 @@
 check_updates=true
-command_stt="google"
+command_stt="bing"
 conversation_mode=true
 dictionary="stt_engines/pocketsphinx/jarvis-dictionary.dic"
 google_speech_api_key=""
