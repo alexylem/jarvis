@@ -575,14 +575,13 @@ EOM
                                                      "Uninstall")
                                             while true; do
                                                 case "`dialog_menu \"$option\" options[@]`" in
-                                                    Info)   clear
-                                                            more "$option/info.md"
-                                                            my_debug "Press [Enter] to continue"
-                                                            read
-                                                            ;;
-                                                    Configure)
-                                                            editor "$option/config.sh"
-                                                            ;;
+                                                    Info)      clear
+                                                               more "$option/info.md"
+                                                               my_debug "Press [Enter] to continue"
+                                                               read
+                                                               ;;
+                                                    Configure) editor "$option/config.sh";;
+                                                    Update)    ;;
                                                     Uninstall) 
                                                             if dialog_yesno "Are you sure?" true >/dev/null; then
                                                                 "$option"/uninstall.sh
@@ -601,7 +600,7 @@ EOM
                                     cd ../../
                                 fi
                                 ;;
-                    Search*)    configure "osx_say_voice";;
+                    Search*)    ;;
                     Browse*)    cd store/all/
                                 while true; do
                                     shopt -s nullglob # http://stackoverflow.com/questions/18884992/how-do-i-assign-ls-to-an-array-in-linux-bash
@@ -643,7 +642,7 @@ EOM
                     Publish*)   dialog_msg <<EOM
 Why keeping your great Jarvis commands just for you?
 Share them and have the whole community using them!
-It's easy, and a great way to make one's contribution to the project,
+It's easy, and a great way to make one's contribution to the project.
 Procedure to publish your commands on the Jarvis Store:
 https://github.com/alexylem/jarvis/wiki/store
 EOM
