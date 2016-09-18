@@ -11,51 +11,7 @@ jarvis.log
 
 jarvis-config.sh.old
 
-config/all_matches
-
-config/check_updates
-
-config/command_stt
-
-config/conversation_mode
-
-config/dictionary
-
-config/google_speech_api_key
-
-config/language
-
-config/language_model
-
-config/max_noise_duration_to_kill
-
-config/min_noise_duration_to_start
-
-config/min_noise_perc_to_start
-
-config/min_silence_duration_to_stop
-
-config/min_silence_level_to_stop
-
-config/play_hw
-
-config/pocketsphinxlog
-
-config/rec_hw
-
-config/tmp_folder
-
-config/trigger
-
-config/trigger_mode
-
-config/trigger_stt
-
-config/tts_engine
-
-config/username
-
-config/wit_server_access_token
+config/
 
 stt_engines/snowboy/_snowboydetect.so
 
@@ -77,17 +33,7 @@ stt_engines/snowboy/snowboydetect.pyc
 
 *.pmdl
 
-config/separator
-
-config/phrase_failed
-
-config/phrase_triggered
-
-config/phrase_welcome
-
 hooks/entering_cmd
-
-config/phrase_misunderstood
 
 hooks/exiting_cmd
 
@@ -95,16 +41,10 @@ hooks/program_exit
 
 hooks/program_startup
 
-config/bing_speech_api_key
-
-config/snowboy_sensitivity
-
-config/osx_say_voice
-
 stt_engines/snowboy/.DS_Store
-
-config/.DS_Store
 
 sounds/.DS_Store
 
 .DS_Store
+
+store/installed/

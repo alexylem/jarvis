@@ -25,14 +25,14 @@ show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW! Bing now available in Settings > Speech Recognition > of Commands"
+headline="NEW! Jarvis Store is now open!"
 
+# Move to Jarvis directory
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-audiofile="jarvis-record.wav"
-lockfile="/tmp/jarvis.lock"
 cd "$DIR" # needed now for git used in automatic update
-rm -f $audiofile # sometimes, when error, previous recording is played
+
 shopt -s nocasematch # string comparison case insensitive
+source utils/utils.sh # needed for wizard / platform error
 
 # Check platform compatibility
 if [ "$(uname)" == "Darwin" ]; then
@@ -47,23 +47,22 @@ else
 	my_error "ERROR: Unsupported platform"; exit 1
 fi
 source utils/dialog_$platform.sh # load default & user configuration
-source utils/utils.sh # needed for wizard
+
 # Check not ran as root
 if [ "$EUID" -eq 0 ]; then
     my_error "ERROR: Jarvis must not be used as root"
     exit 1
 fi
 
-editor () {
-    if [ $platform = 'osx' ]; then
-        dialog_msg "Make sure to Quit (cmd+Q) the Editor when finished"
-        open -tW "$1"
-    else
-        nano "$1"
-    fi
-}
+# Initiate files & directories
+lockfile="/tmp/jarvis.lock"
+mkdir -p config
+mkdir -p store/installed
+audiofile="jarvis-record.wav"
+rm -f $audiofile # sometimes, when error, previous recording is played
 
-update_commands () { # only for retrocompatibility
+# Only for retrocompatibility
+update_commands () {
     # remove heading "Yes?" system trigger response, now a phrase
     grep -iv "^\*==" jarvis-commands > cmd.tmp; mv cmd.tmp jarvis-commands 
     # remove traling "I don't understand" system command, now a phrase
@@ -77,10 +76,10 @@ autoupdate () { # usage autoupdate 1 to show changelog
 	spinner $!
 	echo " " # remove spinner
     [ $1 ] || return
-    clear
-    echo "Update completed"
-    echo "Recent changes:"
-    head CHANGELOG.md
+    #clear
+    my_success "Update completed"
+    my_warning "Recent changes:"
+    head CHANGELOG.md #important to show if any important change user has to be aware of
     echo "[...] To see the full change log: more CHANGELOG.md"
 }
 
@@ -104,7 +103,7 @@ checkupdates () {
 	esac
 }
 
-# config
+# Configuration
 configure () {
     local variables=('bing_speech_api_key'
                    'check_updates'
@@ -398,7 +397,14 @@ fi
 
 # main menu
 while [ "$no_menu" = false ]; do
-    options=('Start Jarvis' 'Settings' 'Commands (what JARVIS can understand and execute)' 'Events (what JARVIS monitors and notifies you about)' 'Search for updates' 'Help / Report a problem' 'About')
+    options=('Start Jarvis'
+             'Settings'
+             'Commands (what JARVIS can understand and execute)'
+             'Events (what JARVIS monitors and notifies you about)'
+             'Store (commands from community)'
+             'Search for updates'
+             'Help / Report a problem'
+             'About')
     case "`dialog_menu \"Welcome to Jarvis\n$headline\" options[@]`" in
         Start*)
             while true; do
@@ -544,6 +550,105 @@ Press [Ok] to start editing Event Rules
 EOM
             editor jarvis-events &&
             crontab jarvis-events -i;;
+        Store*)
+            while true; do
+                shopt -s nullglob
+                nb_installed=(store/installed/*/)
+                nb_all=(store/all/*/)
+                shopt -u nullglob
+                options=("Installed (${#nb_installed[@]})"
+                         "Search"
+                         "Browse (${#nb_all[@]})"
+                         "Publish")
+                case "`dialog_menu 'Store' options[@]`" in
+                    Installed*) cd store/installed/
+                                while true; do
+                                    shopt -s nullglob
+                                    options=(*)
+                                    shopt -u nullglob
+                                    option="`dialog_menu 'Installed' options[@]`"
+                                    if [ -n "$option" ] && [ "$option" != "false" ]; then
+                                        options=("Info"
+                                                 "Configure"
+                                                 "Update"
+                                                 "Uninstall")
+                                        while true; do
+                                            case "`dialog_menu \"$option\" options[@]`" in
+                                                Info)   clear
+                                                        more "$option/info.md"
+                                                        my_debug "Press [Enter] to continue"
+                                                        read
+                                                        ;;
+                                                Configure)
+                                                        editor "$option/config.sh"
+                                                        ;;
+                                                Uninstall) 
+                                                        if dialog_yesno "Are you sure?" true >/dev/null; then
+                                                            "$option"/uninstall.sh
+                                                            rm -rf "$option"
+                                                            dialog_msg "Uninstallation Complete"
+                                                            break 2
+                                                        fi
+                                                        ;;
+                                                *)       break;;
+                                            esac
+                                        done
+                                    else
+                                        break
+                                    fi
+                                done
+                                cd ../../
+                                ;;
+                    Search*)    configure "osx_say_voice";;
+                    Browse*)    cd store/all/
+                                while true; do
+                                    shopt -s nullglob # http://stackoverflow.com/questions/18884992/how-do-i-assign-ls-to-an-array-in-linux-bash
+                                    options=(*)
+                                    shopt -u nullglob
+                                    option="`dialog_menu 'Store' options[@]`"
+                                    if [ "$option" != "false" ]; then
+                                        clear
+                                        more "$option/info.md"
+                                        my_debug "Press [Enter] to continue"
+                                        read
+                                        options=("Info"
+                                                 "Install")
+                                        while true; do
+                                            case "`dialog_menu \"$option\" options[@]`" in
+                                                Info)    clear
+                                                         more "$option/info.md"
+                                                         my_debug "Press [Enter] to continue"
+                                                         read
+                                                         ;;
+                                                Install) cp -R "$option" ../installed
+                                                         cd ../installed
+                                                         $option/install.sh
+                                                         if [[ -s "$option/config.sh" ]]; then
+                                                             dialog_msg "This plugin needs variables to be set"
+                                                             editor "$option/config.sh"
+                                                         fi
+                                                         dialog_msg "Installation Complete"
+                                                         break 2;;
+                                                *)       break;;
+                                            esac
+                                        done
+                                    else
+                                        break
+                                    fi
+                                done
+                                cd ../../
+                                ;;
+                    Publish*)   dialog_msg <<EOM
+Why keeping your great Jarvis commands just for you?
+Share them and have the whole community using them!
+It's easy, and a great way to make one's contribution to the project,
+Procedure to publish your commands on the Jarvis Store:
+https://github.com/alexylem/jarvis/wiki/store
+EOM
+                                ;;
+                    *) break;;
+                esac
+            done;;
         Help*)
             dialog_msg <<EOM
 A question?
@@ -592,7 +697,7 @@ if [ $verbose = true ]; then
     echo -e "--------------------------------\n$_reset"
 fi
 
-commands=`cat jarvis-commands`
+commands=`cat jarvis-commands store/installed/*/commands`
 handle_order() {
     order=`echo $1 | iconv -f utf-8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
 	local check_indented=false
@@ -604,7 +709,7 @@ handle_order() {
                 commands="$commands$newline${line:1}"
             else
                 if [ -z "$commands" ]; then
-                    commands=`cat jarvis-commands`
+                    commands=`cat jarvis-commands store/installed/*/commands`
                 fi
                 #echo "$commands"
                 check_indented=false
@@ -630,7 +735,7 @@ handle_order() {
     if ! $check_indented; then
         say "$phrase_misunderstood: $order"
     elif [ -z "$commands" ]; then
-        commands=`cat jarvis-commands`
+        commands=`cat jarvis-commands store/installed/*/commands`
     fi
 }
 

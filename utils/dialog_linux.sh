@@ -51,3 +51,7 @@ dialog_yesno () { # usage dialog_yesno "question" default(true/false)
     [ "$result" = false ] && return 1
     return 0
 }
+
+editor () {
+    nano "$1"
+}

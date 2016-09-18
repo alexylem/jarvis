@@ -1,0 +1,2 @@
+*QUELLE HEURE*==say "il est `date +%H:%M`"
+*QUEL JOUR*==say "nous sommes le `date +"%A %d %h %Y"`"

@@ -38,3 +38,8 @@ dialog_yesno () { # usage dialog_yesno "question" default(true/false)
         return 1
     fi
 }
+
+editor () {
+    dialog_msg "Make sure to Quit (cmd+Q) the Editor when finished"
+    open -tW "$1"
+}
