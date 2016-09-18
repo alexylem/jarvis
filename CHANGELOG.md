@@ -1,3 +1,4 @@
+* 18SEP16 Store of commands from community https://github.com/alexylem/jarvis/issues/52
 * 22AUG16 Ability to select OSX voice https://github.com/alexylem/jarvis/issues/97
 * 02AUG16 Snowboy sensitivity setting https://github.com/alexylem/jarvis/issues/84
 * 30JUL16 Improved Jarvis sounds https://github.com/alexylem/jarvis/issues/62
@@ -6,9 +7,7 @@
 * 22JUL16 Conversation mode override flag https://github.com/alexylem/jarvis/issues/60
 * 20JUL16 Hooks to personalize Jarvis even more https://github.com/alexylem/jarvis/issues/54
 * 20JUL16 Configurable system phrases https://github.com/alexylem/jarvis/issues/53
-
-        WARNING: re-configure your system phrases in Settings > Phrases
-
+          WARNING: re-configure your system phrases in Settings > Phrases
 * 15JUL16 Nested commands https://github.com/alexylem/jarvis/issues/42
 * 13JUL16 Multiple orders at once https://github.com/alexylem/jarvis/issues/38
 * 13JUL16 Preview changes before choose to update https://github.com/alexylem/jarvis/issues/14
@@ -22,7 +21,7 @@
 * 21JUN16 Added SVOX Pico voice synthesis
 * 21JUN16 Automatic install of TTS & STT dependencies
 * 09JUN16 New user interface, simplified updates
-* 29MAY16 Text captures in commands, ex: *REPEAT (*) AND (*)==say "(1) (2)"
+* 29MAY16 Text captures in orders to be reused in commands
 * 27MAY16 Allow to deactivate conversation mode to stop after command (in config)
 * 08MAY16 Directly listen for command (ex: physical button) using -l
 * 01MAY16 Added eSpeak tts support (select during install)

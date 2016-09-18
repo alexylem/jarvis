@@ -606,7 +606,7 @@ EOM
                                     options=(*)
                                     shopt -u nullglob
                                     option="`dialog_menu 'Store' options[@]`"
-                                    if [ "$option" != "false" ]; then
+                                    if [ -n "$option" ] && [ "$option" != "false" ]; then
                                         clear
                                         more "$option/info.md"
                                         my_debug "Press [Enter] to continue"
