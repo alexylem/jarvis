@@ -561,43 +561,45 @@ EOM
                          "Browse (${#nb_all[@]})"
                          "Publish")
                 case "`dialog_menu 'Store' options[@]`" in
-                    Installed*) cd store/installed/
-                                while true; do
-                                    shopt -s nullglob
-                                    options=(*)
-                                    shopt -u nullglob
-                                    option="`dialog_menu 'Installed' options[@]`"
-                                    if [ -n "$option" ] && [ "$option" != "false" ]; then
-                                        options=("Info"
-                                                 "Configure"
-                                                 "Update"
-                                                 "Uninstall")
-                                        while true; do
-                                            case "`dialog_menu \"$option\" options[@]`" in
-                                                Info)   clear
-                                                        more "$option/info.md"
-                                                        my_debug "Press [Enter] to continue"
-                                                        read
-                                                        ;;
-                                                Configure)
-                                                        editor "$option/config.sh"
-                                                        ;;
-                                                Uninstall) 
-                                                        if dialog_yesno "Are you sure?" true >/dev/null; then
-                                                            "$option"/uninstall.sh
-                                                            rm -rf "$option"
-                                                            dialog_msg "Uninstallation Complete"
-                                                            break 2
-                                                        fi
-                                                        ;;
-                                                *)       break;;
-                                            esac
-                                        done
-                                    else
-                                        break
-                                    fi
-                                done
-                                cd ../../
+                    Installed*) if [ "${#nb_installed[@]}" -gt 0 ]; then
+                                    cd store/installed/
+                                    while true; do
+                                        shopt -s nullglob
+                                        options=(*)
+                                        shopt -u nullglob
+                                        option="`dialog_menu 'Installed' options[@]`"
+                                        if [ -n "$option" ] && [ "$option" != "false" ]; then
+                                            options=("Info"
+                                                     "Configure"
+                                                     "Update"
+                                                     "Uninstall")
+                                            while true; do
+                                                case "`dialog_menu \"$option\" options[@]`" in
+                                                    Info)   clear
+                                                            more "$option/info.md"
+                                                            my_debug "Press [Enter] to continue"
+                                                            read
+                                                            ;;
+                                                    Configure)
+                                                            editor "$option/config.sh"
+                                                            ;;
+                                                    Uninstall) 
+                                                            if dialog_yesno "Are you sure?" true >/dev/null; then
+                                                                "$option"/uninstall.sh
+                                                                rm -rf "$option"
+                                                                dialog_msg "Uninstallation Complete"
+                                                                break 2
+                                                            fi
+                                                            ;;
+                                                    *)       break;;
+                                                esac
+                                            done
+                                        else
+                                            break
+                                        fi
+                                    done
+                                    cd ../../
+                                fi
                                 ;;
                     Search*)    configure "osx_say_voice";;
                     Browse*)    cd store/all/
