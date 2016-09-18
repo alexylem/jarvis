@@ -698,7 +698,8 @@ if [ $verbose = true ]; then
     echo -e "--------------------------------\n$_reset"
 fi
 
-commands=`cat jarvis-commands store/installed/*/commands`
+source store/installed/*/config.sh 2>/dev/null
+commands=`cat jarvis-commands store/installed/*/commands 2>/dev/null`
 handle_order() {
     order=`echo $1 | iconv -f utf-8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
 	local check_indented=false
@@ -710,7 +711,7 @@ handle_order() {
                 commands="$commands$newline${line:1}"
             else
                 if [ -z "$commands" ]; then
-                    commands=`cat jarvis-commands store/installed/*/commands`
+                    commands=`cat jarvis-commands store/installed/*/commands 2>/dev/null`
                 fi
                 #echo "$commands"
                 check_indented=false
@@ -736,7 +737,7 @@ handle_order() {
     if ! $check_indented; then
         say "$phrase_misunderstood: $order"
     elif [ -z "$commands" ]; then
-        commands=`cat jarvis-commands store/installed/*/commands`
+        commands=`cat jarvis-commands store/installed/*/commands 2>/dev/null`
     fi
 }
 
