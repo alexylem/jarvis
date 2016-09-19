@@ -190,6 +190,7 @@ configure () {
                 play "sounds/applause.wav"
                 dialog_yesno "Did you hear something?" true && break
                 clear
+                my_warning "Selection of the speaker device"
                 aplay -l
                 read -p "Indicate the card # to use [0-9]: " card
                 read -p "Indicate the device # to use [0-9]: " device
@@ -206,10 +207,13 @@ configure () {
             rec_export=''
             while true; do
                 dialog_msg "Checking audio input, make sure your microphone is on, press [Ok] and say something"
-                rec $audiofile trim 0 3
-                play $audiofile
-                dialog_yesno "Did you hear yourself?" true && break
                 clear
+                rec $audiofile trim 0 3
+                if [ $? -eq 0 ]; then
+                    play $audiofile
+                    dialog_yesno "Did you hear yourself?" true >/dev/null && break
+                fi
+                my_warning "Selection of the microphone device"
                 arecord -l
                 read -p "Indicate the card # to use [0-9]: " card
                 read -p "Indicate the device # to use [0-9]: " device
@@ -680,7 +684,7 @@ EOM
     esac
 done
 
-# troubleshooting info
+# Dump config in troubleshooting mode
 if [ $verbose = true ]; then
     if [ "$play_hw" != "false" ]; then
         play_path="/proc/asound/card${play_hw:3:1}"
