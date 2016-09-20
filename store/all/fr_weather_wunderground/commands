@@ -1,0 +1,1 @@
+*METEO*==say "je regarde..." && curl -s "http://api.wunderground.com/api/$weather_wunderground_key/forecast/lang:$weather_wunderground_language/q/$weather_wunderground_city.json" | python -c "import sys, json; print json.load(sys.stdin)['forecast']['txt_forecast']['forecastday'][0]['fcttext_metric'].encode('utf-8')" | say

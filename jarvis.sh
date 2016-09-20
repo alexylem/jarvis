@@ -375,7 +375,13 @@ EOM
 fi
 
 # say wrapper to be used in jarvis-commands
-say () { echo $trigger: $1; $quiet || TTS "$1"; }
+# USAGES:
+#   say "hello world"
+#   echo hello world | say
+say () {
+    set -- "${1:-$(</dev/stdin)}" "${@:2}"
+    echo $trigger: $1; $quiet || TTS "$1";
+}
 
 # if -s argument provided, just say it & exit (used in jarvis-events)
 if [[ "$just_say" != false ]]; then
@@ -575,7 +581,6 @@ EOM
                                         if [ -n "$option" ] && [ "$option" != "false" ]; then
                                             options=("Info"
                                                      "Configure"
-                                                     "Update"
                                                      "Uninstall")
                                             while true; do
                                                 case "`dialog_menu \"$option\" options[@]`" in
@@ -585,7 +590,6 @@ EOM
                                                                read
                                                                ;;
                                                     Configure) editor "$option/config.sh";;
-                                                    Update)    ;;
                                                     Uninstall)
                                                             if dialog_yesno "Are you sure?" true >/dev/null; then
                                                                 "$option"/uninstall.sh
@@ -702,7 +706,7 @@ if [ $verbose = true ]; then
     echo -e "--------------------------------\n$_reset"
 fi
 
-source store/installed/*/config.sh 2>/dev/null
+for f in store/installed/*/config.sh; do source $f; done
 commands=`cat jarvis-commands store/installed/*/commands 2>/dev/null`
 handle_order() {
     order=`echo $1 | iconv -f utf-8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
