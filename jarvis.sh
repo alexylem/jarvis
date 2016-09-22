@@ -141,10 +141,10 @@ configure () {
                    'program_startup'
                    'program_exit')
     case "$1" in
-        bing_speech_api_key)   eval $1=`dialog_input "Bing Speech API Key 1\nHow to get one: https://github.com/alexylem/jarvis/wiki/bing" "${!1}"`;;
+        bing_speech_api_key)   eval $1=`dialog_input "Bing Speech API Key\nHow to get one: https://github.com/alexylem/jarvis/wiki/bing" "${!1}"`;;
         check_updates)         eval $1=`dialog_yesno "Check Updates when Jarvis starts up (recommended)" "${!1}"`;;
-        command_stt)           options=('bing' 'google' 'wit' 'pocketsphinx')
-                               eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit https://github.com/alexylem/jarvis/wiki/stt\nRecommended: bing" options[@] "${!1}"`
+        command_stt)           options=('bing' 'wit' 'pocketsphinx')
+                               eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit https://github.com/alexylem/jarvis/wiki/stt\nRecommended: bing (google has been removed because deprecated)" options[@] "${!1}"`
                                source stt_engines/$command_stt/main.sh;;
         conversation_mode)     eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
         dictionary)            eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
@@ -237,7 +237,7 @@ configure () {
             update_commands;;
         trigger_mode) options=("magic_word" "enter_key" "physical_button")
                  eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`;;
-        trigger_stt) options=('snowboy' 'pocketsphinx' 'google')
+        trigger_stt) options=('snowboy' 'pocketsphinx' 'bing')
                      eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nVisit https://github.com/alexylem/jarvis/wiki/stt\nRecommended: snowboy" options[@] "${!1}"`
                      if [ "$trigger_stt" = "snowboy" ]; then
                         # use ' instead of " in dialog_msg
@@ -516,12 +516,20 @@ EOM
                         done;;
                     "Voice recognition")
                         while true; do
-                            options=("Recognition of magic word ($trigger_stt)" "Recognition of commands ($command_stt)" "Snowboy sensitivity ($snowboy_sensitivity)" "Bing key ($bing_speech_api_key)" "Google key ($google_speech_api_key)" "Wit key ($wit_server_access_token)" "PocketSphinx dictionary ($dictionary)" "PocketSphinx language model ($language_model)" "PocketSphinx logs ($pocketsphinxlog)")
+                            options=("Recognition of magic word ($trigger_stt)"
+                                     "Recognition of commands ($command_stt)"
+                                     "Snowboy sensitivity ($snowboy_sensitivity)"
+                                     "Bing key ($bing_speech_api_key)"
+                                     #"Google key ($google_speech_api_key)"
+                                     "Wit key ($wit_server_access_token)"
+                                     "PocketSphinx dictionary ($dictionary)"
+                                     "PocketSphinx language model ($language_model)"
+                                     "PocketSphinx logs ($pocketsphinxlog)")
                             case "`dialog_menu 'Configuration > Voice recognition' options[@]`" in
                                 Recognition*magic*word*) configure "trigger_stt";;
                                 Recognition*command*)       configure "command_stt";;
                                 Snowboy*)                   configure "snowboy_sensitivity";;
-                                Google*)                    configure "google_speech_api_key";;
+                                #Google*)                    configure "google_speech_api_key";;
                                 Wit*)                       configure "wit_server_access_token";;
                                 Bing*key*)                  configure "bing_speech_api_key";;
                                 PocketSphinx*dictionary*)   configure "dictionary";;
