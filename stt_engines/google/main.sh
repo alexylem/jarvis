@@ -7,10 +7,23 @@ _google_transcribe () {
         echo "" > $forder # clean previous order to show "?"
         exit 1 # TODO doesn't really exit because launched with & for spinner
     fi
-    
-    json=`wget -q --post-file $audiofile --header="Content-Type: audio/l16; rate=16000" -O - "http://www.google.com/speech-api/v2/recognize?client=chromium&lang=$language&key=$google_speech_api_key"`
+    AUDIO=$(cat $audiofile | base64)
+    cat <<EOF > /tmp/postfile
+{
+      "audio": {
+        "content": "$AUDIO"
+      },
+      "config": {
+        "encoding": "LINEAR16",
+        "languageCode": "fr",
+        "maxAlternatives": 1,
+        "sampleRate": 16000
+      }
+}
+EOF
+    json=`wget -q --post-file /tmp/postfile --header="Content-Type: application/json" -O - "https://speech.googleapis.com/v1beta1/speech:syncrecognize?key=$google_speech_api_key"`
     $verbose && my_debug "DEBUG: $json"
-    echo $json | perl -lne 'print $1 if m{"transcript":"([^"]*)"}' > $forder
+    echo $json | jq '.results[].alternatives[].transcript' > $forder
 }
 
 google_STT () { # STT () {} Listen & transcribes audio file then writes corresponding text in $forder

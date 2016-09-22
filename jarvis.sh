@@ -37,11 +37,11 @@ source utils/utils.sh # needed for wizard / platform error
 # Check platform compatibility
 if [ "$(uname)" == "Darwin" ]; then
 	platform="osx"
-	dependencies=(awk curl git iconv nano osascript perl sed sox wget)
+	dependencies=(awk curl git iconv nano osascript perl sed sox wget jq)
 	forder="/tmp/jarvis-order"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 	platform="linux"
-	dependencies=(alsamixer aplay arecord awk curl git iconv mpg123 nano perl sed sox wget whiptail)
+	dependencies=(alsamixer aplay arecord awk curl git iconv mpg123 nano perl sed sox wget whiptail jq)
 	forder="/dev/shm/jarvis-order"
 else
 	my_error "ERROR: Unsupported platform"; exit 1
