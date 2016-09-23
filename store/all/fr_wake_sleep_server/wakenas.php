@@ -19,28 +19,20 @@ function WakeOnLan($addr, $mac,$socket_number) {
   $s = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
 
   if ($s == false) {
-
-    echo "Erreur dans la création du socket!\n";
-    echo "Le code d'erreur est ".socket_last_error($s)."' - " . socket_strerror(socket_last_error($s));
     return FALSE;
-
     } else {
     // Broadcast option
     $opt_ret = socket_set_option($s, 1, 6, TRUE);
 
     if($opt_ret <0) {
-      echo "Socket fermé erreur : " . strerror($opt_ret) . "\n";
       return FALSE;
       }
     if(socket_sendto($s, $msg, strlen($msg), 0, $addr, $socket_number)) {
-      echo "Paquet magique envoyé !";
       socket_close($s);
       return TRUE;
       } else {
-      echo "Echec de l'envoi du paquet magique!";
       return FALSE;
       }
-
     }
   }
 
