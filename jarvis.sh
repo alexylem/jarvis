@@ -429,11 +429,12 @@ fi
 
 for f in store/installed/*/config.sh; do source $f; done
 commands=`cat jarvis-commands store/installed/*/commands 2>/dev/null`
+commands="${commands//\\/\\\\}" # https://github.com/alexylem/jarvis/issues/147
 handle_order() {
     order=`echo $1 | iconv -f utf-8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
 	local check_indented=false
     while read line; do
-		if $check_indented; then
+        if $check_indented; then
             #echo "checking if possible answers in: $line"
             if [ "${line:0:1}" = ">" ]; then
                 newline=$'\n'
@@ -452,7 +453,7 @@ handle_order() {
     		for pattern in "${ARR[@]}"; do # *HELLO*
     			regex="^${pattern//'*'/.*}$" # .*HELLO.*
                 if [[ $order =~ $regex ]]; then # HELLO THERE =~ .*HELLO.*
-    				action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
+                    action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
     				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'`
     				$verbose && my_debug "$> $action"
                     eval "$action" || say "$phrase_failed"
