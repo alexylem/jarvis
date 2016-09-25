@@ -429,7 +429,6 @@ fi
 
 for f in store/installed/*/config.sh; do source $f; done
 commands=`cat jarvis-commands store/installed/*/commands 2>/dev/null`
-commands="${commands//\\/\\\\}" # https://github.com/alexylem/jarvis/issues/147
 handle_order() {
     order=`echo $1 | iconv -f utf-8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
 	local check_indented=false
@@ -463,7 +462,7 @@ handle_order() {
     			fi
     		done
         fi
-	done <<< "$commands"
+	done <<< "${commands//\\/\\\\}" # https://github.com/alexylem/jarvis/issues/147
     if ! $check_indented; then
         say "$phrase_misunderstood: $order"
     elif [ -z "$commands" ]; then
