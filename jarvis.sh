@@ -290,8 +290,7 @@ wizard () {
     configure "username"
     configure "trigger_stt"
     configure "command_stt"
-    configure "tts_engine"
-
+    
     if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
         configure "google_speech_api_key"
     fi
@@ -301,7 +300,9 @@ wizard () {
     if [ $trigger_stt = 'bing' ] || [ $command_stt = 'bing' ]; then
         configure "bing_speech_api_key"
     fi
-
+    
+    configure "tts_engine"
+    
     configure "play_hw"
     configure "rec_hw"
 
