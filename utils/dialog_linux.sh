@@ -53,5 +53,5 @@ dialog_yesno () { # usage dialog_yesno "question" default(true/false)
 }
 
 editor () {
-    nano "$1"
+    "${EDITOR:-nano}" "$1"
 }
