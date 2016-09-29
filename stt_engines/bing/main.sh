@@ -16,24 +16,25 @@ _bing_transcribe () {
     
     if [ -z "$stt_bing_expires" ] || [ "$stt_bing_expires" -lt "`date +%s`" ]; then
         $verbose && my_debug "DEBUG: token missing or expired"
-        local json=`curl -X POST "https://oxford-speech.cloudapp.net/token/issueToken" \
+        # https://github.com/alexylem/jarvis/issues/145
+        local json=`curl -X POST "https://api.cognitive.microsoft.com/sts/v1.0/issueToken" \
             -H "Content-Type: application/x-www-form-urlencoded" \
+            -H "Content-Length: 0" \
+            -H "Ocp-Apim-Subscription-Key: $bing_speech_api_key" \
             -d "grant_type=client_credentials" \
-            -d "client_id=$bing_speech_api_key" \
-            -d "client_secret=$bing_speech_api_key" \
             -d "scope=https://speech.platform.bing.com" \
             --silent`
         $verbose && my_debug "DEBUG: json=$json"
         
-        stt_bing_token=`echo $json | perl -lne 'print $1 if m{"access_token":"([^"]*)"}'`
-        echo $stt_bing_token > /tmp/jarvis_bing_token
-        
-        if [ -z "$stt_bing_token" ]; then
-            error=`echo $json | perl -lne 'print $1 if m{"message": "([^"]*)"}'`
+        local error=`echo $json | perl -lne 'print $1 if m{"message": "([^"]*)"}'`
+        if [ -n "$error" ]; then
             my_error "ERROR: $error"
             exit 1
         fi
+        stt_bing_token="$json"
+        echo $stt_bing_token > /tmp/jarvis_bing_token
         
+        # TODO expiration date not provided anymore by bing, what to use?
         local expires_in=`echo $json | perl -lne 'print $1 if m{"expires_in":"([^"]*)"}'`
         stt_bing_expires=`echo $(( $(date +%s) + $expires_in - 10 ))` # -10 to compensate webservice call duration
         echo $stt_bing_expires > /tmp/jarvis_bing_expires
