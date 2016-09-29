@@ -35,7 +35,8 @@ _bing_transcribe () {
         echo $stt_bing_token > /tmp/jarvis_bing_token
         
         # TODO expiration date not provided anymore by bing, what to use?
-        local expires_in=`echo $json | perl -lne 'print $1 if m{"expires_in":"([^"]*)"}'`
+        #local expires_in=`echo $json | perl -lne 'print $1 if m{"expires_in":"([^"]*)"}'`
+        local expires_in=$(( 10 * 60 )) # 10 mins
         stt_bing_expires=`echo $(( $(date +%s) + $expires_in - 10 ))` # -10 to compensate webservice call duration
         echo $stt_bing_expires > /tmp/jarvis_bing_expires
         $verbose && my_debug "DEBUG: token will expire in $(( $stt_bing_expires - `date +%s` )) seconds"
