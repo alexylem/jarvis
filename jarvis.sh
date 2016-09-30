@@ -290,7 +290,7 @@ wizard () {
     configure "username"
     configure "trigger_stt"
     configure "command_stt"
-    
+
     if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
         configure "google_speech_api_key"
     fi
@@ -300,9 +300,9 @@ wizard () {
     if [ $trigger_stt = 'bing' ] || [ $command_stt = 'bing' ]; then
         configure "bing_speech_api_key"
     fi
-    
+
     configure "tts_engine"
-    
+
     configure "play_hw"
     configure "rec_hw"
 
@@ -430,7 +430,8 @@ fi
 for f in store/installed/*/config.sh; do source $f; done
 commands=`cat jarvis-commands store/installed/*/commands 2>/dev/null`
 handle_order() {
-    order=`echo $1 | iconv -f utf-8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
+    original_order=$1
+    order=`echo $original_order | iconv -f utf-8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
 	local check_indented=false
     while read line; do
         if $check_indented; then
@@ -464,7 +465,7 @@ handle_order() {
         fi
 	done <<< "${commands//\\/\\\\}" # https://github.com/alexylem/jarvis/issues/147
     if ! $check_indented; then
-        say "$phrase_misunderstood: $order"
+        say "$phrase_misunderstood: $original_order"
     elif [ -z "$commands" ]; then
         commands=`cat jarvis-commands store/installed/*/commands 2>/dev/null`
     fi
