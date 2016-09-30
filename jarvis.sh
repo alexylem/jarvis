@@ -290,7 +290,7 @@ wizard () {
     configure "username"
     configure "trigger_stt"
     configure "command_stt"
-    
+
     if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
         configure "google_speech_api_key"
     fi
@@ -300,9 +300,9 @@ wizard () {
     if [ $trigger_stt = 'bing' ] || [ $command_stt = 'bing' ]; then
         configure "bing_speech_api_key"
     fi
-    
+
     configure "tts_engine"
-    
+
     configure "play_hw"
     configure "rec_hw"
 
@@ -430,7 +430,8 @@ fi
 for f in store/installed/*/config.sh; do source $f; done
 commands=`cat jarvis-commands store/installed/*/commands 2>/dev/null`
 handle_order() {
-    order=`echo $1 | iconv -f utf-8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
+    local order=$1
+    local sanitized=`echo $order | iconv -f utf-8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
 	local check_indented=false
     while read line; do
         if $check_indented; then
@@ -451,7 +452,7 @@ handle_order() {
     		IFS='|' read -ra ARR <<< "$patterns" # *HELLO*|*GOOD*MORNING* => [*HELLO*, *GOOD*MORNING*]
     		for pattern in "${ARR[@]}"; do # *HELLO*
     			regex="^${pattern//'*'/.*}$" # .*HELLO.*
-                if [[ $order =~ $regex ]]; then # HELLO THERE =~ .*HELLO.*
+                if [[ $sanitized =~ $regex ]]; then # HELLO THERE =~ .*HELLO.*
                     action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
     				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'`
     				$verbose && my_debug "$> $action"
