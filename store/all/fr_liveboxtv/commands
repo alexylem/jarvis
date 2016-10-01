@@ -1,0 +1,72 @@
+#############################################################
+#							Liveboxtv
+#############################################################
+*allume la laveboxe*==say "J\'allume la télé." && wget -qO /dev/null "${liveboxtv_url}116"
+*éteindre la laveboxe*==say "J\'éteind la télé." && wget -qO /dev/null "${liveboxtv_url}116"
+*coupe le son de la laveboxe*==say "Je coupe le son de la télé!" && wget -qO /dev/null "${liveboxtv_url}113"
+*remets le son de la laveboxe*==say "Je remet le son de la télé!" && wget -qO /dev/null "${liveboxtv_url}113"
+*baisse le son de la laveboxe*==say "Je baisse le son de la télé!" && wget -qO /dev/null "${liveboxtv_url}114"
+*monte le son de la laveboxe*==say "Je monte le son de la télé!" && wget -qO /dev/null "${liveboxtv_url}115"
+*chaine suivante*==say "Chaine suivante!" && wget -qO /dev/null "${liveboxtv_url}402"
+*chaine précédente*==say "Chaine précédente!" && wget -qO /dev/null "${liveboxtv_url}403"
+*augmente le son de la laveboxe*==say "J augmente le son de la télé!" && wget -qO /dev/null "${liveboxtv_url}115"
+*mets la laveboxe sur pause*==wget -qO /dev/null "${liveboxtv_url}164"
+*mets sur pause la laveboxe*==wget -qO /dev/null "${liveboxtv_url}164"
+*mets la lavebox en lecture*==wget -qO /dev/null "${liveboxtv_url}164"
+*mets en lecture la lavebox*==wget -qO /dev/null "${liveboxtv_url}164"
+*mets en avance rapide la laveboxe*==wget -qO /dev/null "${liveboxtv_url}159"
+*mets en retour rapide la laveboxe*==wget -qO /dev/null "${liveboxtv_url}168"
+*les infos du programme*==wget -qO /dev/null "${liveboxtv_url}108"
+*enlève les infos*==say "Je enlève les infos!" && wget -qO /dev/null "${liveboxtv_url}158"
+*laveboxe OK*==say "Ok" && wget -qO /dev/null "${liveboxtv_url}352"
+*laveboxe menu*==say "J ouvre le menu." && wget -qO /dev/null "${liveboxtv_url}139"
+*laveboxe droit*==wget -qO /dev/null "${liveboxtv_url}106"
+*laveboxe gauche*==wget -qO /dev/null "${liveboxtv_url}105"
+*laveboxe haut*==wget -qO /dev/null "${liveboxtv_url}103"
+*laveboxe bas*==wget -qO /dev/null "${liveboxtv_url}108"
+*laveboxe retour*==wget -qO /dev/null "${liveboxtv_url}158"
+*laveboxe v.o.d*==wget -qO /dev/null "${liveboxtv_url}393"
+*mets la laveboxe en enregistrements*==say "J\'active le mode enregistrement." && wget -qO /dev/null "${liveboxtv_url}167"
+
+
+	####################################
+	#				Chaines
+	####################################
+#Code: Touche
+#512 : 0
+#513 : 1
+#514 : 2
+#515 : 3
+#516 : 4
+#517 : 5
+#518 : 6
+#519 : 7
+#520 : 8
+#521 : 9
+
+
+	 
+*TF1*==say "Je  zappe sur TF1." && wget -qO /dev/null "${liveboxtv_url}513" && say "C'est fait"
+*France 2*==say "Je  zappe sur France 2." && wget -qO /dev/null "${liveboxtv_url}514" && say "C'est fait"
+*France 3*==say "Je  zappe sur France 3." && wget -qO /dev/null "${liveboxtv_url}515" && say "C'est fait"
+*Canal plus*==say "Je  zappe sur Canal plus." && wget -qO /dev/null "${liveboxtv_url}516" && say "C'est fait"
+*France 5*==say "Je  zappe sur France 5." && wget -qO /dev/null "${liveboxtv_url}517" && say "C'est fait"
+*M6*==say "Je  zappe sur M6." && wget -qO /dev/null "${liveboxtv_url}518" && say "C'est fait"
+*Arte*==say "Je  zappe sur Arte." && wget -qO /dev/null "${liveboxtv_url}519" && say "C'est fait"
+*D8*==say "Je  zappe sur D8." && wget -qO /dev/null "${liveboxtv_url}520" && say "C'est fait"
+*W9*==say "Je  zappe sur W9." && wget -qO /dev/null "${liveboxtv_url}521" && say "C'est fait"
+*TMC*==say "Je  zappe sur TMC." && wget -qO /dev/null "${liveboxtv_url}513" && wget -qO /dev/null "${liveboxtv_url}512" &&   say "C'est fait"
+*NT1*==say "Je  zappe sur NT1." && wget -qO /dev/null "${liveboxtv_url}513" && wget -qO /dev/null "${liveboxtv_url}513" &&   say "C'est fait"
+*NRJ 12*==say "Je  zappe sur D8." && wget -qO /dev/null "${liveboxtv_url}513" && wget -qO /dev/null "${liveboxtv_url}514" && say "C'est fait" 
+*LCP*==say "Je  zappe sur LCP." && wget -qO /dev/null "${liveboxtv_url}513" && wget -qO /dev/null "${liveboxtv_url}515" && say "C'est fait"
+     
+*La Chaine Parlementaire*==say "Je  zappe sur la chaine parlementaire." && wget -qO /dev/null "${liveboxtv_url}513" && wget -qO /dev/null "${liveboxtv_url}515"&& say "C'est fait"
+*France 4*==say "Je  zappe sur France 4." && wget -qO /dev/null "${liveboxtv_url}513" && wget -qO /dev/null "${liveboxtv_url}516" && say "C'est fait"
+*BFM TV*==say "Je  zappe sur BFM TV." && wget -qO /dev/null "${liveboxtv_url}513" && wget -qO /dev/null "${liveboxtv_url}517" && say "C'est fait"
+*I-Télé*==say "Je  zappe sur i télé." && wget -qO /dev/null "${liveboxtv_url}513" && wget -qO /dev/null "${liveboxtv_url}518" && say "C'est fait"
+*D17*==say "Je  zappe sur D17." && wget -qO /dev/null "${liveboxtv_url}513" && wget -qO /dev/null "${liveboxtv_url}519" && say "C'est fait" && 
+*Gulli*			==say "Je  zappe sur Gulli." && wget -qO /dev/null "${liveboxtv_url}513" && wget -qO /dev/null "${liveboxtv_url}520"&& say "C'est fait"
+*France O*==say "Je  zappe sur France O." && wget -qO /dev/null "${liveboxtv_url}513" && wget -qO /dev/null "${liveboxtv_url}521"&& say "C'est fait"
+*HD1*==say "Je  zappe sur HD1." && wget -qO /dev/null "${liveboxtv_url}514" && wget -qO /dev/null "${liveboxtv_url}512"&& say "C'est fait" && 
+*L équipe*==say "Je  zappe sur l équipe 21." && wget -qO /dev/null "${liveboxtv_url}514" && wget -qO /dev/null "${liveboxtv_url}513"&& say "C'est fait" 
+*6 ter*==say "Je  zappe sur 6 ter." && wget -qO /dev/null "${liveboxtv_url}514" && wget -qO /dev/null "${liveboxtv_url}514"&& say "C'est fait"
