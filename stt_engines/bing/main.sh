@@ -53,7 +53,7 @@ _bing_transcribe () {
     request+="&device.os=$platform"
     request+="&scenarios=ulm"
     request+="&instanceid=E043E4FE-51EF-4B74-8133-B728C4FEA8AA"
-    request+="result.profanitymarkup=0" #with this we avoid the insult with <profanity> tags
+    request+="&result.profanitymarkup=0" #with this we avoid the insult with <profanity> tags
     
     $verbose && my_debug "DEBUG: curl $request"
     # don't use local or else $? will not work
