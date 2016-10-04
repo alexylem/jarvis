@@ -1,6 +1,6 @@
-#############################################################
-#							Liveboxtv
-#############################################################
+############################################################
+#						Liveboxtv
+############################################################
 *allume la laveboxe*==say "J\'allume la télé." && wget -qO /dev/null "${liveboxtv_url}116"
 *éteindre la laveboxe*==say "J\'éteind la télé." && wget -qO /dev/null "${liveboxtv_url}116"
 *coupe le son de la laveboxe*==say "Je coupe le son de la télé!" && wget -qO /dev/null "${liveboxtv_url}113"
