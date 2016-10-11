@@ -37,13 +37,16 @@ source utils/utils.sh # needed for wizard / platform error
 source utils/store.sh # needed for plugin installation & store menu
 
 # Check platform compatibility
+dependencies=(awk curl git iconv jq nano perl sed sox wget)
 if [ "$(uname)" == "Darwin" ]; then
 	platform="osx"
-	dependencies=(awk curl git iconv nano osascript perl sed sox wget)
+	dependencies+=(osascript)
+    install_cmd="brew install"
 	forder="/tmp/jarvis-order"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 	platform="linux"
-	dependencies=(alsamixer aplay arecord awk curl git iconv mpg123 nano perl sed sox wget whiptail)
+	dependencies+=(alsamixer aplay arecord mpg123 whiptail)
+    install_cmd="sudo apt-get install -y"
 	forder="/dev/shm/jarvis-order"
 else
 	my_error "ERROR: Unsupported platform"; exit 1
@@ -262,28 +265,24 @@ EOM
     esac
 }
 
+check_dependencies () {
+    missings=()
+    for i in "${dependencies[@]}"; do
+        hash $i 2>/dev/null || missings+=($i)
+    done
+    if [ ${#missings[@]} -gt 0 ]; then
+        my_error "ERROR: You must install missing dependencies before going further"
+        for missing in "${missings[@]}"; do
+            echo "$missing: Not found"
+        done
+        my_success "HELP: $install_cmd ${missing[@]}"
+        exit 1
+    fi
+}
+
 wizard () {
     checkupdates
-    echo "Checking dependencies:"
-    # remove dupplicates
-    dependencies=(`echo "${dependencies[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '`)
-    missing=()
-    for i in "${dependencies[@]}"; do
-        printf "$i: "
-        if hash $i 2>/dev/null; then
-            echo -e "[\033[32mInstalled\033[0m]"
-        else
-            echo -e "[\033[31mNot found\033[0m]"
-            missing+=($i)
-        fi
-    done
-    [ ${#missing[@]} -gt 0 ] && {
-        echo "You must install missing dependencies before going further"
-        echo "ex: sudo apt-get install -y ${missing[@]}"
-        exit 1
-    }
-    read -p "Press [Enter] to continue"
-
+    
     dialog_msg "Hello, my name is JARVIS, nice to meet you"
     configure "language"
 
@@ -362,6 +361,7 @@ while getopts ":$flags" o; do
     esac
 done
 
+check_dependencies
 configure "load" || wizard
 [ -n "$conversation_mode_override" ] && conversation_mode=$conversation_mode_override
 update_commands
