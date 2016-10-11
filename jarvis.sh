@@ -398,8 +398,10 @@ if [[ "$just_say" != false ]]; then
 fi
 
 # Include installed plugins
+shopt -s nullglob
 for f in plugins/*/config.sh; do source $f; done
 for f in plugins/*/${language:0:2}/functions.sh; do source $f; done
+shopt -u nullglob
 commands=`cat jarvis-commands plugins/*/${language:0:2}/commands 2>/dev/null`
 handle_order() {
     local order=$1
