@@ -3,7 +3,7 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://github.com/alexylem/jarvis/wiki |
 # +----------------------------------------+
-flags='bc:ihlnp:s:'
+flags='bc:ihlnp:s:x:'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -22,6 +22,7 @@ show_help () { cat <<EOF
     -n  directly start jarvis without menu
     -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/time
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
+    -x  execute order, ex: ${0##*/} -x "switch on lights"
 
 EOF
 }
@@ -334,6 +335,7 @@ verbose=false
 keyboard=false
 just_say=false
 just_listen=false
+just_execute=false
 no_menu=false
 while getopts ":$flags" o; do
     case "${o}" in
@@ -357,6 +359,7 @@ while getopts ":$flags" o; do
 		p)  store_install_plugin "${OPTARG}"
             exit;;
         s)	just_say=${OPTARG};;
+        x)  just_execute="${OPTARG}";;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
     esac
 done
@@ -392,43 +395,6 @@ say () {
 if [[ "$just_say" != false ]]; then
 	say "$just_say"
 	exit
-fi
-
-# check for updates
-[ $check_updates = true ] && [ $just_listen = false ] && checkupdates
-
-# Check if Jarvis is already running in background
-if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
-    options=('Show Jarvis output' 'Stop Jarvis')
-    case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
-        Show*) cat jarvis.log;;
-        Stop*)
-            pid=`cat $lockfile` # process id de jarvis
-            gid=`ps -p $pid -o pgid=` # group id de jarvis
-            kill -TERM -`echo $gid`;; # tuer le group complet
-    esac
-    exit
-fi
-
-# main menu
-source utils/menu.sh
-
-# Dump config in troubleshooting mode
-if [ $verbose = true ]; then
-    if [ "$play_hw" != "false" ]; then
-        play_path="/proc/asound/card${play_hw:3:1}"
-        [ -e "$play_path/usbid" ] && speaker=$(lsusb -d $(cat "$play_path/usbid") | cut -c 34-) || speaker=$(cat "$play_path/id")
-    else
-        speaker="Default"
-    fi
-    [ "$rec_hw" != "false" ] && microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || microphone="Default"
-    [[ "$OSTYPE" = darwin* ]] && os="$(sw_vers -productVersion)" || os="$(head -n1 /etc/*release | cut -f2 -d=)"
-    system="$(uname -mrs)"
-    echo -e "$_gray\n------------ Config ------------"
-    for parameter in system os language play_hw rec_hw speaker microphone trigger_stt command_stt tts_engine conversation_mode; do
-        printf "%-20s %s \n" "$parameter" "${!parameter}"
-    done
-    echo -e "--------------------------------\n$_reset"
 fi
 
 # Include installed plugins
@@ -487,6 +453,49 @@ handle_orders() {
         done <<< "$orders"
     fi
 }
+
+# if -x argument provided, just handle order & exit (used in jarvis-events)
+if [[ "$just_execute" != false ]]; then
+	handle_order "$just_execute"
+	exit
+fi
+
+# check for updates
+[ $check_updates = true ] && [ $just_listen = false ] && checkupdates
+
+# Check if Jarvis is already running in background
+if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
+    options=('Show Jarvis output' 'Stop Jarvis')
+    case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
+        Show*) cat jarvis.log;;
+        Stop*)
+            pid=`cat $lockfile` # process id de jarvis
+            gid=`ps -p $pid -o pgid=` # group id de jarvis
+            kill -TERM -`echo $gid`;; # tuer le group complet
+    esac
+    exit
+fi
+
+# main menu
+source utils/menu.sh
+
+# Dump config in troubleshooting mode
+if [ $verbose = true ]; then
+    if [ "$play_hw" != "false" ]; then
+        play_path="/proc/asound/card${play_hw:3:1}"
+        [ -e "$play_path/usbid" ] && speaker=$(lsusb -d $(cat "$play_path/usbid") | cut -c 34-) || speaker=$(cat "$play_path/id")
+    else
+        speaker="Default"
+    fi
+    [ "$rec_hw" != "false" ] && microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || microphone="Default"
+    [[ "$OSTYPE" = darwin* ]] && os="$(sw_vers -productVersion)" || os="$(head -n1 /etc/*release | cut -f2 -d=)"
+    system="$(uname -mrs)"
+    echo -e "$_gray\n------------ Config ------------"
+    for parameter in system os language play_hw rec_hw speaker microphone trigger_stt command_stt tts_engine conversation_mode; do
+        printf "%-20s %s \n" "$parameter" "${!parameter}"
+    done
+    echo -e "--------------------------------\n$_reset"
+fi
 
 source hooks/program_startup
 [ $just_listen = false ] && [ ! -z "$phrase_welcome" ] && say "$phrase_welcome"

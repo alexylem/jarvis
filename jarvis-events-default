@@ -25,8 +25,8 @@
 #___|_______|_______|_______|_______|________|_________________________________
 #            Your events below (Remove leading # to enable)
 #---|-------|-------|-------|-------|--------|---------------------------------
-#   @reboot                                 ~/jarvis/jarvis.sh
-#   0       8       *       *       *       ~/jarvis/jarvis.sh -s "Prévision météo pour aujourd'hui: `wget -q -O- \"www.accuweather.com/fr/fr/grasse/136438/weather-forecast/136438\" | awk -F\' '/acm_RecentLocationsCarousel\.push/{print $14\" avec une température de \"$10\" degrés\" }'| head -1`"
-#   0       7-21    *       *       *       ~/jarvis/jarvis.sh -s "Il est `date +\%_H` heures"
-#   1       7-21    *       *       *       nb=`curl -u username:password --silent "https://mail.google.com/mail/feed/atom" | sed -n "s/.*<fullcount>\(.*\)<\/fullcount>.*/\1/p"`; [ $nb -ne 0 ] && ~/jarvis/jarvis.sh -s "Alex, vous avez $nb emails non lus"
+#   @reboot                                 ~/jarvis/jarvis.sh -s
+#   0       8       *       *       *       ~/jarvis/jarvis.sh -x "quelle est la météo?" # needs weather plugin
+#   0       7-21    *       *       *       ~/jarvis/jarvis.sh -x "quelle heure est-il?" # needs time plugin
+#   1       7-21    *       *       *       ~/jarvis/jarvis.sh -x "vérifie mes emails" # needs gmail plugin
 #   @midnight                               wget -qO /dev/null "http://mywebsite.com/backup"
