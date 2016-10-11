@@ -1,6 +1,7 @@
 store_init () {
     my_debug "Refreshing store database..."
     export store_json="$(curl -s http://domotiquefacile.fr/jarvis/all.json)"
+    #export store_json_lower="$(echo "$store_json" | tr '[:upper:]' '[:lower:]')"
     my_debug "Store database updated"
 }
 
@@ -26,7 +27,9 @@ store_list_plugins () { # $1:category, $2:(optional)order_by
 }
 
 store_search_plugins () { # $1:space separated search terms
-    echo "$store_json" | jq -r ".nodes[] | select(.node.body | test(\"$1\"; \"i\")) | .node.title"
+    # TODO test not available in jq 1.4 (raspbian)
+    #echo "$store_json" | jq -r ".nodes[] | select(.node.body | test(\"$1\"; \"i\")) | .node.title"
+    echo "$store_json" | jq -r ".nodes[] | select(.node.body | contains(\"$1\")) | .node.title"
 }
 
 store_get_field () { # $1:plugin_name, $2:field_name
