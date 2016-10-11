@@ -1,5 +1,5 @@
 * 11OCT16 New WebStore https://github.com/alexylem/jarvis/issues/146
-          * WARNING: You will need to reinstall & configure your Plugins
+          WARNING: You will need to reinstall & configure your Plugins
 * 18SEP16 Store of commands from community https://github.com/alexylem/jarvis/issues/52
 * 22AUG16 Ability to select OSX voice https://github.com/alexylem/jarvis/issues/97
 * 02AUG16 Snowboy sensitivity setting https://github.com/alexylem/jarvis/issues/84
