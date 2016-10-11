@@ -1,44 +1,157 @@
 #!/bin/bash
-jarvis_store_browse () { # $1 (optional) space separated search terms
-    local search_expr="*"
-    [ -n "$1" ] && search_expr="*${1// /*}*"
-    cd store/all/
-    while true; do
-        shopt -s nullglob # http://stackoverflow.com/questions/18884992/how-do-i-assign-ls-to-an-array-in-linux-bash
-        options=($search_expr)
-        shopt -u nullglob
-        option="`dialog_menu 'Store' options[@]`"
-        if [ -n "$option" ] && [ "$option" != "false" ]; then
-            clear
-            more "$option/info.md"
-            my_debug "Press [Enter] to continue"
-            read
-            options=("Info"
-                     "Install")
-            while true; do
-                case "`dialog_menu \"$option\" options[@]`" in
-                    Info)    clear
-                             more "$option/info.md"
-                             my_debug "Press [Enter] to continue"
-                             read
-                             ;;
-                    Install) cp -R "$option" ../installed
-                             cd ../installed
-                             $option/install.sh
-                             if [[ -s "$option/config.sh" ]]; then
-                                 dialog_msg "This plugin needs variables to be set"
-                                 editor "$option/config.sh"
-                             fi
-                             dialog_msg "Installation Complete"
-                             break 2;;
-                    *)       break;;
-                esac
-            done
-        else
+
+#.nodes | group_by(.node.Category) | map({"category":.[0].node.Category, "count":length}) | .[] | "\(.category) (\(.count))"
+
+menu_store_browse () { # $1 (optional) sorting, $2 (optionnal) space separated search terms
+    
+    local plugins=()
+    local category=""
+    
+    if [ -n "$2" ]; then
+        # Retrieve list of plugins for these search terms
+        while read plugin; do
+            plugins+=("$plugin")
+        done <<< "$(store_search_plugins "$2")"
+        category="Results"
+    else
+        # Select Category    
+        category="`dialog_menu 'Categories' categories[@]`"
+        if [ -z "$category" ] || [ "$category" == "false" ]; then
+            return
+        fi
+        
+        # Retrieve list of plugins for this Category
+        while read plugin; do
+            plugins+=("$plugin")
+        done <<< "$(store_list_plugins "$category" "$1")"
+    fi
+    
+    while true; do        
+        # Select plugin
+        local plugin_title="`dialog_menu \"$category\" plugins[@]`"
+        [ -z "$plugin_title" ] && break
+        if [ -z "$plugin_title" ] || [ "$plugin_title" == "false" ]; then
             break
         fi
+        
+        while true; do
+            # Display plugin details
+            clear
+            store_get_field "$plugin_title" "body"
+            press_enter_to_continue
+            
+            # Plugin menu
+            local options=("Info"
+                     "Install")
+            case "`dialog_menu \"$plugin_title\" options[@]`" in
+                Info)    continue;;
+                Install) local plugin_url=$(store_get_field "$plugin_title" 'repo') #https://github.com/alexylem/jarvis
+                         store_install_plugin "$plugin_url"
+                         break 2;;
+                *)       break;;
+            esac
+        done
     done
-    cd ../../
+}
+
+menu_store () {
+    store_init
+    categories=("All")
+    while read line; do
+        categories+=("$line")
+    done <<< "$(store_get_categories)"
+    
+    while true; do
+        shopt -s nullglob
+        nb_installed=(plugins/*/)
+        shopt -u nullglob
+        
+        options=("Installed (${#nb_installed[@]})"
+                 "Search"
+                 "Browse ($(store_get_nb_plugins))" # total
+                 "New Plugins" #TODO X new since last visit
+                 "Top Plugins" #TODO top X
+                 "Install from URL" #TODO also as jarvis option argument
+                 "Publish your Plugin")
+        case "`dialog_menu 'Store' options[@]`" in
+            Installed*) if [ "${#nb_installed[@]}" -gt 0 ]; then
+                            cd plugins/
+                            while true; do
+                                shopt -s nullglob
+                                options=(*)
+                                shopt -u nullglob
+                                option="`dialog_menu 'Installed' options[@]`"
+                                if [ -n "$option" ] && [ "$option" != "false" ]; then
+                                    cd "$option"
+                                    local plugin_git_url="$(git config --get remote.origin.url)"
+                                    local plugin_url="${plugin_git_url%.*}"
+                                    options=("Info"
+                                             "Configure"
+                                             "Update"
+                                             "Rate"
+                                             "Report an issue"
+                                             "Uninstall")
+                                    while true; do
+                                        case "`dialog_menu \"$option\" options[@]`" in
+                                            Info)
+                                                clear
+                                                store_get_field_by_repo "$plugin_url" "body"
+                                                press_enter_to_continue
+                                                ;;
+                                            Configure)
+                                                editor "$option/config.sh"
+                                                ;;
+                                            Update)
+                                                echo "Checking for updates..."
+                                                git pull &
+                                                spinner $!
+                                                press_enter_to_continue
+                                                ;;
+                                            Rate)
+                                                dialog_msg "$(store_get_field_by_repo "$plugin_url" "url")#comment-form"
+                                                ;;
+                                            Report*)
+                                                dialog_msg "$plugin_url/issues/new"
+                                                ;;
+                                            Uninstall)
+                                                if dialog_yesno "Are you sure?" true >/dev/null; then
+                                                    "$option"/uninstall.sh
+                                                    rm -rf "$option"
+                                                    dialog_msg "Uninstallation Complete"
+                                                    break 2
+                                                fi
+                                                ;;
+                                            *)  break;;
+                                        esac
+                                    done
+                                else
+                                    break
+                                fi
+                            done
+                            cd ../
+                        fi
+                        ;;
+            Search*)    local search_terms="$(dialog_input "Search in Store (keywords seperate with space)" "$search_terms")"
+                        menu_store_browse "" "$search_terms"
+                        ;;
+            Browse*)    menu_store_browse;;
+            New*)       menu_store_browse "date";;
+            Top*)       menu_store_browse "rating";;
+            Install*)   local plugin_url="$(dialog_input "Repo URL, ex: https://github.com/alexylem/time")"
+                        [ -z "$plugin_url" ] && continue
+                        store_install_plugin "$plugin_url"
+                        ;;
+            Publish*)   dialog_msg <<EOM
+Why keeping your great Jarvis commands just for you?
+Share them and have the whole community using them!
+It's easy, and a great way to make one's contribution to the project.
+Procedure to publish your commands on the Jarvis Store:
+http://domotiquefacile.fr/jarvis/content/publish-your-plugin
+EOM
+                        ;;
+            *) break;;
+        esac
+    done
 }
 
 while [ "$no_menu" = false ]; do
@@ -204,69 +317,8 @@ EOM
             editor jarvis-events &&
             crontab jarvis-events -i;;
         Store*)
-            while true; do
-                shopt -s nullglob
-                nb_installed=(store/installed/*/)
-                nb_all=(store/all/*/)
-                shopt -u nullglob
-                options=("Installed (${#nb_installed[@]})"
-                         "Search"
-                         "Browse (${#nb_all[@]})"
-                         "Publish")
-                case "`dialog_menu 'Store' options[@]`" in
-                    Installed*) if [ "${#nb_installed[@]}" -gt 0 ]; then
-                                    cd store/installed/
-                                    while true; do
-                                        shopt -s nullglob
-                                        options=(*)
-                                        shopt -u nullglob
-                                        option="`dialog_menu 'Installed' options[@]`"
-                                        if [ -n "$option" ] && [ "$option" != "false" ]; then
-                                            options=("Info"
-                                                     "Configure"
-                                                     "Uninstall")
-                                            while true; do
-                                                case "`dialog_menu \"$option\" options[@]`" in
-                                                    Info)      clear
-                                                               more "$option/info.md"
-                                                               my_debug "Press [Enter] to continue"
-                                                               read
-                                                               ;;
-                                                    Configure) editor "$option/config.sh";;
-                                                    Uninstall)
-                                                            if dialog_yesno "Are you sure?" true >/dev/null; then
-                                                                "$option"/uninstall.sh
-                                                                rm -rf "$option"
-                                                                dialog_msg "Uninstallation Complete"
-                                                                break 2
-                                                            fi
-                                                            ;;
-                                                    *)       break;;
-                                                esac
-                                            done
-                                        else
-                                            break
-                                        fi
-                                    done
-                                    cd ../../
-                                fi
-                                ;;
-                    Search*)    search_terms=`dialog_input "Search in Store (seperate keywords with space)" "$search_terms"`
-                                jarvis_store_browse "$search_terms"
-                                ;;
-                    Browse*)    jarvis_store_browse
-                                ;;
-                    Publish*)   dialog_msg <<EOM
-Why keeping your great Jarvis commands just for you?
-Share them and have the whole community using them!
-It's easy, and a great way to make one's contribution to the project.
-Procedure to publish your commands on the Jarvis Store:
-https://github.com/alexylem/jarvis/wiki/store
-EOM
-                                ;;
-                    *) break;;
-                esac
-            done;;
+            menu_store
+            ;;
         Help*)
             dialog_msg <<EOM
 A question?

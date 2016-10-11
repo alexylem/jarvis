@@ -3,7 +3,7 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://github.com/alexylem/jarvis/wiki |
 # +----------------------------------------+
-flags='bc:ihlns:'
+flags='bc:ihlnp:s:'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -20,12 +20,13 @@ show_help () { cat <<EOF
     -h  display this help
     -l  directly listen for one command (ex: launch from physical button)
     -n  directly start jarvis without menu
+    -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/time
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
 
 EOF
 }
 
-headline="NEW! Jarvis Store is now open!"
+headline="NEW! Visit the WebStore: http://domotiquefacile.fr/jarvis"
 
 # Move to Jarvis directory
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -33,6 +34,7 @@ cd "$DIR" # needed now for git used in automatic update
 
 shopt -s nocasematch # string comparison case insensitive
 source utils/utils.sh # needed for wizard / platform error
+source utils/store.sh # needed for plugin installation & store menu
 
 # Check platform compatibility
 if [ "$(uname)" == "Darwin" ]; then
@@ -57,7 +59,7 @@ fi
 # Initiate files & directories
 lockfile="/tmp/jarvis.lock"
 mkdir -p config
-mkdir -p store/installed
+mkdir -p plugins
 audiofile="jarvis-record.wav"
 rm -f $audiofile # sometimes, when error, previous recording is played
 
@@ -353,7 +355,9 @@ while getopts ":$flags" o; do
         l)  just_listen=true
             no_menu=true;;
         n)  no_menu=true;;
-		s)	just_say=${OPTARG};;
+		p)  store_install_plugin "${OPTARG}"
+            exit;;
+        s)	just_say=${OPTARG};;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
     esac
 done
@@ -427,8 +431,10 @@ if [ $verbose = true ]; then
     echo -e "--------------------------------\n$_reset"
 fi
 
-for f in store/installed/*/config.sh; do source $f; done
-commands=`cat jarvis-commands store/installed/*/commands 2>/dev/null`
+# Include installed plugins
+for f in plugins/*/config.sh; do source $f; done
+for f in plugins/*/${language:0:2}/functions.sh; do source $f; done
+commands=`cat jarvis-commands plugins/*/${language:0:2}/commands 2>/dev/null`
 handle_order() {
     local order=$1
     local sanitized=`echo $order | iconv -f utf-8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
@@ -441,7 +447,7 @@ handle_order() {
                 commands="$commands$newline${line:1}"
             else
                 if [ -z "$commands" ]; then
-                    commands=`cat jarvis-commands store/installed/*/commands 2>/dev/null`
+                    commands=`cat jarvis-commands plugins/*/${language:0:2}/commands 2>/dev/null`
                 fi
                 #echo "$commands"
                 check_indented=false
@@ -467,7 +473,7 @@ handle_order() {
     if ! $check_indented; then
         say "$phrase_misunderstood: $order"
     elif [ -z "$commands" ]; then
-        commands=`cat jarvis-commands store/installed/*/commands 2>/dev/null`
+        commands=`cat jarvis-commands plugins/*/${language:0:2}/commands 2>/dev/null`
     fi
 }
 

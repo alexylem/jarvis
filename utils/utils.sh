@@ -37,3 +37,8 @@ my_error() { echo -e "$_red$@$_reset" ;}
 my_warning() { echo -e "$_orange$@$_reset" ;}
 my_success() { echo -e "$_green$@$_reset" ;}
 my_debug() { echo -e "$_gray$@$_reset" ;}
+
+press_enter_to_continue () {
+    my_debug "Press [Enter] to continue"
+    read
+}

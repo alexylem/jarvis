@@ -1,3 +1,5 @@
+* 11OCT16 New WebStore https://github.com/alexylem/jarvis/issues/146
+          * WARNING: You will need to reinstall & configure your Plugins
 * 18SEP16 Store of commands from community https://github.com/alexylem/jarvis/issues/52
 * 22AUG16 Ability to select OSX voice https://github.com/alexylem/jarvis/issues/97
 * 02AUG16 Snowboy sensitivity setting https://github.com/alexylem/jarvis/issues/84
@@ -7,7 +9,6 @@
 * 22JUL16 Conversation mode override flag https://github.com/alexylem/jarvis/issues/60
 * 20JUL16 Hooks to personalize Jarvis even more https://github.com/alexylem/jarvis/issues/54
 * 20JUL16 Configurable system phrases https://github.com/alexylem/jarvis/issues/53
-          WARNING: re-configure your system phrases in Settings > Phrases
 * 15JUL16 Nested commands https://github.com/alexylem/jarvis/issues/42
 * 13JUL16 Multiple orders at once https://github.com/alexylem/jarvis/issues/38
 * 13JUL16 Preview changes before choose to update https://github.com/alexylem/jarvis/issues/14

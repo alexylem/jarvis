@@ -48,3 +48,5 @@ sounds/.DS_Store
 .DS_Store
 
 store/installed/
+
+plugins/

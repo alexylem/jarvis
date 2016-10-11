@@ -1,3 +1,8 @@
+# Store
+
+- [ ] Filter by language on App & WebStore
+- [/] Search App with several keywords
+
 # Installation
 
 - [/] add to crontab @reboot - propose during install?
@@ -9,23 +14,11 @@
 
 # Recognition
 
-- [ ] use lmgen to generate language_model based on command words & trigger (english only)
-- [ ] use hardward for recognition of the trigger
 - [X] add gain in settings with alsamixer (or osx settings)
 
 # Commands 
 
-- [X] Possibility for discussions with nested commands like:
-```
-*HOW ARE YOU*==say "fine and you?"
-	*GOOD*==say "glad to hear"
-	*BAD*==say "oh no..."
-```
-- [X] add an OR operator
-- [X] variable Recognition
-```
-*REPEAT (*) AND (*)==say "(1) (2)"
-```
+
 
 # Voice
 
@@ -41,9 +34,5 @@
 
 # Other
 
-- [/] Automate inclusion of log in bug report & create issue on GitHub
 - [X] Execution in background
 - [ ] -t Troubleshooting guide and step-by-step diagnosis
-- [X] Errors found in jarvis.log
-    ./jarvis.sh: line 358: [: : integer expression expected
-    ?./jarvis.sh: line 355: [: : integer expression expected
