@@ -29,23 +29,24 @@ menu_store_browse () { # $1 (optional) sorting, $2 (optionnal) space separated s
     while true; do        
         # Select plugin
         local plugin_title="`dialog_menu \"$category\" plugins[@]`"
+        
         [ -z "$plugin_title" ] && break
         if [ -z "$plugin_title" ] || [ "$plugin_title" == "false" ]; then
             break
         fi
         
+        local plugin_url=$(store_get_field "$plugin_title" 'repo') #https://github.com/alexylem/jarvis
+        
         while true; do
             # Display plugin details
-            clear
-            store_get_field "$plugin_title" "body"
-            press_enter_to_continue
+            store_display_readme "$plugin_url"
             
             # Plugin menu
             local options=("Info"
                      "Install")
             case "`dialog_menu \"$plugin_title\" options[@]`" in
                 Info)    continue;;
-                Install) local plugin_url=$(store_get_field "$plugin_title" 'repo') #https://github.com/alexylem/jarvis
+                Install) 
                          store_install_plugin "$plugin_url"
                          break 2;;
                 *)       break;;
@@ -94,9 +95,7 @@ menu_store () {
                                     while true; do
                                         case "`dialog_menu \"$option\" options[@]`" in
                                             Info)
-                                                clear
-                                                store_get_field_by_repo "$plugin_url" "body"
-                                                press_enter_to_continue
+                                                store_display_readme "$plugin_url"
                                                 ;;
                                             Configure)
                                                 editor "$option/config.sh"
@@ -329,7 +328,7 @@ Create a ticket on GitHub
 https://github.com/alexylem/jarvis/issues/new
 
 Just want to discuss?
-https://disqus.com/home/discussion/coinche/jarvis/
+http://domotiquefacile.fr/jarvis/content/disqus
 EOM
             ;;
         "About") dialog_msg <<EOM

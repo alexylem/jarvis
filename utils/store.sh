@@ -29,7 +29,7 @@ store_list_plugins () { # $1:category, $2:(optional)order_by
 store_search_plugins () { # $1:space separated search terms
     # TODO test not available in jq 1.4 (raspbian)
     #echo "$store_json" | jq -r ".nodes[] | select(.node.body | test(\"$1\"; \"i\")) | .node.title"
-    echo "$store_json" | jq -r ".nodes[] | select(.node.body | contains(\"$1\")) | .node.title"
+    echo "$store_json" | jq -r ".nodes[] | select(.node.title | contains(\"$1\")) | .node.title" #TODO create new keyword field on plugins?
 }
 
 store_get_field () { # $1:plugin_name, $2:field_name
@@ -38,6 +38,14 @@ store_get_field () { # $1:plugin_name, $2:field_name
 
 store_get_field_by_repo () {
     echo "$store_json" | jq -r ".nodes | map(select(.node.repo==\"$1\")) | .[0].node.$2"
+}
+
+store_display_readme () { # $1:plugin_url
+    local plugin_readme_url="${plugin_url/github.com/raw.githubusercontent.com}/master/README.md"
+    clear
+    curl -s "$plugin_readme_url" | sed '/<!--/,/-->/d' & # strip comments
+    spinner $!
+    press_enter_to_continue
 }
 
 store_install_plugin () { # $1:plugin_url
