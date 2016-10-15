@@ -266,6 +266,7 @@ EOM
                             options=("Recognition of magic word ($trigger_stt)"
                                      "Recognition of commands ($command_stt)"
                                      "Snowboy sensitivity ($snowboy_sensitivity)"
+                                     "Snowboy train a hotword/command"
                                      "Bing key ($bing_speech_api_key)"
                                      #"Google key ($google_speech_api_key)"
                                      "Wit key ($wit_server_access_token)"
@@ -275,8 +276,9 @@ EOM
                             case "`dialog_menu 'Configuration > Voice recognition' options[@]`" in
                                 Recognition*magic*word*) configure "trigger_stt";;
                                 Recognition*command*)       configure "command_stt";;
-                                Snowboy*)                   configure "snowboy_sensitivity";;
-                                #Google*)                    configure "google_speech_api_key";;
+                                Snowboy*sensitivity*)       configure "snowboy_sensitivity";;
+                                Snowboy*train*)             stt_sb_train "$(dialog_input "Hotword / Quick Command to (re-)train" "$trigger")";;
+                                #Google*)                   configure "google_speech_api_key";;
                                 Wit*)                       configure "wit_server_access_token";;
                                 Bing*key*)                  configure "bing_speech_api_key";;
                                 PocketSphinx*dictionary*)   configure "dictionary";;
@@ -303,7 +305,8 @@ EOM
             configure "save";;
         Commands*)
             editor jarvis-commands
-            update_commands;;
+            #update_commands
+            ;;
         Events*)
             dialog_msg <<EOM
 WARNING: JARVIS currently uses Crontab to schedule monitoring & notifications

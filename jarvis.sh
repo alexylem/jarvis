@@ -68,12 +68,12 @@ audiofile="jarvis-record.wav"
 rm -f $audiofile # sometimes, when error, previous recording is played
 
 # Only for retrocompatibility
-update_commands () {
-    # remove heading "Yes?" system trigger response, now a phrase
-    grep -iv "^\*==" jarvis-commands > cmd.tmp; mv cmd.tmp jarvis-commands
-    # remove traling "I don't understand" system command, now a phrase
-    grep -iv "^\*$trigger\*==" jarvis-commands > cmd.tmp; mv cmd.tmp jarvis-commands
-}
+#update_commands () {
+    #remove heading "Yes?" system trigger response, now a phrase
+    #grep -iv "^\*==" jarvis-commands > cmd.tmp; mv cmd.tmp jarvis-commands
+    #remove traling "I don't understand" system command, now a phrase
+    #grep -iv "^\*$trigger\*==" jarvis-commands > cmd.tmp; mv cmd.tmp jarvis-commands
+#}
 
 autoupdate () { # usage autoupdate 1 to show changelog
 	printf "Updating..."
@@ -235,27 +235,29 @@ configure () {
                   #echo "DEBUG: saving ${!varname} into config/$varname"
                   echo "${!varname}" > config/$varname
               done;;
-        separator) eval $1=`dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}"`;;
+        separator)           eval $1=`dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}"`;;
         snowboy_sensitivity) eval $1=`dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.5" "${!1}"`;;
-        tmp_folder) eval $1=`dialog_input "Cache folder" "${!1}"`;;
-        trigger)
-            eval "$1='`dialog_input \"Magic word to be said\" \"${!1}\"`'"
-            update_commands;;
-        trigger_mode) options=("magic_word" "enter_key" "physical_button")
-                 eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`;;
-        trigger_stt) options=('snowboy' 'pocketsphinx' 'bing')
-                     eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nVisit https://github.com/alexylem/jarvis/wiki/stt\nRecommended: snowboy" options[@] "${!1}"`
-                     if [ "$trigger_stt" = "snowboy" ]; then
-                        # use ' instead of " in dialog_msg
-                        dialog_msg <<EOM
-You can record your own hotword with the following steps:
-https://github.com/alexylem/jarvis/wiki/snowboy
+        tmp_folder)          eval $1=`dialog_input "Cache folder" "${!1}"`;;
+        trigger)             eval "$1='`dialog_input \"Magic word to be said\" \"${!1}\"`'"
+                             [ "$trigger_stt" = "snowboy" ] && stt_sb_train "$trigger"
+                             ;;
+        trigger_mode)        options=("magic_word" "enter_key" "physical_button")
+                             eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`
+                             ;;
+        trigger_stt)         options=('snowboy' 'pocketsphinx' 'bing')
+                             eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nVisit https://github.com/alexylem/jarvis/wiki/stt\nRecommended: snowboy" options[@] "${!1}"`
+                             source stt_engines/$trigger_stt/main.sh
+                             if [ "$trigger_stt" = "snowboy" ]; then
+                                 # use ' instead of " in dialog_msg
+                                 dialog_msg <<EOM
+You can now record and train your own hotword within Jarvis
 Or you can immediately use the default universal hotword 'snowboy'
 EOM
-                        trigger="snowboy"
-                        configure "trigger"
-                    fi
-                     source stt_engines/$trigger_stt/main.sh;;
+                                trigger="snowboy"
+                                configure "trigger"
+                             fi
+                             source stt_engines/$trigger_stt/main.sh
+                             ;;
         tts_engine) options=('svox_pico' 'google' 'espeak' 'osx_say')
                     recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico'`
                     eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit https://github.com/alexylem/jarvis/wiki/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
@@ -366,8 +368,9 @@ done
 
 check_dependencies
 configure "load" || wizard
+trigger_sanitized=$(jv_sanitize "$trigger")
 [ -n "$conversation_mode_override" ] && conversation_mode=$conversation_mode_override
-update_commands
+#update_commands
 source jarvis-functions.sh
 source stt_engines/$trigger_stt/main.sh
 source stt_engines/$command_stt/main.sh
@@ -388,7 +391,7 @@ fi
 #   echo hello world | say
 say () {
     set -- "${1:-$(</dev/stdin)}" "${@:2}"
-    echo $trigger: $1; $quiet || TTS "$1";
+    echo -e "$_pink$trigger$_reset: $1"; $quiet || TTS "$1";
 }
 
 # if -s argument provided, just say it & exit (used in jarvis-events)
@@ -405,7 +408,8 @@ shopt -u nullglob
 commands=`cat jarvis-commands plugins/*/${language:0:2}/commands 2>/dev/null`
 handle_order() {
     local order=$1
-    local sanitized=`echo $order | iconv -f utf-8 -t ascii//TRANSLIT | sed 's/[^a-zA-Z 0-9]//g'` # remove accents + osx hack http://stackoverflow.com/a/30832719
+    local sanitized="$(jv_sanitize "$order")"
+    my_debug "sanitied=$sanitized"
 	local check_indented=false
     while read line; do
         if $check_indented; then
@@ -522,9 +526,9 @@ while true; do
 			bypass=true
 			read -p "Press [Enter] to start voice command"
 		fi
-		! $bypass && echo "$trigger: Waiting to hear '$trigger'"
-		printf "$username: "
-
+		! $bypass && echo -e "$_pink$trigger$_reset: Waiting to hear '$trigger'"
+		printf "$_cyan$username$_reset: "
+        
         $quiet || ( $bypass && PLAY sounds/triggered.wav || PLAY sounds/listening.wav )
 
         while true; do
@@ -541,7 +545,6 @@ while true; do
 
 			order=`cat $forder`
             > $forder # empty $forder
-			printf "$order"
 			if [ -z "$order" ]; then
                 printf '?'
                 PLAY sounds/error.wav
@@ -556,14 +559,17 @@ while true; do
                 fi
                 continue
             fi
-			$bypass && break
-            if [[ "$order" == *$trigger* ]]; then
+			if $bypass; then
+                printf "$order"
+                break
+            elif [[ "$order" == *$trigger_sanitized* ]]; then
                 bypass=true
-                echo # new line
+                echo $trigger # new line
                 source hooks/entering_cmd
                 say "$phrase_triggered"
                 continue 2
-			fi
+            fi
+			
 			#$verbose && PLAY beep-error.wav
 		done
 		echo # new line

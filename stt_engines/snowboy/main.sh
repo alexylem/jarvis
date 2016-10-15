@@ -32,14 +32,17 @@
     }
 }
 
-# build list of models to pass in parameter
-snowboy_models=()
-snowboy_smodels=""
-for model in stt_engines/snowboy/resources/*mdl; do
-    snowboy_model=$(basename "$model")
-    snowboy_models+=("${snowboy_model%.*}")
-    snowboy_smodels+=" \"$model\"" # in case there are spaces in models for quick commands
-done
+stt_sb_load () {
+    # build list of models to pass in parameter
+    snowboy_models=()
+    snowboy_smodels=""
+    for model in stt_engines/snowboy/resources/*mdl; do
+        snowboy_model=$(basename "$model")
+        snowboy_models+=("${snowboy_model%.*}")
+        snowboy_smodels+=" \"$model\"" # in case there are spaces in models for quick commands
+    done
+}
+stt_sb_load # load models at startup
 
 snowboy_STT () { # STT () {} Transcribes audio file $1 and writes corresponding text in $forder
     shopt -s nocasematch
@@ -52,12 +55,12 @@ snowboy_STT () { # STT () {} Transcribes audio file $1 and writes corresponding 
         local quiet='2>/dev/null'
     fi;
     
-    # checking if model exists for trigger
-    shopt -s nocaseglob # for ls pattern to be case insensitive
-    if ! ls "stt_engines/snowboy/resources/$trigger."?mdl >/dev/null 2>&1; then
+    # check if model already exists for trigger
+    # exit if model already exists for trigger
+    if [[ ! -f "stt_engines/snowboy/resources/$trigger_sanitized.pmdl" && ! -f "stt_engines/snowboy/resources/$trigger_sanitized.umdl" ]]; then
         my_error "\nERROR: personal model for '$trigger' not found"
-        my_success "HELP: See how to create '$(echo $trigger | tr '[:upper:]' '[:lower:]').pmdl' here:"
-        my_success "HELP: https://github.com/alexylem/jarvis/wiki/snowboy"
+        my_success "HELP: See how to create '$trigger_sanitized.pmdl' here:"
+        my_success "HELP: http://domotiquefacile.fr/jarvis/content/snowboy"
         my_success "HELP: Or change your hotword to default model 'snowboy':"
         my_success "HELP: Settings > General > Magic word"
         program_exit 1
@@ -72,11 +75,87 @@ snowboy_STT () { # STT () {} Transcribes audio file $1 and writes corresponding 
     $verbose && echo "DEBUG: modelid=$modelid"
     if [ "$modelid" -lt 0 ] || [ "$modelid" -gt 90 ]; then
         my_error "ERROR: snowboy recognition failed"
-        exit 1
+        program_exit 1
     else
         local order="${snowboy_models[modelid]}"
-        [[ "$order" == "$trigger" ]] || bypass=true
+        [[ "$order" == "$trigger_sanitized" ]] || bypass=true # case insensitive comparison ex for snowboy
         echo "$order" > $forder
     fi
     printf $_reset
+}
+
+stt_sb_train () {
+    # Usage: tts_sb_train "Hey Jarvis"
+    # Contributor: taostaos - https://github.com/taostaos
+    local hotword="$1"
+    local lowercase="$(echo $hotword | tr '[:upper:]' '[:lower:]')"
+    local sanitized="$(jv_sanitize "$hotword")"
+    
+    # exit if model already exists for trigger
+    [[ -f "stt_engines/snowboy/resources/$sanitized.pmdl" || -f "stt_engines/snowboy/resources/$sanitized.umdl" ]] && return 0
+    
+    # check token is in config
+    if [ -f "config/snowboy_token" ]; then
+        # load token from config
+        local snowboy_token="$(cat config/snowboy_token)"
+    else
+        # ask token to user
+        local snowboy_token="$(dialog_input "Kitt.ai Token\nGet one at: https://snowboy.kitt.ai")"
+        # save token in config
+        echo "$snowboy_token" > config/snowboy_token
+    fi
+    
+    # record 3 audio samples of the hotword
+    dialog_msg "We will record now 3 audio samples of '$hotword'\nSample #1\nPres [Enter], say '$hotword' then hit Ctrl+C"
+    rec -r 16000 -c 1 -b 16 -e signed-integer /tmp/1.wav
+    dialog_msg "Sample #2\nPres [Enter], say '$hotword' then hit Ctrl+C"
+    rec -r 16000 -c 1 -b 16 -e signed-integer /tmp/2.wav
+    dialog_msg "Sample #3\nPres [Enter], say '$hotword' then hit Ctrl+C"
+    rec -r 16000 -c 1 -b 16 -e signed-integer /tmp/3.wav
+    
+    # get microphone information
+    [ "$rec_hw" != "false" ] && local microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || local microphone="Default"
+    
+    # build json data parameter
+    local WAV1=$(base64 /tmp/1.wav)
+    local WAV2=$(base64 /tmp/2.wav)
+    local WAV3=$(base64 /tmp/3.wav)
+    cat <<EOF >/tmp/data.json
+{
+    "name": "$lowercase",
+    "language": "${language:0:2}",
+    "microphone": "$microphone",
+    "token": "$snowboy_token",
+    "voice_samples": [
+        {"wave": "$WAV1"},
+        {"wave": "$WAV2"},
+        {"wave": "$WAV3"}
+    ]
+}
+EOF
+    
+    # call kitt.ai endpoint with recorded samples to get model
+    echo "Training model..."
+    response_code=$(curl "https://snowboy.kitt.ai/api/v1/train/" \
+        --progress-bar \
+        --header "Content-Type: application/json" \
+        --data   @/tmp/data.json \
+        --write-out "%{http_code}" \
+        --output /tmp/model.pmdl)
+    #local response_code=$? # sometimes 0 although it failed with 400 http code
+    
+    # check if there was an error
+    if [ "${response_code:0:1}" != "2" ]; then
+        cat /tmp/model.pmdl
+        echo # carriage return
+        my_error "ERROR: error occured while training the model"
+        exit 1
+    fi
+    
+    # save model
+    mv /tmp/model.pmdl "stt_engines/snowboy/resources/$sanitized.pmdl"
+    my_success "Completed"
+    
+    # reload models
+    stt_sb_load
 }
