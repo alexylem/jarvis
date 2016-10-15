@@ -324,7 +324,7 @@ EOM
         Help*)
             dialog_msg <<EOM
 A question?
-https://github.com/alexylem/jarvis/wiki/support
+http://domotiquefacile.fr/jarvis/content/support
 
 A problem or enhancement request?
 Create a ticket on GitHub
@@ -338,7 +338,7 @@ EOM
 JARVIS
 By Alexandre Mély
 
-https://github.com/alexylem/jarvis/wiki
+http://domotiquefacile.fr/jarvis
 alexandre.mely@gmail.com
 (I don't give support via email, please check Help)
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 # +----------------------------------------+
 # | JARVIS by Alexandre Mély - MIT license |
-# | http://github.com/alexylem/jarvis/wiki |
+# | http://domotiquefacile.fr/jarvis       |
 # +----------------------------------------+
 flags='bc:ihlnp:s:x:'
 show_help () { cat <<EOF
@@ -147,10 +147,10 @@ configure () {
                    'program_startup'
                    'program_exit')
     case "$1" in
-        bing_speech_api_key)   eval $1=`dialog_input "Bing Speech API Key\nHow to get one: https://github.com/alexylem/jarvis/wiki/bing" "${!1}"`;;
+        bing_speech_api_key)   eval $1=`dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}"`;;
         check_updates)         eval $1=`dialog_yesno "Check Updates when Jarvis starts up (recommended)" "${!1}"`;;
         command_stt)           options=('bing' 'wit' 'pocketsphinx')
-                               eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit https://github.com/alexylem/jarvis/wiki/stt\nRecommended: bing (google has been removed because deprecated)" options[@] "${!1}"`
+                               eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: bing (google has been removed because deprecated)" options[@] "${!1}"`
                                source stt_engines/$command_stt/main.sh;;
         conversation_mode)     eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
         dictionary)            eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
@@ -245,7 +245,7 @@ configure () {
                              eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`
                              ;;
         trigger_stt)         options=('snowboy' 'pocketsphinx' 'bing')
-                             eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nVisit https://github.com/alexylem/jarvis/wiki/stt\nRecommended: snowboy" options[@] "${!1}"`
+                             eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}"`
                              source stt_engines/$trigger_stt/main.sh
                              if [ "$trigger_stt" = "snowboy" ]; then
                                  # use ' instead of " in dialog_msg
@@ -260,7 +260,7 @@ EOM
                              ;;
         tts_engine) options=('svox_pico' 'google' 'espeak' 'osx_say')
                     recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico'`
-                    eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit https://github.com/alexylem/jarvis/wiki/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
+                    eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
                     source tts_engines/$tts_engine/main.sh;;
         username) eval $1=`dialog_input "How would you like to be called?" "${!1}"`;;
         wit_server_access_token) eval $1=`dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}"`;;
@@ -409,7 +409,6 @@ commands=`cat jarvis-commands plugins/*/${language:0:2}/commands 2>/dev/null`
 handle_order() {
     local order=$1
     local sanitized="$(jv_sanitize "$order")"
-    my_debug "sanitied=$sanitized"
 	local check_indented=false
     while read line; do
         if $check_indented; then
