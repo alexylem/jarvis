@@ -5,8 +5,8 @@ touch /tmp/jarvis_bing_expires # initiate if don't exist
 _bing_transcribe () {
     if [ -z "$bing_speech_api_key" ]; then
         echo "" # new line
-        my_error "ERROR: missing bing speech api key"
-        my_warning "HELP: define bing key in Settings > Voice recognition"
+        jv_error "ERROR: missing bing speech api key"
+        jv_warning "HELP: define bing key in Settings > Voice recognition"
         echo "" > $forder # clean previous order to show "?"
         exit 1 # TODO doesn't really exit because launched with & forjv_spinner
     fi
@@ -15,7 +15,7 @@ _bing_transcribe () {
     stt_bing_expires="`cat /tmp/jarvis_bing_expires`"
     
     if [ -z "$stt_bing_expires" ] || [ "$stt_bing_expires" -lt "`date +%s`" ]; then
-        $verbose && my_debug "DEBUG: token missing or expired"
+        $verbose && jv_debug "DEBUG: token missing or expired"
         # https://github.com/alexylem/jarvis/issues/145
         local json=`curl -X POST "https://api.cognitive.microsoft.com/sts/v1.0/issueToken" \
             -H "Content-Type: application/x-www-form-urlencoded" \
@@ -24,11 +24,11 @@ _bing_transcribe () {
             -d "grant_type=client_credentials" \
             -d "scope=https://speech.platform.bing.com" \
             --silent`
-        $verbose && my_debug "DEBUG: json=$json"
+        $verbose && jv_debug "DEBUG: json=$json"
         
         local error=`echo $json | perl -lne 'print $1 if m{"message": "([^"]*)"}'`
         if [ -n "$error" ]; then
-            my_error "ERROR: $error"
+            jv_error "ERROR: $error"
             exit 1
         fi
         stt_bing_token="$json"
@@ -39,7 +39,7 @@ _bing_transcribe () {
         local expires_in=$(( 10 * 60 )) # 10 mins
         stt_bing_expires=`echo $(( $(date +%s) + $expires_in - 10 ))` # -10 to compensate webservice call duration
         echo $stt_bing_expires > /tmp/jarvis_bing_expires
-        $verbose && my_debug "DEBUG: token will expire in $(( $stt_bing_expires - `date +%s` )) seconds"
+        $verbose && jv_debug "DEBUG: token will expire in $(( $stt_bing_expires - `date +%s` )) seconds"
     fi
     
     [[ $OSTYPE = darwin* ]] && uuid=$(uuidgen) || uuid=$(cat /proc/sys/kernel/random/uuid)
@@ -55,7 +55,7 @@ _bing_transcribe () {
     request+="&instanceid=E043E4FE-51EF-4B74-8133-B728C4FEA8AA"
     request+="&result.profanitymarkup=0" #with this we avoid the insult with <profanity> tags
     
-    $verbose && my_debug "DEBUG: curl $request"
+    $verbose && jv_debug "DEBUG: curl $request"
     # don't use local or else $? will not work
     json=`curl "$request" \
         -H "Host: speech.platform.bing.com" \
@@ -64,10 +64,10 @@ _bing_transcribe () {
         --data-binary "@$audiofile" \
         --silent --fail`
     if (( $? )); then
-        my_error "ERROR: bing recognition curl failed"
+        jv_error "ERROR: bing recognition curl failed"
         exit 1
     fi
-    $verbose && my_debug "DEBUG: json=$json"
+    $verbose && jv_debug "DEBUG: json=$json"
     local status=`echo $json | perl -lne 'print $1 if m{"status":"([^"]*)"}'`
     
     if [ "$status" = "success" ]; then

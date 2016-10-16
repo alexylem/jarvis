@@ -1,8 +1,8 @@
 store_init () {
-    my_debug "Refreshing store database..."
+    jv_debug "Refreshing store database..."
     export store_json="$(curl -s http://domotiquefacile.fr/jarvis/all.json)"
     #export store_json_lower="$(echo "$store_json" | tr '[:upper:]' '[:lower:]')"
-    my_debug "Store database updated"
+    jv_debug "Store database updated"
 }
 
 store_get_nb_plugins () {
@@ -62,7 +62,7 @@ store_install_plugin () { # $1:plugin_url
         cd ../
         dialog_msg "Installation Complete"
     else
-        my_error "An error has occured"
+        jv_error "An error has occured"
         press_enter_to_continue
     fi
     cd ../

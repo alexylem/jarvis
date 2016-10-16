@@ -48,7 +48,7 @@ snowboy_STT () { # STT () {} Transcribes audio file $1 and writes corresponding 
     shopt -s nocasematch
     
     if $verbose; then
-        $verbose && (IFS=','; my_debug "DEBUG: models=${snowboy_models[*]}")
+        $verbose && (IFS=','; jv_debug "DEBUG: models=${snowboy_models[*]}")
         local quiet=''
         printf $_gray
     else
@@ -58,12 +58,12 @@ snowboy_STT () { # STT () {} Transcribes audio file $1 and writes corresponding 
     # check if model already exists for trigger
     # exit if model already exists for trigger
     if [[ ! -f "stt_engines/snowboy/resources/$trigger_sanitized.pmdl" && ! -f "stt_engines/snowboy/resources/$trigger_sanitized.umdl" ]]; then
-        my_error "\nERROR: personal model for '$trigger' not found"
-        my_success "HELP: See how to create '$trigger_sanitized.pmdl' here:"
-        my_success "HELP: http://domotiquefacile.fr/jarvis/content/snowboy"
-        my_success "HELP: Or change your hotword to default model 'snowboy':"
-        my_success "HELP: Settings > General > Magic word"
-        program_exit 1
+        jv_error "\nERROR: personal model for '$trigger' not found"
+        jv_success "HELP: See how to create '$trigger_sanitized.pmdl' here:"
+        jv_success "HELP: http://domotiquefacile.fr/jarvis/content/snowboy"
+        jv_success "HELP: Or change your hotword to default model 'snowboy':"
+        jv_success "HELP: Settings > General > Magic word"
+        jv_exit 1
     fi
     
     #local model="snowboy.umdl"
@@ -74,8 +74,8 @@ snowboy_STT () { # STT () {} Transcribes audio file $1 and writes corresponding 
     modelid=$(($?-11))
     $verbose && echo "DEBUG: modelid=$modelid"
     if [ "$modelid" -lt 0 ] || [ "$modelid" -gt 90 ]; then
-        my_error "ERROR: snowboy recognition failed"
-        program_exit 1
+        jv_error "ERROR: snowboy recognition failed"
+        jv_exit 1
     else
         local order="${snowboy_models[modelid]}"
         [[ "$order" == "$trigger_sanitized" ]] || bypass=true # case insensitive comparison ex for snowboy
@@ -151,13 +151,13 @@ EOF
     if [ "${response_code:0:1}" != "2" ]; then
         cat /tmp/model.pmdl
         echo # carriage return
-        my_error "ERROR: error occured while training the model"
+        jv_error "ERROR: error occured while training the model"
         exit 1
     fi
     
     # save model
     mv /tmp/model.pmdl "stt_engines/snowboy/resources/$sanitized.pmdl"
-    my_success "Completed"
+    jv_success "Completed"
     
     # reload models
     stt_sb_load

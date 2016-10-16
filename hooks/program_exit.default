@@ -1,1 +1,1 @@
-$verbose && my_debug "DEBUG: program_exit hook"
+$verbose && jv_debug "DEBUG: program_exit hook"

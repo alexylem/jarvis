@@ -50,13 +50,13 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     install_cmd="sudo apt-get install -y"
 	forder="/dev/shm/jarvis-order"
 else
-	my_error "ERROR: Unsupported platform"; exit 1
+	jv_error "ERROR: Unsupported platform"; exit 1
 fi
 source utils/dialog_$platform.sh # load default & user configuration
 
 # Check not ran as root
 if [ "$EUID" -eq 0 ]; then
-    my_error "ERROR: Jarvis must not be used as root"
+    jv_error "ERROR: Jarvis must not be used as root"
     exit 1
 fi
 
@@ -83,8 +83,8 @@ jv_spinner $!
 	echo " " # removejv_spinner
     [ $1 ] || return
     #clear
-    my_success "Update completed"
-    my_warning "Recent changes:"
+    jv_success "Update completed"
+    jv_warning "Recent changes:"
     head CHANGELOG.md #important to show if any important change user has to be aware of
     echo "[...] To see the full change log: more CHANGELOG.md"
 }
@@ -196,7 +196,7 @@ configure () {
                 play "sounds/applause.wav"
                 dialog_yesno "Did you hear something?" true && break
                 clear
-                my_warning "Selection of the speaker device"
+                jv_warning "Selection of the speaker device"
                 aplay -l
                 read -p "Indicate the card # to use [0-9]: " card
                 read -p "Indicate the device # to use [0-9]: " device
@@ -219,7 +219,7 @@ configure () {
                     play $audiofile
                     dialog_yesno "Did you hear yourself?" true >/dev/null && break
                 fi
-                my_warning "Selection of the microphone device"
+                jv_warning "Selection of the microphone device"
                 arecord -l
                 read -p "Indicate the card # to use [0-9]: " card
                 read -p "Indicate the device # to use [0-9]: " device
@@ -264,7 +264,7 @@ EOM
                     source tts_engines/$tts_engine/main.sh;;
         username) eval $1=`dialog_input "How would you like to be called?" "${!1}"`;;
         wit_server_access_token) eval $1=`dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}"`;;
-        *) my_error "ERROR: Unknown configure $1";;
+        *) jv_error "ERROR: Unknown configure $1";;
     esac
 }
 
@@ -274,11 +274,11 @@ check_dependencies () {
         hash $i 2>/dev/null || missings+=($i)
     done
     if [ ${#missings[@]} -gt 0 ]; then
-        my_error "ERROR: You must install missing dependencies before going further"
+        jv_error "ERROR: You must install missing dependencies before going further"
         for missing in "${missings[@]}"; do
             echo "$missing: Not found"
         done
-        my_success "HELP: $install_cmd ${missing[@]}"
+        jv_success "HELP: $install_cmd ${missing[@]}"
         exit 1
     fi
 }
@@ -425,7 +425,7 @@ handle_order() {
                 if [[ $sanitized =~ $regex ]]; then # HELLO THERE =~ .*HELLO.*
                     action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
     				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'`
-    				$verbose && my_debug "$> $action"
+    				$verbose && jv_debug "$> $action"
                     eval "$action" || say "$phrase_failed"
                     check_indented=true
                     commands=""
@@ -499,11 +499,11 @@ source hooks/program_startup
 [ $just_listen = false ] && [ ! -z "$phrase_welcome" ] && say "$phrase_welcome"
 bypass=$just_listen
 
-trap "program_exit" INT TERM
+trap "jv_exit" INT TERM
 echo $$ > $lockfile
 
 # Display available commands to the user
-my_debug "$commands" | cut -d '=' -f 1 | column
+jv_debug "$commands" | cut -d '=' -f 1 | column
 
 while true; do
 	if [ $keyboard = true ]; then
@@ -522,7 +522,7 @@ while true; do
         while true; do
 			#$quiet || PLAY beep-high.wav
 
-            $verbose && my_debug "(listening...)"
+            $verbose && jv_debug "(listening...)"
 
             if $bypass; then
                 eval ${command_stt}_STT
@@ -539,7 +539,7 @@ while true; do
                 if [ $((++nb_failed)) -eq 3 ]; then
                     nb_failed=0
                     echo # new line
-                    $verbose && my_debug "DEBUG: 3 attempts failed, end of conversation"
+                    $verbose && jv_debug "DEBUG: 3 attempts failed, end of conversation"
                     PLAY sounds/timeout.wav
                     bypass=false
                     source hooks/exiting_cmd
@@ -568,5 +568,5 @@ while true; do
         bypass=false
         source hooks/exiting_cmd
     fi
-    $just_listen && [ $bypass = false ] && program_exit
+    $just_listen && [ $bypass = false ] && jv_exit
 done
