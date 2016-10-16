@@ -81,11 +81,12 @@ menu_store () {
                                 shopt -s nullglob
                                 options=(*)
                                 shopt -u nullglob
-                                option="`dialog_menu 'Installed' options[@]`"
-                                if [ -n "$option" ] && [ "$option" != "false" ]; then
-                                    cd "$option"
+                                local plugin="`dialog_menu 'Installed' options[@]`"
+                                if [ -n "$plugin" ] && [ "$plugin" != "false" ]; then
+                                    cd "$plugin"
                                     local plugin_git_url="$(git config --get remote.origin.url)"
                                     local plugin_url="${plugin_git_url%.*}"
+                                    cd ../
                                     options=("Info"
                                              "Configure"
                                              "Update"
@@ -93,18 +94,20 @@ menu_store () {
                                              "Report an issue"
                                              "Uninstall")
                                     while true; do
-                                        case "`dialog_menu \"$option\" options[@]`" in
+                                        case "`dialog_menu \"$plugin\" options[@]`" in
                                             Info)
                                                 store_display_readme "$plugin_url"
                                                 ;;
                                             Configure)
-                                                editor "$option/config.sh"
+                                                editor "$plugin/config.sh"
                                                 ;;
                                             Update)
                                                 echo "Checking for updates..."
+                                                cd "$plugin"
                                                 git pull &
                                                 spinner $!
                                                 press_enter_to_continue
+                                                cd ../
                                                 ;;
                                             Rate)
                                                 dialog_msg "$(store_get_field_by_repo "$plugin_url" "url")#comment-form"
@@ -114,8 +117,8 @@ menu_store () {
                                                 ;;
                                             Uninstall)
                                                 if dialog_yesno "Are you sure?" true >/dev/null; then
-                                                    "$option"/uninstall.sh
-                                                    rm -rf "$option"
+                                                    $plugin/uninstall.sh
+                                                    rm -rf "$plugin"
                                                     dialog_msg "Uninstallation Complete"
                                                     break 2
                                                 fi
