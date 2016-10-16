@@ -44,7 +44,7 @@ store_display_readme () { # $1:plugin_url
     local plugin_readme_url="${plugin_url/github.com/raw.githubusercontent.com}/master/README.md"
     clear
     curl -s "$plugin_readme_url" | sed '/<!--/,/-->/d' & # strip comments
-    spinner $!
+   jv_spinner $!
     press_enter_to_continue
 }
 

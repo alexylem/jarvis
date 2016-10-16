@@ -1,2 +1,0 @@
-*ALLUME*LAMPE*SALON*==wget -qO /dev/null $MG_lampe_salon_on & say "La lampe du salon est allumée"
-*ETEINS*|*ARRETE*|*COUPE*LAMPE*SALON*==wget -qO /dev/null $MG_lampe_salon_off & say "La lampe du salon est éteinte"

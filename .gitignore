@@ -1,6 +1,4 @@
 
-jarvis-config.sh
-
 jarvis-commands
 
 jarvis-record.wav
@@ -9,19 +7,11 @@ jarvis-events
 
 jarvis.log
 
-jarvis-config.sh.old
-
 config/
 
 stt_engines/snowboy/_snowboydetect.so
 
-stt_engines/snowboy/resources/common.res
-
-stt_engines/snowboy/resources/ding.wav
-
-stt_engines/snowboy/resources/dong.wav
-
-stt_engines/snowboy/resources/snowboy.umdl
+stt_engines/snowboy/resources/
 
 stt_engines/snowboy/snowboydecoder.py
 
@@ -41,12 +31,6 @@ hooks/program_exit
 
 hooks/program_startup
 
-stt_engines/snowboy/.DS_Store
-
-sounds/.DS_Store
-
-.DS_Store
-
-store/installed/
+*.DS_Store
 
 plugins/

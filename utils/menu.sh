@@ -105,7 +105,7 @@ menu_store () {
                                                 echo "Checking for updates..."
                                                 cd "$plugin"
                                                 git pull &
-                                                spinner $!
+                                               jv_spinner $!
                                                 press_enter_to_continue
                                                 cd ../
                                                 ;;

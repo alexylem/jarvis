@@ -8,7 +8,7 @@ _bing_transcribe () {
         my_error "ERROR: missing bing speech api key"
         my_warning "HELP: define bing key in Settings > Voice recognition"
         echo "" > $forder # clean previous order to show "?"
-        exit 1 # TODO doesn't really exit because launched with & for spinner
+        exit 1 # TODO doesn't really exit because launched with & forjv_spinner
     fi
     
     stt_bing_token="`cat /tmp/jarvis_bing_token`"
@@ -78,5 +78,5 @@ _bing_transcribe () {
 bing_STT () {
     LISTEN $audiofile
     _bing_transcribe &
-    spinner $!
+   jv_spinner $!
 }

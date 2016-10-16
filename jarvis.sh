@@ -3,7 +3,7 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://domotiquefacile.fr/jarvis       |
 # +----------------------------------------+
-flags='bc:ihlnp:s:x:'
+flags='bc:ihlnp:s:x:z'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -79,8 +79,8 @@ autoupdate () { # usage autoupdate 1 to show changelog
 	printf "Updating..."
 	git reset --hard HEAD >/dev/null # override any local change
 	git pull -q &
-	spinner $!
-	echo " " # remove spinner
+jv_spinner $!
+	echo " " # removejv_spinner
     [ $1 ] || return
     #clear
     my_success "Update completed"
@@ -94,14 +94,14 @@ checkupdates () {
     [ -f jarvis-events ] || cp jarvis-events-default jarvis-events
 	printf "Checking for updates..."
 	git fetch origin -q &
-	spinner $!
+jv_spinner $!
 	case `git rev-list HEAD...origin/master --count || echo e` in
 		"e") echo -e "[\033[31mError\033[0m]";;
 		"0") echo -e "[\033[32mUp-to-date\033[0m]";;
 		*)	echo -e "[\033[33mNew version available\033[0m]"
             changes=$(git fetch -q 2>&1 && git log HEAD..origin/master --oneline --format="- %s (%ar)" | head -5)
             if dialog_yesno "A new version of JARVIS is available, recent changes:\n$changes\n\nWould you like to update?" false >/dev/null; then
-				autoupdate 1 # has spinner inside
+				autoupdate 1 # hasjv_spinner inside
 				#dialog_msg "Please restart JARVIS"
 				exit
 			fi
@@ -362,6 +362,8 @@ while getopts ":$flags" o; do
             exit;;
         s)	just_say=${OPTARG};;
         x)  just_execute="${OPTARG}";;
+        z)  jv_build
+            exit;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
     esac
 done
@@ -384,15 +386,6 @@ EOM
     echo "Please reboot: sudo reboot"
     exit
 fi
-
-# say wrapper to be used in jarvis-commands
-# USAGES:
-#   say "hello world"
-#   echo hello world | say
-say () {
-    set -- "${1:-$(</dev/stdin)}" "${@:2}"
-    echo -e "$_pink$trigger$_reset: $1"; $quiet || TTS "$1";
-}
 
 # if -s argument provided, just say it & exit (used in jarvis-events)
 if [[ "$just_say" != false ]]; then
@@ -506,13 +499,6 @@ source hooks/program_startup
 [ $just_listen = false ] && [ ! -z "$phrase_welcome" ] && say "$phrase_welcome"
 bypass=$just_listen
 
-program_exit () {
-    $verbose && my_debug "DEBUG: program exit handler"
-    source hooks/program_exit $1
-    # make sure the lockfile is removed when we exit and then claim it
-    rm -f $lockfile
-    exit $1
-}
 trap "program_exit" INT TERM
 echo $$ > $lockfile
 

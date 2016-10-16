@@ -1,2 +1,0 @@
-*ALLUME*SERVEUR*==say "allumage du serveur" && php /store/all/fr_wake_sleep_server/wakenas.php > /dev/null
-*ETEIN*SERVEUR*==say "j'eteins votre serveur" && php /store/all/fr_wake_sleep_server/shutdown.php > /dev/null

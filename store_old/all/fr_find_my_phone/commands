@@ -1,1 +1,0 @@
-*SONNER*TELEPHONE*==say "ok j'envois un mail" &&  mail -s "trouvé" votre-mail@example.com;
