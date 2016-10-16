@@ -85,14 +85,17 @@ snowboy_STT () { # STT () {} Transcribes audio file $1 and writes corresponding 
 }
 
 stt_sb_train () {
-    # Usage: tts_sb_train "Hey Jarvis"
+    # Usage: tts_sb_train "Hey Jarvis" [true]
+    # $1: the string to train
+    # $2: (optional) force re-retrain in case model already exists
     # Contributor: taostaos - https://github.com/taostaos
     local hotword="$1"
+    local -r force_retrain=$2
     local lowercase="$(echo $hotword | tr '[:upper:]' '[:lower:]')"
     local sanitized="$(jv_sanitize "$hotword")"
     
     # exit if model already exists for trigger
-    [[ -f "stt_engines/snowboy/resources/$sanitized.pmdl" || -f "stt_engines/snowboy/resources/$sanitized.umdl" ]] && return 0
+    [ -z "$force_retrain" ] && [[ -f "stt_engines/snowboy/resources/$sanitized.pmdl" || -f "stt_engines/snowboy/resources/$sanitized.umdl" ]] && return 0
     
     # check token is in config
     if [ -f "config/snowboy_token" ]; then

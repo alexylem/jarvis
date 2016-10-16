@@ -1,6 +1,6 @@
 ANNULE*|TERMINE*==bypass=false; say "Ok"
 *MERCI*==say "De rien"
-*AIDE*==cat jarvis-commands
+*AIDE*==echo "$commands" | cut -d '=' -f 1 | column
 *COMMENT*APPELLE*==say "Je m'appelle $trigger"
 *BONJOUR*|*SALUT*==say "Bonjour $username"
 *AU REVOIR*|*BYE*==say "Au revoir $username"; exit

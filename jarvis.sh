@@ -516,6 +516,9 @@ program_exit () {
 trap "program_exit" INT TERM
 echo $$ > $lockfile
 
+# Display available commands to the user
+my_debug "$commands" | cut -d '=' -f 1 | column
+
 while true; do
 	if [ $keyboard = true ]; then
         bypass=true

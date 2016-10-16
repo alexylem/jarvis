@@ -277,7 +277,7 @@ EOM
                                 Recognition*magic*word*) configure "trigger_stt";;
                                 Recognition*command*)       configure "command_stt";;
                                 Snowboy*sensitivity*)       configure "snowboy_sensitivity";;
-                                Snowboy*train*)             stt_sb_train "$(dialog_input "Hotword / Quick Command to (re-)train" "$trigger")";;
+                                Snowboy*train*)             stt_sb_train "$(dialog_input "Hotword / Quick Command to (re-)train" "$trigger")" true;;
                                 #Google*)                   configure "google_speech_api_key";;
                                 Wit*)                       configure "wit_server_access_token";;
                                 Bing*key*)                  configure "bing_speech_api_key";;
