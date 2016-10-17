@@ -77,3 +77,17 @@ Public: Exit properly jarvis
 * $1 - Return code
 
 
+`jv_curl()`
+-----------
+
+Public: Call HTTP requests
+
+It displays errors if request fails When ran in troubleshooting mode, it will display request & response
+
+* $@ - all arguments you would give to curl
+
+Returns the return code of curl
+
+    $> *COMMAND*==jv_curl "http://192.168.1.1/action" && say "Done"
+
+

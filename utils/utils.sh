@@ -123,3 +123,26 @@ jv_build () {
         open -a "GitHub Desktop" /Users/alex/Documents/jarvis
         jv_success "[Done]"
 }
+
+# Public: Call HTTP requests
+# 
+# It displays errors if request fails
+# When ran in troubleshooting mode, it will display request & response
+# 
+# $@ - all arguments you would give to curl
+#
+# Returns the return code of curl
+#
+#   $> *COMMAND*==jv_curl "http://192.168.1.1/action" && say "Done"
+jv_curl () {
+    local curl_command="curl --silent --fail --show-error $@"
+    $verbose && jv_debug "DEBUG: $curl_command"
+    response=$($curl_command 2>&1)
+    local return_code=$?
+    if [ $return_code -ne 0 ]; then
+        jv_error "ERROR: $response"
+    else
+        $verbose && jv_debug "DEBUG: $response"
+    fi
+    return $return_code
+}
