@@ -7,12 +7,11 @@ from flask import Flask,json,request
 import subprocess
 app = Flask(__name__)
 
-props = dict(line.strip().split('=') for line in open('properties'))
+props = dict(line.strip().split('=') for line in open('restapi_settings'))
 
 ip_host=props["ip_host"]
 port_flask=int(props["port_flask"])
 jarvis_home=props["jarvis_home"]
-
 
 @app.route("/jarvissay", methods=['POST'])
 def jarvis_say():
