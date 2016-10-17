@@ -503,7 +503,8 @@ trap "jv_exit" INT TERM
 echo $$ > $lockfile
 
 # Display available commands to the user
-jv_debug "$commands" | cut -d '=' -f 1 | column
+#jv_debug "$commands" | cut -d '=' -f 1 | column
+jv_debug "$commands" | cut -d '=' -f 1 | pr -3 -l1 -t
 
 while true; do
 	if [ $keyboard = true ]; then
