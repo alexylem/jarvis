@@ -123,10 +123,11 @@ stt_sb_train () {
     local WAV1=$(base64 /tmp/1.wav)
     local WAV2=$(base64 /tmp/2.wav)
     local WAV3=$(base64 /tmp/3.wav)
+    # language forced to en because of https://github.com/Kitt-AI/snowboy/issues/75
     cat <<EOF >/tmp/data.json
 {
     "name": "$lowercase",
-    "language": "${language:0:2}",
+    "language": "en",
     "microphone": "$microphone",
     "token": "$snowboy_token",
     "voice_samples": [
