@@ -106,7 +106,7 @@ menu_store () {
                                                 cd "$plugin"
                                                 git pull &
                                                jv_spinner $!
-                                                press_enter_to_continue
+                                               jv_press_enter_to_continue
                                                 cd ../
                                                 ;;
                                             Rate)

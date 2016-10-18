@@ -43,9 +43,9 @@ store_get_field_by_repo () {
 store_display_readme () { # $1:plugin_url
     local plugin_readme_url="${plugin_url/github.com/raw.githubusercontent.com}/master/README.md"
     clear
-    curl -s "$plugin_readme_url" | sed '/<!--/,/-->/d' & # strip comments
-   jv_spinner $!
-    press_enter_to_continue
+    jv_debug "Loading..."
+    curl -s "$plugin_readme_url" | sed '/<!--/,/-->/d' | more # strip comments
+    jv_press_enter_to_continue
 }
 
 store_install_plugin () { # $1:plugin_url
@@ -63,7 +63,7 @@ store_install_plugin () { # $1:plugin_url
         dialog_msg "Installation Complete"
     else
         jv_error "An error has occured"
-        press_enter_to_continue
+       jv_press_enter_to_continue
     fi
     cd ../
     
