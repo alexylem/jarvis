@@ -361,7 +361,9 @@ while getopts ":$flags" o; do
 		p)  store_install_plugin "${OPTARG}"
             exit;;
         s)	just_say=${OPTARG};;
-        x)  just_execute="${OPTARG}";;
+        x)  just_execute="${OPTARG}"
+            verbose=true # for troubleshooting commands
+            ;;
         z)  jv_build
             exit;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
