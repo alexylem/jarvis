@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Public: Speak some text out loud 
-# 
 # $1 - text to speak
+# 
+# Returns nothing
 # 
 #   $> say "hello world"
 #   OR
@@ -13,7 +14,31 @@ say () {
     echo -e "$_pink$trigger$_reset: $1"; $quiet || TTS "$1";
 }
 
+# Public: Call HTTP requests
+# 
+# It displays errors if request fails
+# When ran in troubleshooting mode, it will display request & response
+# $@ - all arguments you would give to curl
+#
+# Returns the return code of curl
+#
+#   $> *COMMAND*==jv_curl "http://192.168.1.1/action" && say "Done"
+jv_curl () {
+    local curl_command="curl --silent --fail --show-error $@"
+    $verbose && jv_debug "DEBUG: $curl_command"
+    response=$($curl_command 2>&1)
+    local return_code=$?
+    if [ $return_code -ne 0 ]; then
+        jv_error "ERROR: $response"
+    else
+        $verbose && jv_debug "DEBUG: $response"
+    fi
+    return $return_code
+}
+
 # Public: Displays a spinner for long running commmands
+# 
+# Returns nothing
 # 
 #   command &; jv_spinner $!
 #   |/-\|\-\... (spinning bar)
@@ -27,7 +52,6 @@ jv_spinner () {
 }
 
 # Internal: Updates alsa user config at ~/.asoundrc
-#
 # $1 - play_hw
 # $2 - rec_hw
 update_alsa () { # usage: update_alsa $play_hw $rec_hw
@@ -51,10 +75,11 @@ EOM
 
 # Public: Rremoves accents, lowercase, strip special chars and optionally replace spaces
 # with underscores
-# 
 # $1 - (required) string to sanitize
 # $2 - (optional) character to replace spaces with
 # 
+# Echoes the sanitized string
+#
 #   $> jv_sanitize "Caractères Spéciaux?"
 #   caracteres speciaux
 jv_sanitize () {
@@ -95,6 +120,8 @@ jv_debug() { echo -e "$_gray$@$_reset" ;}
 
 # Public: Asks user to press enter to continue
 # 
+# Returns nothing
+#
 #   $> jv_press_enter_to_continue
 #   Press [Enter] to continue
 jv_press_enter_to_continue () {
@@ -103,8 +130,9 @@ jv_press_enter_to_continue () {
 }
 
 # Public: Exit properly jarvis
-#
 # $1 - Return code
+#
+# Returns nothing
 jv_exit () {
     $verbose && jv_debug "DEBUG: program exit handler"
     source hooks/program_exit $1
@@ -114,6 +142,8 @@ jv_exit () {
 }
 
 # Internal: Build Jarvis
+#
+# Returns nothing
 jv_build () {
     printf "Generating documentation..."
         utils/tomdoc.sh --markdown --access Public utils/utils.sh > docs/api-reference-public.md
@@ -122,27 +152,4 @@ jv_build () {
     printf "Opening GitHub Desktop..."
         open -a "GitHub Desktop" /Users/alex/Documents/jarvis
         jv_success "[Done]"
-}
-
-# Public: Call HTTP requests
-# 
-# It displays errors if request fails
-# When ran in troubleshooting mode, it will display request & response
-# 
-# $@ - all arguments you would give to curl
-#
-# Returns the return code of curl
-#
-#   $> *COMMAND*==jv_curl "http://192.168.1.1/action" && say "Done"
-jv_curl () {
-    local curl_command="curl --silent --fail --show-error $@"
-    $verbose && jv_debug "DEBUG: $curl_command"
-    response=$($curl_command 2>&1)
-    local return_code=$?
-    if [ $return_code -ne 0 ]; then
-        jv_error "ERROR: $response"
-    else
-        $verbose && jv_debug "DEBUG: $response"
-    fi
-    return $return_code
 }

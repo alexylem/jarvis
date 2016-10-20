@@ -350,7 +350,8 @@ while getopts ":$flags" o; do
             start_in_background
             exit;;
         c)  conversation_mode_override=${OPTARG};;
-        i)  configure "load"
+        i)  check_dependencies
+            configure "load"
             wizard
             exit;;
         h)  show_help

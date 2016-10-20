@@ -2,8 +2,9 @@
 -------
 
 Public: Speak some text out loud
-
 * $1 - text to speak
+
+Returns nothing
 
     $> say "hello world"
     OR
@@ -11,10 +12,25 @@ Public: Speak some text out loud
     Jarvis: hello world
 
 
+`jv_curl()`
+-----------
+
+Public: Call HTTP requests
+
+It displays errors if request fails When ran in troubleshooting mode, it will display request & response
+* $@ - all arguments you would give to curl
+
+Returns the return code of curl
+
+    $> *COMMAND*==jv_curl "http://192.168.1.1/action" && say "Done"
+
+
 `jv_spinner()`
 --------------
 
 Public: Displays a spinner for long running commmands
+
+Returns nothing
 
     command &; jv_spinner $!
     |/-\|\-\... (spinning bar)
@@ -24,9 +40,10 @@ Public: Displays a spinner for long running commmands
 ---------------
 
 Public: Rremoves accents, lowercase, strip special chars and optionally replace spaces with underscores
-
 * $1 - (required) string to sanitize
 * $2 - (optional) character to replace spaces with
+
+Echoes the sanitized string
 
     $> jv_sanitize "Caractères Spéciaux?"
     caracteres speciaux
@@ -65,6 +82,8 @@ Public: Displays a log in gray
 
 Public: Asks user to press enter to continue
 
+Returns nothing
+
     $> jv_press_enter_to_continue
     Press [Enter] to continue
 
@@ -73,21 +92,8 @@ Public: Asks user to press enter to continue
 -----------
 
 Public: Exit properly jarvis
-
 * $1 - Return code
 
-
-`jv_curl()`
------------
-
-Public: Call HTTP requests
-
-It displays errors if request fails When ran in troubleshooting mode, it will display request & response
-
-* $@ - all arguments you would give to curl
-
-Returns the return code of curl
-
-    $> *COMMAND*==jv_curl "http://192.168.1.1/action" && say "Done"
+Returns nothing
 
 
