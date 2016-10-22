@@ -135,6 +135,7 @@ configure () {
                    'rec_hw'
                    'separator'
                    'snowboy_sensitivity'
+                   'snowboy_token'
                    'tmp_folder'
                    'trigger'
                    'trigger_stt'
@@ -237,6 +238,7 @@ configure () {
               done;;
         separator)           eval $1=`dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}"`;;
         snowboy_sensitivity) eval $1=`dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.5" "${!1}"`;;
+        snowboy_token)       eval $1=$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai" "${!1}");;
         tmp_folder)          eval $1=`dialog_input "Cache folder" "${!1}"`;;
         trigger)             eval "$1='`dialog_input \"Magic word to be said\" \"${!1}\"`'"
                              [ "$trigger_stt" = "snowboy" ] && stt_sb_train "$trigger"
@@ -246,16 +248,6 @@ configure () {
                              ;;
         trigger_stt)         options=('snowboy' 'pocketsphinx' 'bing')
                              eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}"`
-                             source stt_engines/$trigger_stt/main.sh
-                             if [ "$trigger_stt" = "snowboy" ]; then
-                                 # use ' instead of " in dialog_msg
-                                 dialog_msg <<EOM
-You can now record and train your own hotword within Jarvis
-Or you can immediately use the default universal hotword 'snowboy'
-EOM
-                                trigger="snowboy"
-                                configure "trigger"
-                             fi
                              source stt_engines/$trigger_stt/main.sh
                              ;;
         tts_engine) options=('svox_pico' 'google' 'espeak' 'osx_say')
@@ -293,8 +285,18 @@ wizard () {
 
     configure "username"
     configure "trigger_stt"
+    
+    if [ "$trigger_stt" = "snowboy" ]; then
+        # use ' instead of " in dialog_msg
+        dialog_msg <<EOM
+You can now record and train your own hotword within Jarvis
+Or you can immediately use the default universal hotword 'snowboy'
+EOM
+       trigger="snowboy"
+    fi
+    configure "trigger"
+    
     configure "command_stt"
-
     if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
         configure "google_speech_api_key"
     fi

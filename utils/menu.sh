@@ -269,6 +269,7 @@ EOM
                             options=("Recognition of magic word ($trigger_stt)"
                                      "Recognition of commands ($command_stt)"
                                      "Snowboy sensitivity ($snowboy_sensitivity)"
+                                     "Snowboy token ($snowboy_token)"
                                      "Snowboy train a hotword/command"
                                      "Bing key ($bing_speech_api_key)"
                                      #"Google key ($google_speech_api_key)"
@@ -280,6 +281,7 @@ EOM
                                 Recognition*magic*word*) configure "trigger_stt";;
                                 Recognition*command*)       configure "command_stt";;
                                 Snowboy*sensitivity*)       configure "snowboy_sensitivity";;
+                                Snowboy*token*)             configure "snowboy_token";;
                                 Snowboy*train*)             stt_sb_train "$(dialog_input "Hotword / Quick Command to (re-)train" "$trigger")" true;;
                                 #Google*)                   configure "google_speech_api_key";;
                                 Wit*)                       configure "wit_server_access_token";;

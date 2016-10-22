@@ -98,15 +98,7 @@ stt_sb_train () {
     [ -z "$force_retrain" ] && [[ -f "stt_engines/snowboy/resources/$sanitized.pmdl" || -f "stt_engines/snowboy/resources/$sanitized.umdl" ]] && return 0
     
     # check token is in config
-    if [ -f "config/snowboy_token" ]; then
-        # load token from config
-        local snowboy_token="$(cat config/snowboy_token)"
-    else
-        # ask token to user
-        local snowboy_token="$(dialog_input "Kitt.ai Token\nGet one at: https://snowboy.kitt.ai")"
-        # save token in config
-        echo "$snowboy_token" > config/snowboy_token
-    fi
+    [ -z "$snowboy_token" ] && configure "snowboy_token"
     
     # record 3 audio samples of the hotword
     dialog_msg "We will record now 3 audio samples of '$hotword'\nSample #1\nPres [Enter], say '$hotword' then hit Ctrl+C"
