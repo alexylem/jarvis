@@ -403,7 +403,10 @@ shopt -s nullglob
 for f in plugins/*/config.sh; do source $f; done
 for f in plugins/*/${language:0:2}/functions.sh; do source $f; done
 shopt -u nullglob
-commands=`cat jarvis-commands plugins/*/${language:0:2}/commands 2>/dev/null`
+jv_get_commands () {
+    cat jarvis-commands plugins/*/${language:0:2}/commands 2>/dev/null
+}
+commands="$(jv_get_commands)"
 handle_order() {
     local order=$1
     local sanitized="$(jv_sanitize "$order")"
@@ -416,7 +419,7 @@ handle_order() {
                 commands="$commands$newline${line:1}"
             else
                 if [ -z "$commands" ]; then
-                    commands=`cat jarvis-commands plugins/*/${language:0:2}/commands 2>/dev/null`
+                    commands="$(jv_get_commands)"
                 fi
                 #echo "$commands"
                 check_indented=false
@@ -442,7 +445,7 @@ handle_order() {
     if ! $check_indented; then
         say "$phrase_misunderstood: $order"
     elif [ -z "$commands" ]; then
-        commands=`cat jarvis-commands plugins/*/${language:0:2}/commands 2>/dev/null`
+        commands="$(jv_get_commands)"
     fi
 }
 
@@ -549,6 +552,7 @@ while true; do
                     PLAY sounds/timeout.wav
                     bypass=false
                     source hooks/exiting_cmd
+                    commands="$(jv_get_commands)" # in case we were in nested commands
                     continue 2
                 fi
                 continue

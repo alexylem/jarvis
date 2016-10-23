@@ -42,6 +42,7 @@ LISTEN_COMMAND () {
             bypass=false
             source hooks/exiting_cmd
             order='' # clean previous order
+            commands="$(jv_get_commands)" # in case we were in nested commands
             break 2
         elif [ "$duration" -gt 40 ]; then
             $verbose && jv_debug "DEBUG: too long for a command (max 4 secs), ignoring..." || printf '#'
