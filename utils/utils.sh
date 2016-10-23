@@ -153,18 +153,18 @@ jv_check_updates () {
 	read < <( git fetch origin -q & echo $! ) # suppress bash job control output
     jv_spinner $REPLY
 	case `git rev-list HEAD...origin/master --count || echo e` in
-		"e") echo -e "[\033[31mError\033[0m]";;
-		"0") echo -e "[\033[32mUp-to-date\033[0m]";;
-		*)	echo -e "[\033[33mNew version available\033[0m]"
-            changes=$(git fetch -q 2>&1 && git log HEAD..origin/master --oneline --format="- %s (%ar)" | head -5)
-            if dialog_yesno "A new version of $repo_name is available, recent changes:\n$changes\n\nWould you like to update?" false >/dev/null; then
-				printf "Updating..."
-                #git reset --hard HEAD >/dev/null # override any local change
-            	git pull -q &
-                jv_spinner $!
-            	jv_success "Update completed"
-			fi
-			;;
+		"e") jv_error "Error";;
+		"0") jv_success "Up-to-date";;
+		*)	 jv_warning "New version available"
+             changes=$(git fetch -q 2>&1 && git log HEAD..origin/master --oneline --format="- %s (%ar)" | head -5)
+             if dialog_yesno "A new version of $repo_name is available, recent changes:\n$changes\n\nWould you like to update?" true >/dev/null; then
+				 printf "Updating $repo_name..."
+                 #git reset --hard HEAD >/dev/null # don't override local changes (config.sh)
+            	 read < <( git pull -q & echo $! ) # suppress bash job control output
+                 jv_spinner $REPLY
+            	 jv_success "Done"
+			 fi
+			 ;;
 	esac
     cd "$initial_path"
 }

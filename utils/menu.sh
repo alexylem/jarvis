@@ -68,6 +68,7 @@ menu_store () {
         shopt -u nullglob
         
         options=("Installed (${#nb_installed[@]})"
+                 "Update installed plugins"
                  "Search"
                  "Browse ($(store_get_nb_plugins))" # total
                  "New Plugins" #TODO X new since last visit
@@ -133,6 +134,7 @@ menu_store () {
                             cd ../
                         fi
                         ;;
+            Update*)    jv_plugins_check_updates;;
             Search*)    local search_terms="$(dialog_input "Search in Store (keywords seperate with space)" "$search_terms")"
                         menu_store_browse "" "$search_terms"
                         ;;
