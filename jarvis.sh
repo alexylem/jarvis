@@ -79,7 +79,7 @@ autoupdate () { # usage autoupdate 1 to show changelog
 	printf "Updating..."
 	git reset --hard HEAD >/dev/null # override any local change
 	git pull -q &
-jv_spinner $!
+    jv_spinner $!
 	echo " " # removejv_spinner
     [ $1 ] || return
     #clear
@@ -94,7 +94,7 @@ checkupdates () {
     [ -f jarvis-events ] || cp jarvis-events-default jarvis-events
 	printf "Checking for updates..."
 	git fetch origin -q &
-jv_spinner $!
+    jv_spinner $!
 	case `git rev-list HEAD...origin/master --count || echo e` in
 		"e") echo -e "[\033[31mError\033[0m]";;
 		"0") echo -e "[\033[32mUp-to-date\033[0m]";;

@@ -11,7 +11,8 @@
 #   Jarvis: hello world
 say () {
     set -- "${1:-$(</dev/stdin)}" "${@:2}"
-    echo -e "$_pink$trigger$_reset: $1"; $quiet || TTS "$1";
+    echo -e "$_pink$trigger$_reset: $1"
+    $quiet || $tts_engine'_TTS' "$1"
 }
 
 # Public: Call HTTP requests
@@ -139,6 +140,44 @@ jv_exit () {
     # make sure the lockfile is removed when we exit and then claim it
     rm -f $lockfile
     exit $1
+}
+    
+# Internal: check updates and pull changes from github
+# $1 - path of git folder to check, default current dir
+jv_check_updates () {
+    local initial_path="$(pwd)"
+    local repo_path="${1:-.}" # . default value if $1 is empty (current dir)
+    cd "$repo_path"
+    local repo_name="$(basename $(pwd))"
+    printf "Checking updates for $repo_name..."
+	read < <( git fetch origin -q & echo $! ) # suppress bash job control output
+    jv_spinner $REPLY
+	case `git rev-list HEAD...origin/master --count || echo e` in
+		"e") echo -e "[\033[31mError\033[0m]";;
+		"0") echo -e "[\033[32mUp-to-date\033[0m]";;
+		*)	echo -e "[\033[33mNew version available\033[0m]"
+            changes=$(git fetch -q 2>&1 && git log HEAD..origin/master --oneline --format="- %s (%ar)" | head -5)
+            if dialog_yesno "A new version of $repo_name is available, recent changes:\n$changes\n\nWould you like to update?" false >/dev/null; then
+				printf "Updating..."
+                #git reset --hard HEAD >/dev/null # override any local change
+            	git pull -q &
+                jv_spinner $!
+            	jv_success "Update completed"
+			fi
+			;;
+	esac
+    cd "$initial_path"
+}
+
+# Internal: runs jv_check_updates for all plugins
+jv_plugins_check_updates () {
+    cd plugins/
+    shopt -s nullglob
+    for plugin_dir in *; do
+        jv_check_updates "$plugin_dir"            
+    done
+    shopt -u nullglob
+    cd ../
 }
 
 # Internal: Build Jarvis

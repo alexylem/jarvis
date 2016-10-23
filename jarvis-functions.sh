@@ -75,7 +75,3 @@ LISTEN () {
     $bypass && LISTEN_COMMAND || LISTEN_TRIGGER
     $verbose && PLAY "$audiofile"
 }
-
-TTS () { # TTS () {} Speaks text $1
-    $tts_engine'_TTS' "$1"
-}

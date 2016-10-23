@@ -105,6 +105,19 @@ Public: Exit properly jarvis
 Returns nothing
 
 
+`jv_check_updates()`
+--------------------
+
+Internal: check updates and pull changes from github
+* $1 - path of git folder to check, default current dir
+
+
+`jv_plugins_check_updates()`
+----------------------------
+
+Internal: runs jv_check_updates for all plugins
+
+
 `jv_build()`
 ------------
 

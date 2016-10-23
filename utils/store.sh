@@ -66,5 +66,4 @@ store_install_plugin () { # $1:plugin_url
        jv_press_enter_to_continue
     fi
     cd ../
-    
 }
