@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Public: version of Jarvis
+jv_version=$(cat version.txt)
+
 # Public: Speak some text out loud 
 # $1 - text to speak
 # 
@@ -194,18 +197,30 @@ jv_ga_send_hit () {
         [[ $OSTYPE = darwin* ]] && local cid=$(uuidgen) || local cid=$(cat /proc/sys/kernel/random/uuid)
         echo "$cid" > config/uuid
     fi
-    curl -s -o /dev/null --data "v=1&t=pageview&tid=$tid&cid=$cid&dp=%2Fjarvis.sh" "http://www.google-analytics.com/collect"
+    local data="v=1"
+    data+="&t=pageview"
+    data+="&tid=$tid"
+    data+="&cid=$cid"
+    data+="&dp=%2Fjarvis.sh"
+    data+="&ds=app" # data source
+    data+="&ul=$language" # user language
+    data+="&an=Jarvis" # application name
+    data+="&av=$jv_version" # application version
+    curl -s -o /dev/null --data "$data" "http://www.google-analytics.com/collect"
 }
 
 # Internal: Build Jarvis
 #
 # Returns nothing
 jv_build () {
+    printf "Updating version file..."
+        date +"%y.%m.%d" > version.txt
+        jv_success "Done"
     printf "Generating documentation..."
         utils/tomdoc.sh --markdown --access Public utils/utils.sh > docs/api-reference-public.md
         utils/tomdoc.sh --markdown utils/utils.sh > docs/api-reference-internal.md
-        jv_success "[Done]"
+        jv_success "Done"
     printf "Opening GitHub Desktop..."
         open -a "GitHub Desktop" /Users/alex/Documents/jarvis
-        jv_success "[Done]"
+        jv_success "Done"
 }

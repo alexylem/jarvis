@@ -375,10 +375,10 @@ done
 
 # check dependencies
 check_dependencies
-# send google analytics hit
-( jv_ga_send_hit & )
 # load user settings if exist else launch install wizard
 configure "load" || wizard
+# send google analytics hit
+( jv_ga_send_hit & )
 
 trigger_sanitized=$(jv_sanitize "$trigger")
 [ -n "$conversation_mode_override" ] && conversation_mode=$conversation_mode_override
@@ -502,7 +502,7 @@ if [ $verbose = true ]; then
     [[ "$OSTYPE" = darwin* ]] && os="$(sw_vers -productVersion)" || os="$(head -n1 /etc/*release | cut -f2 -d=)"
     system="$(uname -mrs)"
     echo -e "$_gray\n------------ Config ------------"
-    for parameter in system os language play_hw rec_hw speaker microphone trigger_stt command_stt tts_engine conversation_mode; do
+    for parameter in jv_version system os language play_hw rec_hw speaker microphone trigger_stt command_stt tts_engine conversation_mode; do
         printf "%-20s %s \n" "$parameter" "${!parameter}"
     done
     echo -e "--------------------------------\n$_reset"
