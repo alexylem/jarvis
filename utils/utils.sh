@@ -180,6 +180,23 @@ jv_plugins_check_updates () {
     cd ../
 }
 
+# Internal: send hit to Google Analytics on /jarvis.sh
+# This is to anonymously evaluate the global usage of Jarvis app by users
+# 
+# Run asynchrously to avoid slowdown
+#
+#   $> ( jv_ga_send_hit & )
+jv_ga_send_hit () {
+    local tid="UA-29589045-1"
+    if [ -f config/uuid ]; then
+        local cid=$(cat config/uuid)
+    else
+        [[ $OSTYPE = darwin* ]] && local cid=$(uuidgen) || local cid=$(cat /proc/sys/kernel/random/uuid)
+        echo "$cid" > config/uuid
+    fi
+    curl -s -o /dev/null --data "v=1&t=pageview&tid=$tid&cid=$cid&dp=%2Fjarvis.sh" "http://www.google-analytics.com/collect"
+}
+
 # Internal: Build Jarvis
 #
 # Returns nothing

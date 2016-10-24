@@ -373,8 +373,13 @@ while getopts ":$flags" o; do
     esac
 done
 
+# check dependencies
 check_dependencies
+# send google analytics hit
+( jv_ga_send_hit & )
+# load user settings if exist else launch install wizard
 configure "load" || wizard
+
 trigger_sanitized=$(jv_sanitize "$trigger")
 [ -n "$conversation_mode_override" ] && conversation_mode=$conversation_mode_override
 #update_commands

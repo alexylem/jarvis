@@ -118,6 +118,16 @@ Internal: check updates and pull changes from github
 Internal: runs jv_check_updates for all plugins
 
 
+`jv_ga_send_hit()`
+------------------
+
+Internal: send hit to Google Analytics on /jarvis.sh This is to anonymously evaluate the global usage of Jarvis app by users
+
+Run asynchrously to avoid slowdown
+
+    $> ( jv_ga_send_hit & )
+
+
 `jv_build()`
 ------------
 
