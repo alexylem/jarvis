@@ -119,7 +119,7 @@ stt_sb_train () {
     cat <<EOF >/tmp/data.json
 {
     "name": "$lowercase",
-    "language": "en",
+    "language": "${language:0:2}",
     "microphone": "$microphone",
     "token": "$snowboy_token",
     "voice_samples": [
