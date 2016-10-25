@@ -284,6 +284,10 @@ wizard () {
     [ "$language" != "en_EN" ] && dialog_msg "Note: the installation & menus are only in English for the moment."
 
     configure "username"
+    
+    configure "play_hw"
+    configure "rec_hw" # needed to train hotword
+    
     configure "trigger_stt"
     
     if [ "$trigger_stt" = "snowboy" ]; then
@@ -309,8 +313,7 @@ EOM
 
     configure "tts_engine"
 
-    configure "play_hw"
-    configure "rec_hw"
+    
 
     configure "save"
     dialog_msg "Setup wizard completed."
