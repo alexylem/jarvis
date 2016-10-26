@@ -4,6 +4,32 @@
 Public: version of Jarvis
 
 
+`username`
+----------
+
+Public: the name of the user
+
+
+`trigger`
+---------
+
+Public: the name of Jarvis (the hotword)
+
+
+`order`
+-------
+
+Public: the transcribed voice order
+
+
+`language`
+----------
+
+Public: the user's language in Jarvis settings
+
+Ex: `en_GB` Use `${language:0:2}` to only get `en`
+
+
 `say()`
 -------
 
@@ -116,12 +142,14 @@ Returns nothing
 
 Internal: check updates and pull changes from github
 * $1 - path of git folder to check, default current dir
+* $2 - don't ask confirmation, default false
 
 
 `jv_plugins_check_updates()`
 ----------------------------
 
 Internal: runs jv_check_updates for all plugins
+* $1 - don't ask confirmation, default false
 
 
 `jv_ga_send_hit()`

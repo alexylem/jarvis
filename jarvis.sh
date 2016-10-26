@@ -3,7 +3,7 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://domotiquefacile.fr/jarvis       |
 # +----------------------------------------+
-flags='bc:ihklnp:s:x:z'
+flags='bc:ihklnp:s:ux:z'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -23,6 +23,7 @@ show_help () { cat <<EOF
     -n  directly start jarvis without menu
     -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/time
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
+    -u  force update Jarvis and plugins (ex: use in cron)
     -x  execute order, ex: ${0##*/} -x "switch on lights"
 
 EOF
@@ -370,6 +371,9 @@ while getopts ":$flags" o; do
 		p)  store_install_plugin "${OPTARG}"
             exit;;
         s)	just_say=${OPTARG};;
+        u)  jv_check_updates "./" true # force udpate
+            jv_plugins_check_updates true # force udpate
+            exit;;
         x)  just_execute="${OPTARG}"
             verbose=true # for troubleshooting commands
             ;;

@@ -3,6 +3,21 @@
 # Public: version of Jarvis
 jv_version=$(cat version.txt)
 
+# Public: the name of the user
+username=
+
+# Public: the name of Jarvis (the hotword)
+trigger=
+
+# Public: the transcribed voice order
+order=
+
+# Public: the user's language in Jarvis settings
+#
+# Ex: `en_GB`
+# Use `${language:0:2}` to only get `en`
+language=
+
 # Public: Speak some text out loud 
 # $1 - text to speak
 # 
@@ -147,9 +162,11 @@ jv_exit () {
     
 # Internal: check updates and pull changes from github
 # $1 - path of git folder to check, default current dir
+# $2 - don't ask confirmation, default false
 jv_check_updates () {
     local initial_path="$(pwd)"
     local repo_path="${1:-.}" # . default value if $1 is empty (current dir)
+    local force=${2:-false} # false default value if $2 is empty
     cd "$repo_path"
     local repo_name="$(basename $(pwd))"
     printf "Checking updates for $repo_name..."
@@ -160,8 +177,9 @@ jv_check_updates () {
 		"0") jv_success "Up-to-date";;
 		*)	 jv_warning "New version available"
              changes=$(git fetch -q 2>&1 && git log HEAD..origin/master --oneline --format="- %s (%ar)" | head -5)
-             if dialog_yesno "A new version of $repo_name is available, recent changes:\n$changes\n\nWould you like to update?" true >/dev/null; then
-				 printf "Updating $repo_name..."
+             if $force || dialog_yesno "A new version of $repo_name is available, recent changes:\n$changes\n\nWould you like to update?" true >/dev/null; then
+				 $force && echo -e "Recent changes:\n$changes"
+                 printf "Updating $repo_name..."
                  #git reset --hard HEAD >/dev/null # don't override local changes (config.sh)
             	 read < <( git pull -q & echo $! ) # suppress bash job control output
                  jv_spinner $REPLY
@@ -173,11 +191,12 @@ jv_check_updates () {
 }
 
 # Internal: runs jv_check_updates for all plugins
+# $1 - don't ask confirmation, default false
 jv_plugins_check_updates () {
     cd plugins/
     shopt -s nullglob
     for plugin_dir in *; do
-        jv_check_updates "$plugin_dir"            
+        jv_check_updates "$plugin_dir" "$1"            
     done
     shopt -u nullglob
     cd ../

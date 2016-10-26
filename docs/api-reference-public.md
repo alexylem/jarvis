@@ -4,6 +4,32 @@
 Public: version of Jarvis
 
 
+`username`
+----------
+
+Public: the name of the user
+
+
+`trigger`
+---------
+
+Public: the name of Jarvis (the hotword)
+
+
+`order`
+-------
+
+Public: the transcribed voice order
+
+
+`language`
+----------
+
+Public: the user's language in Jarvis settings
+
+Ex: `en_GB` Use `${language:0:2}` to only get `en`
+
+
 `say()`
 -------
 
