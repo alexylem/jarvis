@@ -24,11 +24,9 @@ language=
 # Returns nothing
 # 
 #   $> say "hello world"
-#   OR
-#   $> echo hello world | say
 #   Jarvis: hello world
 say () {
-    set -- "${1:-$(</dev/stdin)}" "${@:2}"
+    #set -- "${1:-$(</dev/stdin)}" "${@:2}" # read commands if $1 is empty... #195
     echo -e "$_pink$trigger$_reset: $1"
     $quiet || $tts_engine'_TTS' "$1"
 }

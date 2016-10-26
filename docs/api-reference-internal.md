@@ -39,8 +39,6 @@ Public: Speak some text out loud
 Returns nothing
 
     $> say "hello world"
-    OR
-    $> echo hello world | say
     Jarvis: hello world
 
 
