@@ -75,7 +75,7 @@ menu_store () {
                  "Top Plugins" #TODO top X
                  "Install from URL" #TODO also as jarvis option argument
                  "Publish your Plugin")
-        case "`dialog_menu 'Store' options[@]`" in
+        case "`dialog_menu 'Plugins' options[@]`" in
             Installed*) if [ "${#nb_installed[@]}" -gt 0 ]; then
                             cd plugins/
                             while true; do
@@ -135,7 +135,7 @@ menu_store () {
                         fi
                         ;;
             Update*)    jv_plugins_check_updates;;
-            Search*)    local search_terms="$(dialog_input "Search in Store (keywords seperate with space)" "$search_terms")"
+            Search*)    local search_terms="$(dialog_input "Search in Plugins (keywords seperate with space)" "$search_terms")"
                         menu_store_browse "" "$search_terms"
                         ;;
             Browse*)    menu_store_browse;;
@@ -163,7 +163,7 @@ while [ "$no_menu" = false ]; do
              'Settings'
              'Commands (what JARVIS can understand and execute)'
              'Events (what JARVIS monitors and notifies you about)'
-             'Store (commands from community)'
+             'Plugins (commands from community)'
              'Search for updates'
              'Help / Report a problem'
              'About')
@@ -325,7 +325,7 @@ Press [Ok] to start editing Event Rules
 EOM
             editor jarvis-events &&
             crontab jarvis-events -i;;
-        Store*)
+        Plugins*)
             menu_store
             ;;
         Help*)

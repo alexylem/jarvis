@@ -1,8 +1,8 @@
 store_init () {
-    jv_debug "Refreshing store database..."
+    printf "Refreshing plugins database..."
     export store_json="$(curl -s http://domotiquefacile.fr/jarvis/all.json)"
     #export store_json_lower="$(echo "$store_json" | tr '[:upper:]' '[:lower:]')"
-    jv_debug "Store database updated"
+    jv_success "Done"
 }
 
 store_get_nb_plugins () {
@@ -29,7 +29,8 @@ store_list_plugins () { # $1:category, $2:(optional)order_by
 store_search_plugins () { # $1:space separated search terms
     # TODO test not available in jq 1.4 (raspbian)
     #echo "$store_json" | jq -r ".nodes[] | select(.node.body | test(\"$1\"; \"i\")) | .node.title"
-    echo "$store_json" | jq -r ".nodes[] | select(.node.title | contains(\"$1\")) | .node.title" #TODO create new keyword field on plugins?
+    local term="$(jv_sanitize "$1")"
+    echo "$store_json" | jq -r ".nodes[] | select(.node.tags | contains(\"$term\")) | .node.title" #TODO create new keyword field on plugins?
 }
 
 store_get_field () { # $1:plugin_name, $2:field_name
