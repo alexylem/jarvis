@@ -3,7 +3,7 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://domotiquefacile.fr/jarvis       |
 # +----------------------------------------+
-flags='bc:ihlnp:s:x:z'
+flags='bc:ihklnp:s:x:z'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -18,6 +18,7 @@ show_help () { cat <<EOF
     -c  overrides conversation mode setting (true/false)
     -i  install (dependencies, pocketsphinx, setup)
     -h  display this help
+    -k  directly start on keyboard mode
     -l  directly listen for one command (ex: launch from physical button)
     -n  directly start jarvis without menu
     -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/time
@@ -361,6 +362,8 @@ while getopts ":$flags" o; do
             exit;;
         h)  show_help
             exit;;
+	k)  keyboard=true
+	    no_menu=true;;
         l)  just_listen=true
             no_menu=true;;
         n)  no_menu=true;;
