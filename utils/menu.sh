@@ -353,7 +353,8 @@ JARVIS is freely distributable under the terms of the MIT license.
 EOM
             ;;
         "Search for updates")
-            checkupdates
+            jv_check_updates
+            jv_update_config # apply config updates
             jv_plugins_check_updates
             ;;
         *) exit;;

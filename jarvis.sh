@@ -38,6 +38,7 @@ cd "$DIR" # needed now for git used in automatic update
 shopt -s nocasematch # string comparison case insensitive
 source utils/utils.sh # needed for wizard / platform error
 source utils/store.sh # needed for plugin installation & store menu
+source utils/update.sh # needed for update of Jarvis config
 
 # Check platform compatibility
 dependencies=(awk curl git iconv jq nano perl sed sox wget)
@@ -151,7 +152,13 @@ configure () {
                    'program_exit')
     case "$1" in
         bing_speech_api_key)   eval $1=`dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}"`;;
-        check_updates)         eval $1=`dialog_yesno "Check Updates when Jarvis starts up (recommended)" "${!1}"`;;
+        check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
+                               case "$(dialog_select "Check Updates when Jarvis starts up\nRecommnded: Daily" options[@] "Daily")" in
+                                   Always) eval $1=0;;
+                                   Daily) eval $1=1;;
+                                   Weekly) eval $1=7;;
+                                   Never) eval $1=false;;
+                               esac;;
         command_stt)           options=('bing' 'wit' 'pocketsphinx')
                                eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: bing (google has been removed because deprecated)" options[@] "${!1}"`
                                source stt_engines/$command_stt/main.sh;;
@@ -278,7 +285,8 @@ check_dependencies () {
 }
 
 wizard () {
-    checkupdates
+    jv_check_updates
+    jv_update_config
     
     dialog_msg "Hello, my name is JARVIS, nice to meet you"
     configure "language"
@@ -372,6 +380,7 @@ while getopts ":$flags" o; do
             exit;;
         s)	just_say=${OPTARG};;
         u)  jv_check_updates "./" true # force udpate
+            jv_update_config # apply config updates
             jv_plugins_check_updates true # force udpate
             exit;;
         x)  just_execute="${OPTARG}"
@@ -482,7 +491,14 @@ if [[ "$just_execute" != false ]]; then
 fi
 
 # check for updates
-[ $check_updates = true ] && [ $just_listen = false ] && checkupdates
+if [ $check_updates != false ] && [ $just_listen = false ]; then
+    if [ "$(find config/last_update_check -mtime -$check_updates 2>/dev/null | wc -l)" -eq 0 ]; then
+        jv_check_updates
+        jv_update_config # apply config upates
+        jv_plugins_check_updates
+        touch config/last_update_check
+    fi
+fi
 
 # Check if Jarvis is already running in background
 if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then

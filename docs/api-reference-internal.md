@@ -168,3 +168,9 @@ Internal: Build Jarvis
 Returns nothing
 
 
+`jv_update_config()`
+--------------------
+
+Internal: apply needed local config modifications following updates of Jarvis
+
+
