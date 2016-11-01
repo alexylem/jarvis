@@ -1,4 +1,4 @@
-check_updates=true
+check_updates=1
 command_stt="bing"
 conversation_mode=true
 dictionary="stt_engines/pocketsphinx/jarvis-dictionary.dic"
