@@ -66,6 +66,18 @@ Returns nothing
     |/-\|\-\... (spinning bar)
 
 
+`jv_read_dom()`
+---------------
+
+Public: XML Parser
+
+Usage:
+
+    while jv_read_dom; do
+      [[ $ENTITY = "tagname" ]] && echo $CONTENT
+    done < file.xml
+
+
 `jv_sanitize()`
 ---------------
 

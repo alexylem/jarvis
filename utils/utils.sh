@@ -68,6 +68,18 @@ jv_spinner () {
 	done
 }
 
+# Public: XML Parser
+# 
+# Usage:
+#
+#   while jv_read_dom; do
+#     [[ $ENTITY = "tagname" ]] && echo $CONTENT
+#   done < file.xml
+jv_read_dom () {
+    local IFS=\>
+    read -d \< ENTITY CONTENT
+}
+
 # Internal: Updates alsa user config at ~/.asoundrc
 # $1 - play_hw
 # $2 - rec_hw
