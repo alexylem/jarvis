@@ -188,12 +188,36 @@ jv_check_updates () {
 		*)	 jv_warning "New version available"
              changes=$(git fetch -q 2>&1 && git log HEAD..origin/master --oneline --format="- %s (%ar)" | head -5)
              if $force || dialog_yesno "A new version of $repo_name is available, recent changes:\n$changes\n\nWould you like to update?" true >/dev/null; then
-				 $force && echo -e "Recent changes:\n$changes"
-                 printf "Updating $repo_name..."
+				 # display recent commits in non-interactive mode
+                 $force && echo -e "Recent changes:\n$changes"
+                 
                  #git reset --hard HEAD >/dev/null # don't override local changes (config.sh)
-            	 read < <( git pull -q & echo $! ) # suppress bash job control output
+            	 
+                 # save user configuration if config.sh file changed on repo (only for plugins)
+                 local jv_config_changed=false
+                 if [ 1 -eq $(git diff --name-only ..origin/master config.sh | wc -l) ]; then
+                     jv_config_changed=true
+                     mv config.sh user-config.sh.old # save user config
+                 fi
+                 
+                 # pull changes from repo
+                 printf "Updating $repo_name..."
+                 read < <( git pull -q & echo $! ) # suppress bash job control output
                  jv_spinner $REPLY
             	 jv_success "Done"
+                 
+                 # if config changed, merge with user configuration and open in editor
+                 if $jv_config_changed; then
+                     sed -i.old -e 's/^/#/' config.sh # comment out new config file
+                     cat user-config.sh.old >> config.sh # append saved user config
+                     rm -f *.old # remove temp files
+                     if $force; then
+                         jv_warning "Config file has changed, check new variables"
+                     else
+                         dialog_msg "Config file has changed, check new variables"
+                         editor "config.sh"
+                     fi
+                 fi
 			 fi
 			 ;;
 	esac
