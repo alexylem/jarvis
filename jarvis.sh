@@ -3,7 +3,7 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://domotiquefacile.fr/jarvis       |
 # +----------------------------------------+
-flags='bc:ihklnp:s:ux:z'
+flags='bc:ihklmnp:s:ux:z'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -20,6 +20,7 @@ show_help () { cat <<EOF
     -h  display this help
     -k  directly start on keyboard mode
     -l  directly listen for one command (ex: launch from physical button)
+    -m  mute mode (overrides settings)
     -n  directly start jarvis without menu
     -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/time
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
@@ -153,14 +154,14 @@ configure () {
     case "$1" in
         bing_speech_api_key)   eval $1=`dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}"`;;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
-                               case "$(dialog_select "Check Updates when Jarvis starts up\nRecommnded: Daily" options[@] "Daily")" in
+                               case "$(dialog_select "Check Updates when Jarvis starts up\nRecommended: Daily" options[@] "Daily")" in
                                    Always) eval $1=0;;
                                    Daily) eval $1=1;;
                                    Weekly) eval $1=7;;
                                    Never) eval $1=false;;
                                esac;;
         command_stt)           options=('bing' 'wit' 'pocketsphinx')
-                               eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: bing (google has been removed because deprecated)" options[@] "${!1}"`
+                               eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: bing" options[@] "${!1}"`
                                source stt_engines/$command_stt/main.sh;;
         conversation_mode)     eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
         dictionary)            eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
@@ -323,10 +324,14 @@ EOM
 
     configure "tts_engine"
 
-    
-
     configure "save"
-    dialog_msg "Setup wizard completed."
+    dialog_msg <<EOM
+Congratulations! You can start using Jarvis
+Select Plugins to check out community commands
+Select Commands to add your own commands
+Full Documentation & support available at:
+http://domotiquefacile.fr/jarvis
+EOM
 }
 
 start_in_background () {
@@ -371,10 +376,11 @@ while getopts ":$flags" o; do
             exit;;
         h)  show_help
             exit;;
-	k)  keyboard=true
-	    no_menu=true;;
+	    k)  keyboard=true
+	        no_menu=true;;
         l)  just_listen=true
             no_menu=true;;
+        m)  quiet=true;;
         n)  no_menu=true;;
 		p)  store_install_plugin "${OPTARG}"
             exit;;
