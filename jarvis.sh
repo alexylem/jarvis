@@ -161,7 +161,7 @@ configure () {
                                    Weekly) eval $1=7;;
                                    Never) eval $1=false;;
                                esac;;
-        command_stt)           options=('bing' 'wit' 'pocketsphinx')
+        command_stt)           options=('bing' 'wit' 'snowboy' 'pocketsphinx')
                                eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: bing" options[@] "${!1}"`
                                source stt_engines/$command_stt/main.sh;;
         conversation_mode)     eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
@@ -429,7 +429,7 @@ fi
 # if -s argument provided, just say it & exit (used in jarvis-events)
 if [[ "$just_say" != false ]]; then
 	say "$just_say"
-	exit
+	jv_exit # to properly end JSON if -j flag used
 fi
 
 if [ "$just_execute" == false ]; then

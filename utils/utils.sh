@@ -227,7 +227,7 @@ jv_check_updates () {
             	 
                  # save user configuration if config.sh file changed on repo (only for plugins)
                  local jv_config_changed=false
-                 if [ 1 -eq $(git diff --name-only ..origin/master config.sh | wc -l) ]; then
+                 if [ -e config.sh ] && [ 1 -eq $(git diff --name-only ..origin/master config.sh | wc -l) ]; then
                      jv_config_changed=true
                      mv config.sh user-config.sh.old # save user config
                  fi
