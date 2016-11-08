@@ -3,7 +3,7 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://domotiquefacile.fr/jarvis       |
 # +----------------------------------------+
-flags='bc:ihklmnp:s:ux:z'
+flags='bc:ihjklmnp:s:ux:z'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -18,6 +18,7 @@ show_help () { cat <<EOF
     -c  overrides conversation mode setting (true/false)
     -i  install (dependencies, pocketsphinx, setup)
     -h  display this help
+    -j  output in JSON (for APIs)
     -k  directly start on keyboard mode
     -l  directly listen for one command (ex: launch from physical button)
     -m  mute mode (overrides settings)
@@ -359,6 +360,7 @@ just_say=false
 just_listen=false
 just_execute=false
 no_menu=false
+jv_json=false
 while getopts ":$flags" o; do
     case "${o}" in
 		b)  # Check if Jarvis is already running in background
@@ -376,6 +378,8 @@ while getopts ":$flags" o; do
             exit;;
         h)  show_help
             exit;;
+        j)  jv_json=true
+            printf "[";;
 	    k)  keyboard=true
 	        no_menu=true;;
         l)  just_listen=true
@@ -390,7 +394,7 @@ while getopts ":$flags" o; do
             jv_plugins_check_updates true # force udpate
             exit;;
         x)  just_execute="${OPTARG}"
-            verbose=true # for troubleshooting commands
+            #verbose=true # for troubleshooting commands
             ;;
         z)  jv_build
             exit;;
@@ -427,6 +431,56 @@ if [[ "$just_say" != false ]]; then
 	say "$just_say"
 	exit
 fi
+
+if [ "$just_execute" == false ]; then
+    # check for updates
+    if [ $check_updates != false ] && [ $just_listen = false ]; then
+        if [ "$(find config/last_update_check -mtime -$check_updates 2>/dev/null | wc -l)" -eq 0 ]; then
+            jv_check_updates
+            jv_update_config # apply config upates
+            jv_plugins_check_updates
+            touch config/last_update_check
+        fi
+    fi
+
+    # Check if Jarvis is already running in background
+    if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
+        options=('Show Jarvis output' 'Stop Jarvis')
+        case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
+            Show*) cat jarvis.log;;
+            Stop*)
+                pid=`cat $lockfile` # process id de jarvis
+                gid=`ps -p $pid -o pgid=` # group id de jarvis
+                kill -TERM -`echo $gid`;; # tuer le group complet
+        esac
+        exit
+    fi
+
+    # main menu
+    source utils/menu.sh
+
+    # Dump config in troubleshooting mode
+    if [ $verbose = true ]; then
+        if [ "$play_hw" != "false" ]; then
+            play_path="/proc/asound/card${play_hw:3:1}"
+            [ -e "$play_path/usbid" ] && speaker=$(lsusb -d $(cat "$play_path/usbid") | cut -c 34-) || speaker=$(cat "$play_path/id")
+        else
+            speaker="Default"
+        fi
+        [ "$rec_hw" != "false" ] && microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || microphone="Default"
+        [[ "$OSTYPE" = darwin* ]] && os="$(sw_vers -productVersion)" || os="$(head -n1 /etc/*release | cut -f2 -d=)"
+        system="$(uname -mrs)"
+        echo -e "$_gray\n------------ Config ------------"
+        for parameter in jv_version system os language play_hw rec_hw speaker microphone trigger_stt command_stt tts_engine conversation_mode; do
+            printf "%-20s %s \n" "$parameter" "${!parameter}"
+        done
+        echo -e "--------------------------------\n$_reset"
+    fi
+fi
+
+source hooks/program_startup
+trap "jv_exit" INT TERM
+echo $$ > $lockfile
 
 # Include installed plugins
 shopt -s nullglob
@@ -493,59 +547,11 @@ handle_orders() {
 # if -x argument provided, just handle order & exit (used in jarvis-events)
 if [[ "$just_execute" != false ]]; then
 	handle_order "$just_execute"
-	exit
+	jv_exit
 fi
 
-# check for updates
-if [ $check_updates != false ] && [ $just_listen = false ]; then
-    if [ "$(find config/last_update_check -mtime -$check_updates 2>/dev/null | wc -l)" -eq 0 ]; then
-        jv_check_updates
-        jv_update_config # apply config upates
-        jv_plugins_check_updates
-        touch config/last_update_check
-    fi
-fi
-
-# Check if Jarvis is already running in background
-if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
-    options=('Show Jarvis output' 'Stop Jarvis')
-    case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
-        Show*) cat jarvis.log;;
-        Stop*)
-            pid=`cat $lockfile` # process id de jarvis
-            gid=`ps -p $pid -o pgid=` # group id de jarvis
-            kill -TERM -`echo $gid`;; # tuer le group complet
-    esac
-    exit
-fi
-
-# main menu
-source utils/menu.sh
-
-# Dump config in troubleshooting mode
-if [ $verbose = true ]; then
-    if [ "$play_hw" != "false" ]; then
-        play_path="/proc/asound/card${play_hw:3:1}"
-        [ -e "$play_path/usbid" ] && speaker=$(lsusb -d $(cat "$play_path/usbid") | cut -c 34-) || speaker=$(cat "$play_path/id")
-    else
-        speaker="Default"
-    fi
-    [ "$rec_hw" != "false" ] && microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || microphone="Default"
-    [[ "$OSTYPE" = darwin* ]] && os="$(sw_vers -productVersion)" || os="$(head -n1 /etc/*release | cut -f2 -d=)"
-    system="$(uname -mrs)"
-    echo -e "$_gray\n------------ Config ------------"
-    for parameter in jv_version system os language play_hw rec_hw speaker microphone trigger_stt command_stt tts_engine conversation_mode; do
-        printf "%-20s %s \n" "$parameter" "${!parameter}"
-    done
-    echo -e "--------------------------------\n$_reset"
-fi
-
-source hooks/program_startup
 [ $just_listen = false ] && [ ! -z "$phrase_welcome" ] && say "$phrase_welcome"
 bypass=$just_listen
-
-trap "jv_exit" INT TERM
-echo $$ > $lockfile
 
 # Display available commands to the user
 #jv_debug "$commands" | cut -d '=' -f 1 | column

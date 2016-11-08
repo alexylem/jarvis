@@ -18,6 +18,16 @@ order=
 # Use `${language:0:2}` to only get `en`
 language=
 
+jv_json_separator=""
+
+# Internal: Print JSON key value pair
+# $1 - key
+# $2 - value
+jv_print_json () {
+    printf "$jv_json_separator{\"$1\":\"${2//\"/\\\\\"}\"}"
+    jv_json_separator=","
+}
+
 # Public: Speak some text out loud 
 # $1 - text to speak
 # 
@@ -27,7 +37,11 @@ language=
 #   Jarvis: hello world
 say () {
     #set -- "${1:-$(</dev/stdin)}" "${@:2}" # read commands if $1 is empty... #195
-    echo -e "$_pink$trigger$_reset: $1"
+    if $jv_json; then
+        jv_print_json "$trigger" "$1"
+    else
+        echo -e "$_pink$trigger$_reset: $1"
+    fi
     $quiet || $tts_engine'_TTS' "$1"
 }
 
@@ -134,18 +148,29 @@ _blue="\033[94m"
 _cyan="\033[96m"
 _pink="\033[95m"
 
+# Internal: Display a message in color
+# $1 - message to display
+# $2 - message type (error/warning/success/debug)
+# $3 - color to use
+jv_message() {
+    if $jv_json; then
+        jv_print_json "$2" "$1"
+    else
+        echo -e "$3$1$_reset"
+    fi
+}
 # Public: Displays a error in red
 # $1 - message to display
-jv_error() { echo -e "$_red$@$_reset" ;}
+jv_error() { jv_message "$1" "error" "$_red" ;}
 # Public: Displays a warning in yellow
 # $1 - message to display
-jv_warning() { echo -e "$_orange$@$_reset" ;}
+jv_warning() { jv_message "$1" "warning" "$_orange" ;}
 # Public: Displays a success in green
 # $1 - message to display
-jv_success() { echo -e "$_green$@$_reset" ;}
+jv_success() { jv_message "$1" "success" "$_green" ;}
 # Public: Displays a log in gray
 # $1 - message to display
-jv_debug() { echo -e "$_gray$@$_reset" ;}
+jv_debug() { jv_message "$1" "debug" "$_gray" ;}
 
 # Public: Asks user to press enter to continue
 # 
@@ -165,7 +190,14 @@ jv_press_enter_to_continue () {
 jv_exit () {
     $verbose && jv_debug "DEBUG: program exit handler"
     source hooks/program_exit $1
+    # termine child processes (ex: HTTP Server from Jarvis API Plugin)
+    local jv_child_pids="$(jobs -p)"
+    if [ -n "$jv_child_pids" ]; then
+        kill $(jobs -p) 2>/dev/null
+    fi
     # make sure the lockfile is removed when we exit and then claim it
+    $jv_json && printf "]"
+    echo # new line
     rm -f $lockfile
     exit $1
 }

@@ -30,6 +30,14 @@ Public: the user's language in Jarvis settings
 Ex: `en_GB` Use `${language:0:2}` to only get `en`
 
 
+`jv_print_json()`
+-----------------
+
+Internal: Print JSON key value pair
+* $1 - key
+* $2 - value
+
+
 `say()`
 -------
 
@@ -97,6 +105,15 @@ Echoes the sanitized string
 
     $> jv_sanitize "Caractères Spéciaux?"
     caracteres speciaux
+
+
+`jv_message()`
+--------------
+
+Internal: Display a message in color
+* $1 - message to display
+* $2 - message type (error/warning/success/debug)
+* $3 - color to use
 
 
 `jv_error()`
