@@ -24,7 +24,9 @@ jv_json_separator=""
 # $1 - key
 # $2 - value
 jv_print_json () {
-    printf "$jv_json_separator{\"$1\":\"${2//\"/\\\\\"}\"}"
+    message=${2//\"/\\\\\"} # escape double quotes
+    message=${message//%/%%} # escape percentage chars for printf
+    printf "$jv_json_separator{\"$1\":\"${message}\"}"
     jv_json_separator=","
 }
 
