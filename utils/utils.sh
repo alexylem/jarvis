@@ -18,6 +18,18 @@ order=
 # Use `${language:0:2}` to only get `en`
 language=
 
+# Internal: last command executed by Jarvis
+jv_last_command=
+
+# Public: Re-run last executed command. Use to create an order to repeat.
+#
+# Usage:
+#
+#   AGAIN*==jv_repeat_last_command
+jv_repeat_last_command () {
+    eval "$jv_last_command"
+}
+
 jv_json_separator=""
 
 # Internal: Print JSON key value pair

@@ -30,6 +30,16 @@ Public: the user's language in Jarvis settings
 Ex: `en_GB` Use `${language:0:2}` to only get `en`
 
 
+`jv_repeat_last_command()`
+--------------------------
+
+Public: Re-run last executed command. Use to create an order to repeat.
+
+Usage:
+
+    AGAIN*==jv_repeat_last_command
+
+
 `say()`
 -------
 

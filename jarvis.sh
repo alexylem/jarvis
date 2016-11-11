@@ -3,7 +3,7 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://domotiquefacile.fr/jarvis       |
 # +----------------------------------------+
-flags='bc:ihjklmnp:s:ux:z'
+flags='bc:ihjklmnp:s:uvx:z'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -26,6 +26,7 @@ show_help () { cat <<EOF
     -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/time
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
     -u  force update Jarvis and plugins (ex: use in cron)
+    -v  troubleshooting mode
     -x  execute order, ex: ${0##*/} -x "switch on lights"
 
 EOF
@@ -393,6 +394,7 @@ while getopts ":$flags" o; do
             jv_update_config # apply config updates
             jv_plugins_check_updates true # force udpate
             exit;;
+        v)  verbose=true;;
         x)  just_execute="${OPTARG}"
             #verbose=true # for troubleshooting commands
             ;;
@@ -519,6 +521,7 @@ handle_order() {
     				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'`
     				$verbose && jv_debug "$> $action"
                     eval "$action" || say "$phrase_failed"
+                    [[ "$action" == *jv_repeat_last_command* ]] || jv_last_command="$action"
                     check_indented=true
                     commands=""
                     break
