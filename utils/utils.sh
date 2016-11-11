@@ -18,9 +18,6 @@ order=
 # Use `${language:0:2}` to only get `en`
 language=
 
-# Internal: last command executed by Jarvis
-jv_last_command=
-
 # Public: Re-run last executed command. Use to create an order to repeat.
 #
 # Usage:
@@ -40,6 +37,18 @@ jv_print_json () {
     message=${message//%/%%} # escape percentage chars for printf
     printf "$jv_json_separator{\"$1\":\"${message}\"}"
     jv_json_separator=","
+}
+
+# Public: display available commands grouped by plugin name
+jv_display_commands () {
+    jv_message "User defined commands:" 'category' $_cyan
+    jv_debug "$(cat jarvis-commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
+    cd plugins/
+    for plugin_name in *; do
+        jv_message "Commands from plugin $plugin_name:" 'category' $_cyan
+        jv_debug "$(cat $plugin_name/${language:0:2}/commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
+    done
+    cd ../
 }
 
 # Public: Speak some text out loud 

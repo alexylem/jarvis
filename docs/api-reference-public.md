@@ -40,6 +40,12 @@ Usage:
     AGAIN*==jv_repeat_last_command
 
 
+`jv_display_commands()`
+-----------------------
+
+Public: display available commands grouped by plugin name
+
+
 `say()`
 -------
 

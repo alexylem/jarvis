@@ -30,12 +30,6 @@ Public: the user's language in Jarvis settings
 Ex: `en_GB` Use `${language:0:2}` to only get `en`
 
 
-`jv_last_command`
------------------
-
-Internal: last command executed by Jarvis
-
-
 `jv_repeat_last_command()`
 --------------------------
 
@@ -52,6 +46,12 @@ Usage:
 Internal: Print JSON key value pair
 * $1 - key
 * $2 - value
+
+
+`jv_display_commands()`
+-----------------------
+
+Public: display available commands grouped by plugin name
 
 
 `say()`
