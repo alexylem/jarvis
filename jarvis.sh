@@ -521,7 +521,7 @@ handle_order() {
     				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'`
     				$verbose && jv_debug "$> $action"
                     eval "$action" || say "$phrase_failed"
-                    [[ "$action" == *jv_repeat_last_command* ]] || jv_last_command="$action"
+                    [[ "$action" == *jv_repeat_last_command* ]] || jv_last_command="${action//\$order/$order}"
                     check_indented=true
                     commands=""
                     break

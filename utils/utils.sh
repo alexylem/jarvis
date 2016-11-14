@@ -213,14 +213,15 @@ jv_press_enter_to_continue () {
 jv_exit () {
     $verbose && jv_debug "DEBUG: program exit handler"
     source hooks/program_exit $1
+    
+    $jv_json && echo "]"
+    
     # termine child processes (ex: HTTP Server from Jarvis API Plugin)
     local jv_child_pids="$(jobs -p)"
     if [ -n "$jv_child_pids" ]; then
         kill $(jobs -p) 2>/dev/null
     fi
     # make sure the lockfile is removed when we exit and then claim it
-    $jv_json && printf "]"
-    echo # new line
     rm -f $lockfile
     exit $1
 }
