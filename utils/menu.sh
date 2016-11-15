@@ -182,7 +182,7 @@ while [ "$no_menu" = false ]; do
                         quiet=true
                         break 2;;
                     "Start as a service")
-                        start_in_background
+                        jv_start_in_background
                         exit;;
                     *) break;;
                 esac

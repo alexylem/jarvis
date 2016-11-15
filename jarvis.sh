@@ -336,8 +336,8 @@ http://domotiquefacile.fr/jarvis
 EOM
 }
 
-start_in_background () {
-    ./jarvis.sh -n > jarvis.log 2>&1 &
+jv_start_in_background () {
+    ./jarvis.sh -n | jv_add_timestamps >> jarvis.log 2>&1 &
     disown
     cat <<EOM
 Jarvis has been launched in background
@@ -370,7 +370,7 @@ while getopts ":$flags" o; do
                 echo "run ./jarvis.sh to detect and stop it"
                 exit 1
             fi
-            start_in_background
+            jv_start_in_background
             exit;;
         c)  conversation_mode_override=${OPTARG};;
         i)  check_dependencies

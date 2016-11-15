@@ -54,6 +54,16 @@ Internal: Print JSON key value pair
 Public: display available commands grouped by plugin name
 
 
+`jv_add_timestamps()`
+---------------------
+
+Internal: add timestamps to log file
+
+Usage
+
+    script.sh | jv_add_timestamps >> file.log
+
+
 `say()`
 -------
 

@@ -51,6 +51,17 @@ jv_display_commands () {
     cd ../
 }
 
+# Internal: add timestamps to log file
+#
+# Usage
+# 
+#   script.sh | jv_add_timestamps >> file.log
+jv_add_timestamps () {
+    while IFS= read -r line; do
+        echo "$(date) $line"
+    done
+}
+
 # Public: Speak some text out loud 
 # $1 - text to speak
 # 
