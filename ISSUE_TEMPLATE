@@ -1,9 +1,10 @@
 ### Description
 
 Description of your request/issue
+NB: for issues with plugins, please create in the corresponding repository
 
 ### Result
-```
-paste here content of the terminal after using Jarvis in troubleshooting mode
+```shell
+<paste here> content of the terminal after using Jarvis in troubleshooting mode
 or delete this section if not applicable
 ```

@@ -227,7 +227,7 @@ configure () {
             while true; do
                 dialog_msg "Checking audio input, make sure your microphone is on, press [Ok] and say something"
                 clear
-                rec $audiofile trim 0 3
+                rec -r 16000 -c 1 -b 16 -e signed-integer $audiofile trim 0 3
                 if [ $? -eq 0 ]; then
                     play $audiofile
                     dialog_yesno "Did you hear yourself?" true >/dev/null && break
