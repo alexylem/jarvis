@@ -205,6 +205,12 @@ Internal: runs jv_check_updates for all plugins
 * $1 - don't ask confirmation, default false
 
 
+`jv_plugins_order_rebuild()`
+----------------------------
+
+Internal: Rebuild plugins_order.txt following added/removed plugins
+
+
 `jv_ga_send_hit()`
 ------------------
 

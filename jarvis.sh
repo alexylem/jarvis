@@ -32,7 +32,7 @@ show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW! Visit the WebStore: http://domotiquefacile.fr/jarvis"
+headline="NEW: Change order of plugins in Plugins > Matching Order"
 
 # Move to Jarvis directory
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -496,8 +496,12 @@ shopt -s nullglob
 for f in plugins/*/config.sh; do source $f; done
 for f in plugins/*/${language:0:2}/functions.sh; do source $f; done
 shopt -u nullglob
+jv_plugins_order_rebuild
 jv_get_commands () {
-    cat jarvis-commands plugins/*/${language:0:2}/commands 2>/dev/null
+    cat jarvis-commands
+    while read; do
+        cat plugins/$REPLY/${language:0:2}/commands 2>/dev/null
+    done <plugins_order.txt
 }
 commands="$(jv_get_commands)"
 handle_order() {

@@ -42,4 +42,5 @@ dialog_yesno () { # usage dialog_yesno "question" default(true/false)
 editor () {
     dialog_msg "Make sure to Quit (cmd+Q) the Editor when finished"
     open -tW "$1"
+    sed -i '' -e '$a\' "$1" # append new line if missing
 }

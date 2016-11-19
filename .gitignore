@@ -34,3 +34,5 @@ hooks/program_startup
 *.DS_Store
 
 plugins/
+
+plugins_order.txt

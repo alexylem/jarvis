@@ -43,12 +43,10 @@ jv_print_json () {
 jv_display_commands () {
     jv_message "User defined commands:" 'category' $_cyan
     jv_debug "$(cat jarvis-commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
-    cd plugins/
-    for plugin_name in *; do
+    while read plugin_name; do
         jv_message "Commands from plugin $plugin_name:" 'category' $_cyan
-        jv_debug "$(cat $plugin_name/${language:0:2}/commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
-    done
-    cd ../
+        jv_debug "$(cat plugins/$plugin_name/${language:0:2}/commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
+    done <plugins_order.txt
 }
 
 # Internal: add timestamps to log file
@@ -301,6 +299,14 @@ jv_plugins_check_updates () {
     done
     shopt -u nullglob
     cd ../
+}
+
+# Internal: Rebuild plugins_order.txt following added/removed plugins
+jv_plugins_order_rebuild () {
+    # Append new plugins to plugins_order
+    cat plugins_order.txt <( ls plugins ) 2>/dev/null | awk '!x[$0]++' > /tmp/plugins_order.tmp
+    # Remove uninstalled plugins from plugins_order
+    grep -xf <( ls plugins ) /tmp/plugins_order.tmp > plugins_order.txt
 }
 
 # Internal: send hit to Google Analytics on /jarvis.sh

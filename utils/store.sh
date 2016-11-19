@@ -63,8 +63,16 @@ store_install_plugin () { # $1:plugin_url
         cd ../
         dialog_msg "Installation Complete"
     else
-        jv_error "An error has occured"
-       jv_press_enter_to_continue
+        jv_error "ERROR: An error has occured"
+        jv_press_enter_to_continue
     fi
     cd ../
+    jv_plugins_order_rebuild # has to be after cd ../
+}
+
+store_plugin_uninstall () { # $1:plugin_name
+    $1/uninstall.sh
+    rm -rf "$1"
+    jv_plugins_order_rebuild
+    dialog_msg "Uninstallation Complete"
 }

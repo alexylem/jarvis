@@ -68,6 +68,7 @@ menu_store () {
         shopt -u nullglob
         
         options=("Installed (${#nb_installed[@]})"
+                 "Matching Order"
                  "Search"
                  "Browse ($(store_get_nb_plugins))" # total
                  "New Plugins" #TODO X new since last visit
@@ -117,9 +118,7 @@ menu_store () {
                                                 ;;
                                             Uninstall)
                                                 if dialog_yesno "Are you sure?" true >/dev/null; then
-                                                    $plugin/uninstall.sh
-                                                    rm -rf "$plugin"
-                                                    dialog_msg "Uninstallation Complete"
+                                                    store_plugin_uninstall "$plugin"
                                                     break 2
                                                 fi
                                                 ;;
@@ -132,6 +131,13 @@ menu_store () {
                             done
                             cd ../
                         fi
+                        ;;
+            Matching*)  dialog_msg <<EOM
+This is to edit the order in which the plugin commands are evaluated
+But at the bottom plugins with generic patterns, such as Jeedom or API
+EOM
+                        editor plugins_order.txt
+                        jv_plugins_order_rebuild
                         ;;
             Search*)    local search_terms="$(dialog_input "Search in Plugins (keywords seperate with space)" "$search_terms")"
                         menu_store_browse "" "$search_terms"
