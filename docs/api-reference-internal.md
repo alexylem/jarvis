@@ -198,6 +198,18 @@ Internal: check updates and pull changes from github
 * $2 - don't ask confirmation, default false
 
 
+`jv_jarvis_updated`
+-------------------
+
+Iternal: inform jarvis is updated to ask for restart
+
+
+`jv_config_changed`
+-------------------
+
+save user configuration if config.sh file changed on repo (only for plugins)
+
+
 `jv_plugins_check_updates()`
 ----------------------------
 

@@ -445,10 +445,15 @@ if [ "$just_execute" == false ]; then
     # check for updates
     if [ $check_updates != false ] && [ $just_listen = false ]; then
         if [ "$(find config/last_update_check -mtime -$check_updates 2>/dev/null | wc -l)" -eq 0 ]; then
+            jv_jarvis_updated=false
             jv_check_updates
             jv_update_config # apply config upates
             jv_plugins_check_updates
             touch config/last_update_check
+            if $jv_jarvis_updated; then
+                echo "Please restart Jarvis"
+                exit
+            fi
         fi
     fi
 

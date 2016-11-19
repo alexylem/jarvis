@@ -258,9 +258,13 @@ jv_check_updates () {
                  
                  #git reset --hard HEAD >/dev/null # don't override local changes (config.sh)
             	 
-                 # save user configuration if config.sh file changed on repo (only for plugins)
                  local jv_config_changed=false
-                 if [ -e config.sh ] && [ 1 -eq $(git diff --name-only ..origin/master config.sh | wc -l) ]; then
+                 if [ "$repo_name" -eq "jarvis" ]; then
+                     # inform jarvis is updated to ask for restart
+                     jv_jarvis_updated=true
+                
+                 elif [ 1 -eq $(git diff --name-only ..origin/master config.sh | wc -l) ]; then
+                     # save user configuration if config.sh file changed on repo (only for plugins)
                      jv_config_changed=true
                      mv config.sh user-config.sh.old # save user config
                  fi
