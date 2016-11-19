@@ -285,6 +285,13 @@ check_dependencies () {
         jv_success "HELP: $install_cmd ${missing[@]}"
         exit 1
     fi
+    
+    if [[ "$platform" == "linux" ]]; then
+        if ! groups "$(whoami)" | grep -qw audio; then
+            jv_warning "WARNING: Your user should be part of audio group to list audio devices"
+            jv_success "HELP: sudo usermod -a -G audio $(whoami)"
+        fi
+    fi
 }
 
 wizard () {
