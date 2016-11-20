@@ -4,10 +4,10 @@
         set -e
         echo "1/2 Preparation of dependencies"
         if [[ "$platform" == "linux" ]]; then
-            sudo apt-get install -y python-pyaudio python3-pyaudio libatlas-base-dev
+            jv_install python-pyaudio python3-pyaudio libatlas-base-dev
             binaries="rpi-arm-raspbian-8.0-1.0.2"
         elif [[ "$platform" == "osx" ]]; then
-            brew install portaudio
+            jv_install portaudio
             binaries="osx-x86_64-1.0.2"
         else
             dialog_msg "Unknown platform"
@@ -28,7 +28,7 @@
         cp -r $binaries/resources .
         rm -rf $binaries
         cd "$DIR"
-        dialog_msg "Installation Completed"
+        dialog_msg "Snowboy installed sucessfully"
     }
 }
 

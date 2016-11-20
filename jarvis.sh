@@ -257,7 +257,7 @@ check_dependencies () {
         hash $i 2>/dev/null || missings+=($i)
     done
     if [ ${#missings[@]} -gt 0 ]; then
-        jv_error "ERROR: You must install missing dependencies before going further"
+        jv_warning "You must install missing dependencies before going further"
         for missing in "${missings[@]}"; do
             echo "$missing: Not found"
         done
@@ -267,7 +267,7 @@ check_dependencies () {
     
     if [[ "$platform" == "linux" ]]; then
         if ! groups "$(whoami)" | grep -qw audio; then
-            jv_warning "WARNING: Your user should be part of audio group to list audio devices"
+            jv_warning "Your user should be part of audio group to list audio devices"
             jv_yesno "Would you like to add audio group to user $(whoami)?" && sudo usermod -a -G audio $(whoami)
         fi
     fi
@@ -577,16 +577,16 @@ while true; do
 			#$quiet || PLAY beep-high.wav
 
             $verbose && jv_debug "(listening...)"
-
+            
+            > $forder # empty $forder
             if $bypass; then
                 eval ${command_stt}_STT
             else
                 eval ${trigger_stt}_STT
             fi
 			#$verbose && PLAY beep-low.wav
-
+            
 			order=`cat $forder`
-            > $forder # empty $forder
 			if [ -z "$order" ]; then
                 printf '?'
                 PLAY sounds/error.wav

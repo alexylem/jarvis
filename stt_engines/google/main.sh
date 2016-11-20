@@ -4,7 +4,6 @@ _google_transcribe () {
         echo "" # new line
         jv_error "ERROR: missing google speech api key"
         jv_warning "HELP: define google key in Settings > Voice recognition"
-        echo "" > $forder # clean previous order to show "?"
         exit 1 # TODO doesn't really exit because launched with & forjv_spinner
     fi
     
