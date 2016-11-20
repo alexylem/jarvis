@@ -37,7 +37,7 @@ dialog_menu () { # usage dialog_menu "question" list[@]
     for item in "${list[@]}"; do
         items+=("$item" "")
     done
-    whiptail --title "Jarvis" --menu "$1" 20 76 $nb "${items[@]}" 3>&1 1>&2 2>&3
+    whiptail --title "Jarvis" --menu "$1" 20 76 10 "${items[@]}" 3>&1 1>&2 2>&3
 }
 
 dialog_yesno () { # usage dialog_yesno "question" default(true/false)
