@@ -94,26 +94,6 @@ autoupdate () { # usage autoupdate 1 to show changelog
     echo "[...] To see the full change log: more CHANGELOG.md"
 }
 
-checkupdates () {
-    [ -f jarvis-commands ] || cp jarvis-commands-default jarvis-commands
-    [ -f jarvis-events ] || cp jarvis-events-default jarvis-events
-	printf "Checking for updates..."
-	git fetch origin -q &
-    jv_spinner $!
-	case `git rev-list HEAD...origin/master --count || echo e` in
-		"e") echo -e "[\033[31mError\033[0m]";;
-		"0") echo -e "[\033[32mUp-to-date\033[0m]";;
-		*)	echo -e "[\033[33mNew version available\033[0m]"
-            changes=$(git fetch -q 2>&1 && git log HEAD..origin/master --oneline --format="- %s (%ar)" | head -5)
-            if dialog_yesno "A new version of JARVIS is available, recent changes:\n$changes\n\nWould you like to update?" false >/dev/null; then
-				autoupdate 1 # hasjv_spinner inside
-				#dialog_msg "Please restart JARVIS"
-				exit
-			fi
-			;;
-	esac
-}
-
 # Configuration
 configure () {
     local variables=('bing_speech_api_key'
@@ -288,7 +268,7 @@ check_dependencies () {
     if [[ "$platform" == "linux" ]]; then
         if ! groups "$(whoami)" | grep -qw audio; then
             jv_warning "WARNING: Your user should be part of audio group to list audio devices"
-            jv_success "HELP: sudo usermod -a -G audio $(whoami)"
+            jv_yesno "Would you like to add audio group to user $(whoami)?" && sudo usermod -a -G audio $(whoami)
         fi
     fi
 }
@@ -296,6 +276,10 @@ check_dependencies () {
 wizard () {
     jv_check_updates
     jv_update_config
+    
+    # initiate user commands & events if don't exist yet
+    [ -f jarvis-commands ] || cp jarvis-commands-default jarvis-commands
+    [ -f jarvis-events ] || cp jarvis-events-default jarvis-events
     
     dialog_msg "Hello, my name is JARVIS, nice to meet you"
     configure "language"
