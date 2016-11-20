@@ -578,7 +578,8 @@ jv_display_commands
 while true; do
 	if [ $keyboard = true ]; then
         bypass=true
-		read -p "$username: " order
+		printf "$_cyan$username$_reset: "
+        read order
 	else
 		if [ "$trigger_mode" = "enter_key" ]; then
 			bypass=true
@@ -619,7 +620,7 @@ while true; do
                 continue
             fi
 			if $bypass; then
-                printf "$order"
+                echo "$order" # printf fails when order has %
                 break
             elif [[ "$order" == *$trigger_sanitized* ]]; then
                 bypass=true
@@ -631,7 +632,7 @@ while true; do
 			
 			#$verbose && PLAY beep-error.wav
 		done
-		echo # new line
+		#echo # new line
 	fi
     was_in_conversation=$bypass
 	[ -n "$order" ] && handle_orders "$order"

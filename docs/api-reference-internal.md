@@ -201,7 +201,7 @@ Internal: check updates and pull changes from github
 `jv_jarvis_updated`
 -------------------
 
-Iternal: inform jarvis is updated to ask for restart
+inform jarvis is updated to ask for restart
 
 
 `jv_config_changed`

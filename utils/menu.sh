@@ -174,7 +174,7 @@ while [ "$no_menu" = false ]; do
     case "`dialog_menu \" Jarvis - v$jv_version\n$headline\" options[@]`" in
         Start*)
             while true; do
-                options=('Start normally' 'Troubleshooting mode' 'Keyboard mode' 'Mute mode' 'Start as a service')
+                options=('Start normally' 'Troubleshooting mode' 'Keyboard mode' 'Start as a service')
                 case "`dialog_menu 'Start Jarvis' options[@]`" in
                     "Start normally")
                         break 2;;
@@ -183,8 +183,6 @@ while [ "$no_menu" = false ]; do
                         break 2;;
                     "Keyboard mode")
                         keyboard=true
-                        break 2;;
-                    "Mute mode")
                         quiet=true
                         break 2;;
                     "Start as a service")
