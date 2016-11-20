@@ -155,3 +155,15 @@ Public: Exit properly jarvis
 Returns nothing
 
 
+`jv_yesno()`
+------------
+
+Public: YesNo prompt from the command line
+
+* $1 - Question to be answered
+
+Usage
+
+    if jv_yesno "question?"; then...
+
+

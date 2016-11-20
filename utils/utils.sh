@@ -338,6 +338,22 @@ jv_ga_send_hit () {
     curl -s -o /dev/null --data "$data" "http://www.google-analytics.com/collect"
 }
 
+# Public: YesNo prompt from the command line
+# 
+# $1 - Question to be answered
+#
+# Usage
+# 
+#   if jv_yesno "question?"; then...
+jv_yesno () {
+    while true; do
+        read -n 1 -p "$1 [Y/n] "
+        echo # new line
+        [[ $REPLY =~ [Yy] ]] && return 0
+        [[ $REPLY =~ [Nn] ]] && return 1
+    done
+}
+
 # Internal: Build Jarvis
 #
 # Returns nothing

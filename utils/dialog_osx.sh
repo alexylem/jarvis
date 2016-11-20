@@ -44,3 +44,15 @@ editor () {
     open -tW "$1"
     sed -i '' -e '$a\' "$1" # append new line if missing
 }
+
+# Public: install packages, used for dependencies
+#
+# args: list of packages to install
+jv_install () {
+    if ! hash brew 2>/dev/null; then
+        if jv_yesno "You need Homebrew package manager, install it?"; then
+            ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
+        fi
+    fi
+    brew install $@
+}

@@ -48,15 +48,14 @@ dependencies=(awk curl git iconv jq nano perl sed sox wget)
 if [ "$(uname)" == "Darwin" ]; then
 	platform="osx"
 	dependencies+=(osascript)
-    install_cmd="brew install"
 	forder="/tmp/jarvis-order"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 	platform="linux"
 	dependencies+=(alsamixer aplay arecord mpg123 whiptail)
-    install_cmd="sudo apt-get install -y"
 	forder="/dev/shm/jarvis-order"
 else
-	jv_error "ERROR: Unsupported platform"; exit 1
+	jv_error "ERROR: Unsupported platform"
+    exit 1
 fi
 source utils/dialog_$platform.sh # load default & user configuration
 
@@ -282,8 +281,8 @@ check_dependencies () {
         for missing in "${missings[@]}"; do
             echo "$missing: Not found"
         done
-        jv_success "HELP: $install_cmd ${missing[@]}"
-        exit 1
+        jv_yesno "Attempt to automatically install the above packages?" || exit 1
+        jv_install ${missings[@]}
     fi
     
     if [[ "$platform" == "linux" ]]; then

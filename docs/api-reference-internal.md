@@ -233,6 +233,18 @@ Run asynchrously to avoid slowdown
     $> ( jv_ga_send_hit & )
 
 
+`jv_yesno()`
+------------
+
+Public: YesNo prompt from the command line
+
+* $1 - Question to be answered
+
+Usage
+
+    if jv_yesno "question?"; then...
+
+
 `jv_build()`
 ------------
 

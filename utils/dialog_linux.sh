@@ -55,3 +55,10 @@ dialog_yesno () { # usage dialog_yesno "question" default(true/false)
 editor () {
     "${EDITOR:-nano}" "$1"
 }
+
+# Public: install packages, used for dependencies
+#
+# args: list of packages to install
+jv_install () {
+    sudo apt-get install $@
+}
