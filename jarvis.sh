@@ -262,7 +262,7 @@ check_dependencies () {
             echo "$missing: Not found"
         done
         jv_yesno "Attempt to automatically install the above packages?" || exit 1
-        jv_install ${missings[@]}
+        jv_install ${missings[@]} || exit 1
     fi
     
     if [[ "$platform" == "linux" ]]; then
@@ -492,7 +492,15 @@ jv_get_commands () {
     done <plugins_order.txt
 }
 commands="$(jv_get_commands)"
-handle_order() {
+
+# Public: handle an order and execute corresponding command
+# 
+# $1 - order to recognize
+#
+# Usage
+#
+#   jv_handle_order "what time is it?"
+jv_handle_order() {
     local order=$1
     local sanitized="$(jv_sanitize "$order")"
 	local check_indented=false
@@ -537,18 +545,18 @@ handle_order() {
 
 handle_orders() {
     if [ -z "$separator" ]; then
-        handle_order "$1"
+        jv_handle_order "$1"
     else
         orders=$(echo "$1" | awk "BEGIN {FS=\" `echo $separator` \"} {for(i=1;i<=NF;i++)print \$i}")
         while read order; do
-            handle_order "$order"
+            jv_handle_order "$order"
         done <<< "$orders"
     fi
 }
 
 # if -x argument provided, just handle order & exit (used in jarvis-events)
 if [[ "$just_execute" != false ]]; then
-	handle_order "$just_execute"
+	jv_handle_order "$just_execute"
 	jv_exit
 fi
 
