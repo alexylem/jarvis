@@ -52,7 +52,7 @@
 voxygen_TTS () { # Speaks text $1
     local audio_file="/tmp/$(jv_sanitize "$1" _).mp3"
     if [ ! -f "$audio_file" ]; then
-        printf "$_gray"
+        printf "$_gray" # output in verbose mode will be displayed in gray
         wget $($verbose || echo -q) -O "$audio_file" "http://www.voxygen.fr/sites/all/modules/voxygen_voices/assets/proxy/index.php?method=redirect&text=$1&voice=$voxygen_voice&ts=1480362849466"
         printf "$_reset"
     fi

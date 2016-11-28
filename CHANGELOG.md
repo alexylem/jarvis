@@ -1,3 +1,4 @@
+* 28NOV16 Voxygen TTS and voices
 * 16OCT16 Display available commands on Startup https://github.com/alexylem/jarvis/issues/181
 * 15OCT16 Train Snowboy models from Jarvis https://github.com/alexylem/jarvis/issues/172
 * 11OCT16 New WebStore https://github.com/alexylem/jarvis/issues/146
