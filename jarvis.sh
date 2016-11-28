@@ -44,14 +44,14 @@ source utils/store.sh # needed for plugin installation & store menu
 source utils/update.sh # needed for update of Jarvis config
 
 # Check platform compatibility
-dependencies=(awk curl git iconv jq nano perl sed sox wget)
+dependencies=(awk curl git iconv jq nano perl sed sox wget mpg123)
 if [ "$(uname)" == "Darwin" ]; then
 	platform="osx"
 	dependencies+=(osascript)
 	forder="/tmp/jarvis-order"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 	platform="linux"
-	dependencies+=(alsamixer aplay arecord mpg123 whiptail)
+	dependencies+=(alsamixer aplay arecord whiptail)
 	forder="/dev/shm/jarvis-order"
 else
 	jv_error "ERROR: Unsupported platform"
@@ -241,7 +241,7 @@ configure () {
                              eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}"`
                              source stt_engines/$trigger_stt/main.sh
                              ;;
-        tts_engine) options=('svox_pico' 'google' 'espeak' 'osx_say')
+        tts_engine) options=('svox_pico' 'google' 'espeak' 'osx_say' 'voxygen')
                     recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico'`
                     eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
                     source tts_engines/$tts_engine/main.sh;;
