@@ -241,7 +241,7 @@ configure () {
                              eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}"`
                              source stt_engines/$trigger_stt/main.sh
                              ;;
-        tts_engine) options=('svox_pico' 'google' 'espeak' 'osx_say')
+        tts_engine) options=('svox_pico' 'google' 'espeak' 'osx_say' 'voxygen')
                     recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico'`
                     eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
                     source tts_engines/$tts_engine/main.sh;;
