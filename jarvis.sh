@@ -44,14 +44,14 @@ source utils/store.sh # needed for plugin installation & store menu
 source utils/update.sh # needed for update of Jarvis config
 
 # Check platform compatibility
-dependencies=(awk curl git iconv jq nano perl sed sox wget)
+dependencies=(awk curl git iconv jq nano perl sed sox wget mpg123)
 if [ "$(uname)" == "Darwin" ]; then
 	platform="osx"
 	dependencies+=(osascript)
 	forder="/tmp/jarvis-order"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 	platform="linux"
-	dependencies+=(alsamixer aplay arecord mpg123 whiptail)
+	dependencies+=(alsamixer aplay arecord whiptail)
 	forder="/dev/shm/jarvis-order"
 else
 	jv_error "ERROR: Unsupported platform"

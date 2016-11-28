@@ -1,24 +1,4 @@
 #!/bin/bash
-hash 'mpg123' 2>/dev/null || {
-    dialog_yesno "mpg123 doesn't seem to be installed.\nDo you want to install it?" true >/dev/null && {
-        if [[ "$platform" == "linux" ]]; then
-            echo "Updating..."
-            sudo apt-get -qq update || exit 1
-            echo "Upgrading..."
-            sudo apt-get -qq upgrade -y || exit 1
-            echo "Downloading & Installing..."
-            sudo apt-get install -y mpg123 >/dev/null || exit 1
-        elif [[ "$platform" == "osx" ]]; then
-            echo "Downloading & Installing..."
-            brew install mpg123 || exit 1
-        else
-            dialog_msg "Unknown platform"
-            exit 1
-        fi
-        dialog_msg "Installation Completed"
-    }
-}
-
 rawurlencode() { # here because used in TTS
   local string="${1}"
   local strlen=${#string}
