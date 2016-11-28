@@ -434,7 +434,7 @@ if [ "$just_execute" == false ]; then
     if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
         options=('Show Jarvis output' 'Stop Jarvis')
         case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
-            Show*) tail jarvis.log;;
+            Show*) cat jarvis.log;;
             Stop*)
                 pid=`cat $lockfile` # process id de jarvis
                 gid=`ps -p $pid -o pgid=` # group id de jarvis
@@ -560,7 +560,7 @@ handle_orders() {
 # if -x argument provided, just handle order & exit (used in jarvis-events)
 if [[ "$just_execute" != false ]]; then
 	jv_handle_order "$just_execute"
-	jv_exit
+	jv_exit 0
 fi
 
 # after just execute not to erase lockfile from API
