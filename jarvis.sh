@@ -32,7 +32,7 @@ show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW: Change order of plugins in Plugins > Matching Order"
+headline="NEW: Check out speech synthesis fun voices of Voxygen"
 
 # Move to Jarvis directory
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -430,6 +430,19 @@ if [[ "$just_say" != false ]]; then
 fi
 
 if [ "$just_execute" == false ]; then
+    # Check if Jarvis is already running in background
+    if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
+        options=('Show Jarvis output' 'Stop Jarvis')
+        case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
+            Show*) tail jarvis.log;;
+            Stop*)
+                pid=`cat $lockfile` # process id de jarvis
+                gid=`ps -p $pid -o pgid=` # group id de jarvis
+                kill -TERM -`echo $gid`;; # tuer le group complet
+        esac
+        exit
+    fi
+    
     # check for updates
     if [ $check_updates != false ] && [ $just_listen = false ]; then
         if [ "$(find config/last_update_check -mtime -$check_updates 2>/dev/null | wc -l)" -eq 0 ]; then
@@ -443,19 +456,6 @@ if [ "$just_execute" == false ]; then
                 exit
             fi
         fi
-    fi
-
-    # Check if Jarvis is already running in background
-    if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
-        options=('Show Jarvis output' 'Stop Jarvis')
-        case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
-            Show*) cat jarvis.log;;
-            Stop*)
-                pid=`cat $lockfile` # process id de jarvis
-                gid=`ps -p $pid -o pgid=` # group id de jarvis
-                kill -TERM -`echo $gid`;; # tuer le group complet
-        esac
-        exit
     fi
 
     # main menu
