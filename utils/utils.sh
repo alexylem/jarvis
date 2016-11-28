@@ -231,7 +231,7 @@ jv_exit () {
         kill $(jobs -p) 2>/dev/null
     fi
     # make sure the lockfile is removed when we exit and then claim it
-    rm -f $lockfile
+    [ "$just_execute" == false ] && rm -f $lockfile
     exit $1
 }
     

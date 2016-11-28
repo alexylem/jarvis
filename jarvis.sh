@@ -481,8 +481,6 @@ if [ "$just_execute" == false ]; then
 fi
 
 source hooks/program_startup
-trap "jv_exit" INT TERM
-echo $$ > $lockfile
 
 # Include installed plugins
 shopt -s nullglob
@@ -564,6 +562,10 @@ if [[ "$just_execute" != false ]]; then
 	jv_handle_order "$just_execute"
 	jv_exit
 fi
+
+# after just execute not to erase lockfile from API
+trap "jv_exit" INT TERM
+echo $$ > $lockfile
 
 [ $just_listen = false ] && [ ! -z "$phrase_welcome" ] && say "$phrase_welcome"
 bypass=$just_listen
