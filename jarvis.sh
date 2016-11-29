@@ -332,8 +332,7 @@ EOM
 }
 
 jv_start_in_background () {
-    ./jarvis.sh -n | jv_add_timestamps >> jarvis.log 2>&1 &
-    disown
+    nohup ./jarvis.sh -n | jv_add_timestamps >> jarvis.log 2>&1 &
     cat <<EOM
 Jarvis has been launched in background
 
@@ -489,7 +488,7 @@ for f in plugins/*/${language:0:2}/functions.sh; do source $f; done
 shopt -u nullglob
 jv_plugins_order_rebuild
 jv_get_commands () {
-    cat jarvis-commands
+    grep -v "^#" jarvis-commands
     while read; do
         cat plugins/$REPLY/${language:0:2}/commands 2>/dev/null
     done <plugins_order.txt

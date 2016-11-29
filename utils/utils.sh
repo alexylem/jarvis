@@ -42,7 +42,7 @@ jv_print_json () {
 # Public: display available commands grouped by plugin name
 jv_display_commands () {
     jv_message "User defined commands:" 'category' $_blue
-    jv_debug "$(cat jarvis-commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
+    jv_debug "$(grep -v "^#" jarvis-commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
     while read plugin_name; do
         jv_message "Commands from plugin $plugin_name:" 'category' $_blue
         jv_debug "$(cat plugins/$plugin_name/${language:0:2}/commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
