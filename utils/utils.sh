@@ -18,6 +18,9 @@ order=
 # Use `${language:0:2}` to only get `en`
 language=
 
+# Internal: indicates if there are nested commands
+jv_possible_answers=false
+
 # Public: Re-run last executed command. Use to create an order to repeat.
 #
 # Usage:
@@ -34,6 +37,7 @@ jv_json_separator=""
 # $2 - value
 jv_print_json () {
     message=${2//\"/\\\\\"} # escape double quotes
+    message=${message//[$'\t']/    } # replace tabs with spaces
     message=${message//%/%%} # escape percentage chars for printf
     printf "$jv_json_separator{\"$1\":\"${message}\"}"
     jv_json_separator=","
@@ -41,10 +45,10 @@ jv_print_json () {
 
 # Public: display available commands grouped by plugin name
 jv_display_commands () {
-    jv_message "User defined commands:" 'category' $_blue
+    jv_info "User defined commands:"
     jv_debug "$(grep -v "^#" jarvis-commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
     while read plugin_name; do
-        jv_message "Commands from plugin $plugin_name:" 'category' $_blue
+        jv_info "Commands from plugin $plugin_name:"
         jv_debug "$(cat plugins/$plugin_name/${language:0:2}/commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
     done <plugins_order.txt
 }
@@ -200,6 +204,9 @@ jv_warning() { jv_message "$1" "warning" "$_orange" ;}
 # Public: Displays a success in green
 # $1 - message to display
 jv_success() { jv_message "$1" "success" "$_green" ;}
+# Public: Displays an information in blue
+# $1 - message to display
+jv_info() { jv_message "$1" "info" "$_blue" ;}
 # Public: Displays a log in gray
 # $1 - message to display
 jv_debug() { jv_message "$1" "debug" "$_gray" ;}
@@ -220,8 +227,10 @@ jv_press_enter_to_continue () {
 #
 # Returns nothing
 jv_exit () {
+    local return_code=${1:-0}
+    
     $verbose && jv_debug "DEBUG: program exit handler"
-    source hooks/program_exit $1
+    source hooks/program_exit $return_code
     
     $jv_json && echo "]"
     
@@ -232,7 +241,7 @@ jv_exit () {
     fi
     # make sure the lockfile is removed when we exit and then claim it
     [ "$just_execute" == false ] && rm -f $lockfile
-    exit $1
+    exit $return_code
 }
     
 # Internal: check updates and pull changes from github
@@ -358,6 +367,8 @@ jv_yesno () {
 #
 # Returns nothing
 jv_build () {
+    echo "Running tests..."
+        roundup test/*.sh || exit 2
     printf "Updating version file..."
         date +"%y.%m.%d" > version.txt
         jv_success "Done"

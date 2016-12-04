@@ -128,6 +128,13 @@ Public: Displays a success in green
 * $1 - message to display
 
 
+`jv_info()`
+-----------
+
+Public: Displays an information in blue
+* $1 - message to display
+
+
 `jv_debug()`
 ------------
 

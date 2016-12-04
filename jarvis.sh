@@ -3,7 +3,7 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://domotiquefacile.fr/jarvis       |
 # +----------------------------------------+
-flags='bc:ihjklmnp:s:uvx:z'
+flags='bc:ihjklmnp:s:uvwx:z'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -27,6 +27,7 @@ show_help () { cat <<EOF
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
     -u  force update Jarvis and plugins (ex: use in cron)
     -v  troubleshooting mode
+    -w  no colors in output
     -x  execute order, ex: ${0##*/} -x "switch on lights"
 
 EOF
@@ -58,12 +59,6 @@ else
     exit 1
 fi
 source utils/dialog_$platform.sh # load default & user configuration
-
-# Check not ran as root
-if [ "$EUID" -eq 0 ]; then
-    jv_error "ERROR: Jarvis must not be used as root"
-    exit 1
-fi
 
 # Initiate files & directories
 lockfile="/tmp/jarvis.lock"
@@ -389,14 +384,19 @@ while getopts ":$flags" o; do
             jv_plugins_check_updates true # force udpate
             exit;;
         v)  verbose=true;;
-        x)  just_execute="${OPTARG}"
-            #verbose=true # for troubleshooting commands
-            ;;
+        w)  unset _reset _red _orange _green _gray _blue _cyan _pink;;
+        x)  just_execute="${OPTARG}";;
         z)  jv_build
             exit;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
     esac
 done
+
+# Check not ran as root
+if [ "$EUID" -eq 0 ]; then
+    jv_error "ERROR: Jarvis must not be used as root"
+    exit 1
+fi
 
 # check dependencies
 check_dependencies
@@ -493,7 +493,6 @@ jv_get_commands () {
         cat plugins/$REPLY/${language:0:2}/commands 2>/dev/null
     done <plugins_order.txt
 }
-commands="$(jv_get_commands)"
 
 # Public: handle an order and execute corresponding command
 # 
@@ -506,19 +505,21 @@ jv_handle_order() {
     local order=$1
     local sanitized="$(jv_sanitize "$order")"
 	local check_indented=false
+    
+    if ! $jv_possible_answers; then
+        #jv_debug "no nested answers, resetting commands..."
+        commands="$(jv_get_commands)"
+    fi
+    
     while read line; do
         if $check_indented; then
-            #echo "checking if possible answers in: $line"
+            #jv_debug "checking if possible answers in: $line"
             if [ "${line:0:1}" = ">" ]; then
-                newline=$'\n'
-                commands="$commands$newline${line:1}"
+                [ -z "$commands" ] && commands="${line:1}" || commands+=$'\n'${line:1}
+                jv_possible_answers=true
             else
-                if [ -z "$commands" ]; then
-                    commands="$(jv_get_commands)"
-                fi
-                #echo "$commands"
-                check_indented=false
-                return
+                # no [more] nested answers
+                break
             fi
         else
             patterns=${line%==*} # *HELLO*|*GOOD*MORNING*==say Hi => *HELLO*|*GOOD*MORNING*
@@ -527,12 +528,13 @@ jv_handle_order() {
     			regex="^${pattern//'*'/.*}$" # .*HELLO.*
                 if [[ $sanitized =~ $regex ]]; then # HELLO THERE =~ .*HELLO.*
                     action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
-    				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'`
+    				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'` # replace captures
     				$verbose && jv_debug "$> $action"
                     eval "$action" || say "$phrase_failed"
                     [[ "$action" == *jv_repeat_last_command* ]] || jv_last_command="${action//\$order/$order}"
                     check_indented=true
                     commands=""
+                    jv_possible_answers=false
                     break
     			fi
     		done
@@ -540,9 +542,14 @@ jv_handle_order() {
 	done <<< "${commands//\\/\\\\}" # https://github.com/alexylem/jarvis/issues/147
     if ! $check_indented; then
         say "$phrase_misunderstood: $order"
-    elif [ -z "$commands" ]; then
-        commands="$(jv_get_commands)"
+    #elif [ -z "$commands" ]; then
+    #    commands="$(jv_get_commands)"
     fi
+    #if $jv_possible_answers; then
+        # display possible direct answers - finally no because messing up the automated tests
+        #jv_info "possible answers:"
+        #jv_debug "$(echo "$commands" | grep "^[^>]" | cut -d '=' -f 1 | pr -3 -l1 -t)"
+    #fi
 }
 
 handle_orders() {
@@ -557,85 +564,120 @@ handle_orders() {
 }
 
 # if -x argument provided, just handle order & exit (used in jarvis-events)
-if [[ "$just_execute" != false ]]; then
-	jv_handle_order "$just_execute"
-	jv_exit 0
+#if [[ "$just_execute" != false ]]; then
+#	jv_handle_order "$just_execute"
+#	jv_exit
+#fi
+
+# only if not just execute to avoid erase lockfile from API
+if [ "$just_execute" = false ]; then
+    # trap Ctrl+C or kill
+    trap "jv_exit" INT TERM
+    
+    # save pid in lockfile for proper kill
+    echo $$ > $lockfile
+    
+    # welcome phrase
+    [ $just_listen = false ] && [ ! -z "$phrase_welcome" ] && say "$phrase_welcome"
+    
+    # Display available commands to the user
+    jv_display_commands
+    
+    bypass=$just_listen
+else # just execute an order
+    order="$just_execute"
+    
+    if [ -f /tmp/jarvis-possible-answers ]; then
+        # there are possible answers from previous json conversation (nested commmands)
+        commands="$(cat /tmp/jarvis-possible-answers)"
+        # remove file to avoid future issues
+        rm /tmp/jarvis-possible-answers
+        # indicate there are possible answers not to reset commands
+        jv_possible_answers=true
+    fi
+    # no need to say Jarvis if just execute
+    bypass=true
 fi
 
-# after just execute not to erase lockfile from API
-trap "jv_exit" INT TERM
-echo $$ > $lockfile
-
-[ $just_listen = false ] && [ ! -z "$phrase_welcome" ] && say "$phrase_welcome"
-bypass=$just_listen
-
-# Display available commands to the user
-jv_display_commands
-
 while true; do
-	if [ $keyboard = true ]; then
-        bypass=true
-		printf "$_cyan$username$_reset: "
-        read order
-	else
-		if [ "$trigger_mode" = "enter_key" ]; then
-			bypass=true
-			read -p "Press [Enter] to start voice command"
-		fi
-		! $bypass && echo -e "$_pink$trigger$_reset: Waiting to hear '$trigger'"
-		printf "$_cyan$username$_reset: "
-        
-        $quiet || ( $bypass && PLAY sounds/triggered.wav || PLAY sounds/listening.wav )
-
-        while true; do
-			#$quiet || PLAY beep-high.wav
-
-            $verbose && jv_debug "(listening...)"
+	if [ -z "$order" ]; then
+        if [ $keyboard = true ]; then
+            bypass=true
+    		printf "$_cyan$username$_reset: "
+            read order
+    	else
+    		if [ "$trigger_mode" = "enter_key" ]; then
+    			bypass=true
+    			read -p "Press [Enter] to start voice command"
+    		fi
+    		! $bypass && echo -e "$_pink$trigger$_reset: Waiting to hear '$trigger'"
+    		printf "$_cyan$username$_reset: "
             
-            > $forder # empty $forder
-            if $bypass; then
-                eval ${command_stt}_STT
-            else
-                eval ${trigger_stt}_STT
-            fi
-			#$verbose && PLAY beep-low.wav
-            
-			order=`cat $forder`
-			if [ -z "$order" ]; then
-                printf '?'
-                PLAY sounds/error.wav
-                if [ $((++nb_failed)) -eq 3 ]; then
-                    nb_failed=0
-                    echo # new line
-                    $verbose && jv_debug "DEBUG: 3 attempts failed, end of conversation"
-                    PLAY sounds/timeout.wav
-                    bypass=false
-                    source hooks/exiting_cmd
-                    commands="$(jv_get_commands)" # in case we were in nested commands
+            $quiet || ( $bypass && PLAY sounds/triggered.wav || PLAY sounds/listening.wav )
+
+            while true; do
+    			#$quiet || PLAY beep-high.wav
+
+                $verbose && jv_debug "(listening...)"
+                
+                > $forder # empty $forder
+                if $bypass; then
+                    eval ${command_stt}_STT
+                else
+                    eval ${trigger_stt}_STT
+                fi
+    			#$verbose && PLAY beep-low.wav
+                
+    			order=`cat $forder`
+    			if [ -z "$order" ]; then
+                    printf '?'
+                    PLAY sounds/error.wav
+                    if [ $((++nb_failed)) -eq 3 ]; then
+                        nb_failed=0
+                        echo # new line
+                        $verbose && jv_debug "DEBUG: 3 attempts failed, end of conversation"
+                        PLAY sounds/timeout.wav
+                        bypass=false
+                        source hooks/exiting_cmd
+                        commands="$(jv_get_commands)" # in case we were in nested commands
+                        continue 2
+                    fi
+                    continue
+                fi
+    			if $bypass; then
+                    echo "$order" # printf fails when order has %
+                    break
+                elif [[ "$order" == *$trigger_sanitized* ]]; then
+                    order=""
+                    bypass=true
+                    echo $trigger # new line
+                    source hooks/entering_cmd
+                    say "$phrase_triggered"
                     continue 2
                 fi
-                continue
-            fi
-			if $bypass; then
-                echo "$order" # printf fails when order has %
-                break
-            elif [[ "$order" == *$trigger_sanitized* ]]; then
-                bypass=true
-                echo $trigger # new line
-                source hooks/entering_cmd
-                say "$phrase_triggered"
-                continue 2
-            fi
-			
-			#$verbose && PLAY beep-error.wav
-		done
-		#echo # new line
-	fi
+    			
+    			#$verbose && PLAY beep-error.wav
+    		done
+    		#echo # new line
+    	fi
+    fi
     was_in_conversation=$bypass
 	[ -n "$order" ] && handle_orders "$order"
+    order=""
     if $was_in_conversation && [ $conversation_mode = false ]; then
         bypass=false
         source hooks/exiting_cmd
     fi
     $just_listen && [ $bypass = false ] && jv_exit
+    if [ "$just_execute" != false ]; then
+        if $jv_possible_answers; then
+            if $jv_json; then
+                # if in nested commands, save possible answer for next json call
+                echo -e "$commands" > /tmp/jarvis-possible-answers
+                jv_exit
+            fi
+        else # just execute but not pending answer, finished
+            jv_exit
+        fi
+    fi
 done

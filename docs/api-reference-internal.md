@@ -30,6 +30,12 @@ Public: the user's language in Jarvis settings
 Ex: `en_GB` Use `${language:0:2}` to only get `en`
 
 
+`jv_possible_answers`
+---------------------
+
+Internal: indicates if there are nested commands
+
+
 `jv_repeat_last_command()`
 --------------------------
 
@@ -160,6 +166,13 @@ Public: Displays a warning in yellow
 --------------
 
 Public: Displays a success in green
+* $1 - message to display
+
+
+`jv_info()`
+-----------
+
+Public: Displays an information in blue
 * $1 - message to display
 
 
