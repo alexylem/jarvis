@@ -200,23 +200,26 @@ configure () {
         rec_hw)
             rec_export=''
             while true; do
-                dialog_msg "Checking audio input, make sure your microphone is on, press [Ok] and say something"
-                clear
-                rec -r 16000 -c 1 -b 16 -e signed-integer $audiofile trim 0 3
-                if [ $? -eq 0 ]; then
-                    play $audiofile
-                    dialog_yesno "Did you hear yourself?" true >/dev/null && break
-                fi
-                jv_warning "Selection of the microphone device"
-                arecord -l
-                read -p "Indicate the card # to use [0-9]: " card
-                read -p "Indicate the device # to use [0-9]: " device
-                rec_hw="hw:$card,$device"
-                #IFS=$'\n'
-                #devices=(`arecord -l | grep ^card`)
-                #device=`dialog_select "Select a microphone" devices[@]`
-                #rec_hw=`echo $device | sed -rn 's/card ([0-9]+)[^,]*, device ([0-9]+).*/hw:\1,\2/p'`
-                update_alsa $play_hw $rec_hw
+	    	if [ $? -eq 0 ]; then
+                	dialog_yesno "Have you got a microphone ?" false >/dev/null && break
+			dialog_msg "Checking audio input, make sure your microphone is on, press [Ok] and say something"
+                	clear
+                	rec -r 16000 -c 1 -b 16 -e signed-integer $audiofile trim 0 3
+                	if [ $? -eq 0 ]; then
+                    	play $audiofile
+                    	dialog_yesno "Did you hear yourself?" true >/dev/null && break
+                	fi
+                	jv_warning "Selection of the microphone device"
+                	arecord -l
+                	read -p "Indicate the card # to use [0-9]: " card
+                	read -p "Indicate the device # to use [0-9]: " device
+                	rec_hw="hw:$card,$device"
+                	#IFS=$'\n'
+                	#devices=(`arecord -l | grep ^card`)
+                	#device=`dialog_select "Select a microphone" devices[@]`
+                	#rec_hw=`echo $device | sed -rn 's/card ([0-9]+)[^,]*, device ([0-9]+).*/hw:\1,\2/p'`
+                	update_alsa $play_hw $rec_hw
+		fi
             done
             ;;
         save) for varname in "${variables[@]}"; do
