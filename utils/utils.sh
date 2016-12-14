@@ -240,7 +240,7 @@ jv_exit () {
         kill $(jobs -p) 2>/dev/null
     fi
     # make sure the lockfile is removed when we exit and then claim it
-    [ "$just_execute" == false ] && rm -f $lockfile
+    #[ "$just_execute" == false ] && rm -f $lockfile # https://github.com/alexylem/jarvis-api/issues/3
     exit $return_code
 }
     
