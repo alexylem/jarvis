@@ -545,11 +545,11 @@ jv_handle_order() {
     #elif [ -z "$commands" ]; then
     #    commands="$(jv_get_commands)"
     fi
-    #if $jv_possible_answers; then
-        # display possible direct answers - finally no because messing up the automated tests
-        #jv_info "possible answers:"
-        #jv_debug "$(echo "$commands" | grep "^[^>]" | cut -d '=' -f 1 | pr -3 -l1 -t)"
-    #fi
+    if $jv_possible_answers; then
+        # display possible direct answers
+        # jv_info "possible answers:"
+        jv_debug "$(echo "$commands" | grep "^[^>]" | cut -d '=' -f 1 | pr -3 -l1 -t)"
+    fi
 }
 
 handle_orders() {
