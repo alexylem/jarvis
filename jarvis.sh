@@ -35,14 +35,14 @@ EOF
 
 headline="NEW: Check out speech synthesis fun voices of Voxygen"
 
+# Move to Jarvis directory
+export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$jv_dir" # needed now for git used in automatic update
+
 shopt -s nocasematch # string comparison case insensitive
 source utils/utils.sh # needed for wizard / platform error
 source utils/store.sh # needed for plugin installation & store menu
 source utils/update.sh # needed for update of Jarvis config
-
-# Move to Jarvis directory
-export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$jv_dir" # needed now for git used in automatic update
 
 # Check platform compatibility
 dependencies=(awk curl git iconv jq nano perl sed sox wget mpg123)

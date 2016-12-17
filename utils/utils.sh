@@ -4,7 +4,7 @@
 jv_version=$(cat version.txt)
 
 # Public: directory where Jarvis is installed
-jv_dir=
+jv_dir="$jv_dir"
 
 # Public: the name of the user
 username=
