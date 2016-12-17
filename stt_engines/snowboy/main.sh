@@ -27,7 +27,7 @@
         cp $binaries/snowboydecoder.py .
         cp -r $binaries/resources .
         rm -rf $binaries
-        cd "$DIR"
+        cd "$jv_dir"
         dialog_msg "Snowboy installed sucessfully"
     }
 }

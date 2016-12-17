@@ -134,7 +134,7 @@ menu_store () {
                         ;;
             Matching*)  dialog_msg <<EOM
 This is to edit the order in which the plugin commands are evaluated
-But at the bottom plugins with generic patterns, such as Jeedom or API
+Put at the bottom plugins with generic patterns, such as Jeedom or API
 EOM
                         editor plugins_order.txt
                         jv_plugins_order_rebuild
@@ -351,6 +351,9 @@ By Alexandre Mély
 http://domotiquefacile.fr/jarvis
 alexandre.mely@gmail.com
 (I don't give support via email, please check Help)
+
+You like Jarvis? consider making a 1€ donation:
+http://domotiquefacile.fr/jarvis/content/credits
 
 JARVIS is freely distributable under the terms of the MIT license.
 EOM

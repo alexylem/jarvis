@@ -4,6 +4,12 @@
 Public: version of Jarvis
 
 
+`jv_dir`
+--------
+
+Public: directory where Jarvis is installed
+
+
 `username`
 ----------
 
