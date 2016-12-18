@@ -73,6 +73,8 @@ store_install_plugin () { # $1:plugin_url
 store_plugin_uninstall () { # $1:plugin_name
     $1/uninstall.sh
     rm -rf "$1"
+    cd ../
     jv_plugins_order_rebuild
+    cd plugins/
     dialog_msg "Uninstallation Complete"
 }

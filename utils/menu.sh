@@ -106,8 +106,8 @@ menu_store () {
                                                 echo "Checking for updates..."
                                                 cd "$plugin"
                                                 git pull &
-                                               jv_spinner $!
-                                               jv_press_enter_to_continue
+                                                jv_spinner $!
+                                                jv_press_enter_to_continue
                                                 cd ../
                                                 ;;
                                             Rate)
