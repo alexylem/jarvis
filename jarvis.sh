@@ -3,7 +3,7 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://domotiquefacile.fr/jarvis       |
 # +----------------------------------------+
-flags='bc:ihjklmnp:s:uvwx:z'
+flags='bc:ihjklmnp:qs:uvwx:z'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
@@ -24,6 +24,7 @@ show_help () { cat <<EOF
     -m  mute mode (overrides settings)
     -n  directly start jarvis without menu
     -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/time
+    -q  quit jarvis if running in background
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
     -u  force update Jarvis and plugins (ex: use in cron)
     -v  troubleshooting mode
@@ -356,7 +357,7 @@ while getopts ":$flags" o; do
 		b)  # Check if Jarvis is already running in background
             if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
                 echo "Jarvis is already running"
-                echo "run ./jarvis.sh to detect and stop it"
+                echo "run ./jarvis.sh -q to stop it"
                 exit 1
             fi
             jv_start_in_background
@@ -378,6 +379,8 @@ while getopts ":$flags" o; do
         n)  no_menu=true;;
 		p)  store_install_plugin "${OPTARG}"
             exit;;
+        q)  jv_kill_jarvis
+            exit $?;;
         s)	just_say=${OPTARG};;
         u)  jv_check_updates "./" true # force udpate
             jv_update_config # apply config updates
@@ -434,10 +437,7 @@ if [ "$just_execute" == false ]; then
         options=('Show Jarvis output' 'Stop Jarvis')
         case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
             Show*) cat jarvis.log;;
-            Stop*)
-                pid=`cat $lockfile` # process id de jarvis
-                gid=`ps -p $pid -o pgid=` # group id de jarvis
-                kill -TERM -`echo $gid`;; # tuer le group complet
+            Stop*) jv_kill_jarvis;;
         esac
         exit
     fi

@@ -200,6 +200,12 @@ Returns nothing
     Press [Enter] to continue
 
 
+`jv_kill_jarvis()`
+------------------
+
+Internal: Kill Jarvis if running in background
+
+
 `jv_exit()`
 -----------
 

@@ -225,6 +225,21 @@ jv_press_enter_to_continue () {
     read
 }
 
+# Internal: Kill Jarvis if running in background
+jv_kill_jarvis () {
+    if [ -e $lockfile ]; then
+        local pid=$(cat $lockfile) # process id de jarvis
+        if kill -0 $pid 2>/dev/null; then
+            local gid=$(ps -p $pid -o pgid=) # group id de jarvis
+            kill -TERM -$(echo $gid) # tuer le group complet
+            echo "Jarvis has been terminated"
+            return 0
+        fi
+    fi
+    echo "Jarvis is not running"
+    return 1
+}
+
 # Public: Exit properly jarvis
 # $1 - Return code
 #
@@ -242,7 +257,9 @@ jv_exit () {
     if [ -n "$jv_child_pids" ]; then
         kill $(jobs -p) 2>/dev/null
     fi
+    
     # make sure the lockfile is removed when we exit and then claim it
+    #[ "$(cat $lockfile)" == $$ ] && rm -f $lockfile # to test tested further
     #[ "$just_execute" == false ] && rm -f $lockfile # https://github.com/alexylem/jarvis-api/issues/3
     exit $return_code
 }
