@@ -522,6 +522,7 @@ jv_handle_order() {
                 break
             fi
         else
+            [ "${line:0:1}" = ">" ] && continue #https://github.com/alexylem/jarvis/issues/305
             patterns=${line%==*} # *HELLO*|*GOOD*MORNING*==say Hi => *HELLO*|*GOOD*MORNING*
     		IFS='|' read -ra ARR <<< "$patterns" # *HELLO*|*GOOD*MORNING* => [*HELLO*, *GOOD*MORNING*]
     		for pattern in "${ARR[@]}"; do # *HELLO*
