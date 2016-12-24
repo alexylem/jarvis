@@ -30,6 +30,18 @@ it_handles_nested_commands() {
     test "$(./jarvis.sh -kmwx "ca va?" <<< "oui" | tail -n 1)" = "Alex: Jarvis: ravi de l'entendre"
 }
 
+it_handles_alternatives() {
+    test "$(./jarvis.sh -mwx "termine")" = "Jarvis: Ok"
+}
+
+it_ignores_nested_alternatives() {
+    test "$(./jarvis.sh -mwx "pas du tout")" = "Jarvis: Je ne comprends pas: pas du tout"
+}
+
+it_handles_nested_alternatives() {
+    test "$(./jarvis.sh -kmwx "ca va?" <<< "pas du tout" | tail -n 1)" = "Alex: Jarvis: j'en suis navré"
+}
+
 #it_starts_in_background() {
 #    test "$(./jarvis.sh -b | head -n 1)" = "Jarvis has been launched in background"
 #}

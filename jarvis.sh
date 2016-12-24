@@ -115,6 +115,7 @@ configure () {
                    'pocketsphinxlog'
                    'rec_hw'
                    'separator'
+                   'show_commands'
                    'snowboy_sensitivity'
                    'snowboy_token'
                    'tmp_folder'
@@ -225,6 +226,7 @@ configure () {
                   echo "${!varname}" > config/$varname
               done;;
         separator)           eval $1=`dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}"`;;
+        show_commands)       eval $1=`dialog_yesno "Show commands on startup and possible answers" "${!1}"`;;
         snowboy_sensitivity) eval $1=`dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.5" "${!1}"`;;
         snowboy_token)       eval $1=$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai" "${!1}");;
         tmp_folder)          eval $1=`dialog_input "Cache folder" "${!1}"`;;
@@ -506,6 +508,11 @@ jv_handle_order() {
     local sanitized="$(jv_sanitize "$order")"
 	local check_indented=false
     
+    if [ "$order" = "?" ]; then
+        jv_display_commands
+        return
+    fi
+    
     if ! $jv_possible_answers; then
         #jv_debug "no nested answers, resetting commands..."
         commands="$(jv_get_commands)"
@@ -546,7 +553,7 @@ jv_handle_order() {
     #elif [ -z "$commands" ]; then
     #    commands="$(jv_get_commands)"
     fi
-    if $jv_possible_answers; then
+    if $show_commands && $jv_possible_answers; then
         # display possible direct answers
         # jv_info "possible answers:"
         jv_debug "$(echo "$commands" | grep "^[^>]" | cut -d '=' -f 1 | pr -3 -l1 -t)"
@@ -582,7 +589,11 @@ if [ "$just_execute" = false ]; then
     [ $just_listen = false ] && [ ! -z "$phrase_welcome" ] && say "$phrase_welcome"
     
     # Display available commands to the user
-    jv_display_commands
+    if $show_commands; then
+        jv_display_commands
+    else
+        jv_debug "Use \"?\" to display possible commands"
+    fi
     
     bypass=$just_listen
 else # just execute an order

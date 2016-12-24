@@ -62,3 +62,8 @@ editor () {
 jv_install () {
     sudo apt-get install -y $@
 }
+
+# Public: open URL in default browser
+jv_browse_url () {
+    sensible-browser "$1"
+}

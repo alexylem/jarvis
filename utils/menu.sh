@@ -197,11 +197,19 @@ while [ "$no_menu" = false ]; do
                 case "`dialog_menu 'Configuration' options[@]`" in
                     "General")
                         while true; do
-                            options=("Username ($username)" "Trigger ($trigger_mode)" "Magic word ($trigger)" "Multi-command separator ($separator)" "Conversation mode ($conversation_mode)" "Language ($language)" "Check Updates on Startup ($check_updates)")
+                            options=("Username ($username)"
+                                     "Trigger ($trigger_mode)"
+                                     "Magic word ($trigger)"
+                                     "Show possible commands ($show_commands)"
+                                     "Multi-command separator ($separator)"
+                                     "Conversation mode ($conversation_mode)"
+                                     "Language ($language)"
+                                     "Check Updates on Startup ($check_updates)")
                             case "`dialog_menu 'Configuration > General' options[@]`" in
                                 Username*) configure "username";;
                                 Trigger*) configure "trigger_mode";;
                                 Magic*word*) configure "trigger";;
+                                Show*commands*) configure "show_commands";;
                                 Multi-command*separator*) configure "separator";;
                                 Conversation*) configure "conversation_mode";;
                                 Language*) configure "language";;

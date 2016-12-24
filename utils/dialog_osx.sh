@@ -56,3 +56,8 @@ jv_install () {
     fi
     brew install $@
 }
+
+# Public: open URL in default browser
+jv_browse_url () {
+    osascript -e "do shell script \"open '$1'\""
+}
