@@ -108,8 +108,9 @@ stt_sb_train () {
     dialog_msg "Sample #3\nPres [Enter], say '$hotword' then hit Ctrl+C"
     rec -r 16000 -c 1 -b 16 -e signed-integer /tmp/3.wav
     
-    # get microphone information
-    [ "$rec_hw" != "false" ] && local microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || local microphone="Default"
+    # get microphone information #103
+    #[ "$rec_hw" != "false" ] && local microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || local microphone="Default"
+    local microphone="Default"
     
     # build json data parameter
     local WAV1=$(base64 /tmp/1.wav)

@@ -640,7 +640,7 @@ while true; do
                 fi
     			#$verbose && PLAY beep-low.wav
                 
-    			order=`cat $forder`
+    			order="$(cat $forder)"
     			if [ -z "$order" ]; then
                     printf '?'
                     PLAY sounds/error.wav
@@ -652,6 +652,7 @@ while true; do
                         bypass=false
                         source hooks/exiting_cmd
                         commands="$(jv_get_commands)" # in case we were in nested commands
+                        $just_listen && jv_exit
                         continue 2
                     fi
                     continue
