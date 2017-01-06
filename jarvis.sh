@@ -149,7 +149,7 @@ configure () {
         program_exit)          editor hooks/$1;;
         entering_cmd)          editor hooks/$1;;
         exiting_cmd)           editor hooks/$1;;
-        language)              options=("en_GB" "es_ES" "fr_FR")
+        language)              options=("en_GB" "es_ES" "fr_FR" "it_IT")
                                eval $1=`dialog_select "Language" options[@] "${!1}"`;;
         language_model)        eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;
         load)
