@@ -47,18 +47,24 @@ source utils/update.sh # needed for update of Jarvis config
 
 # Check platform compatibility
 dependencies=(awk curl git iconv jq nano perl sed sox wget mpg123)
-if [ "$(uname)" == "Darwin" ]; then
-	platform="osx"
-	dependencies+=(osascript)
-	forder="/tmp/jarvis-order"
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-	platform="linux"
-	dependencies+=(alsamixer aplay arecord whiptail)
-	forder="/dev/shm/jarvis-order"
-else
-	jv_error "ERROR: Unsupported platform"
-    exit 1
-fi
+case "$OSTYPE" in
+    linux*)     platform="linux"
+                jv_arch="$(uname -m)"
+                jv_os_name="$(cat /etc/*release | grep ^ID= | cut -f2 -d=)"
+                jv_os_version="$(cat /etc/*release | grep ^VERSION_ID= | cut -f2 -d= | tr -d '"')"
+                dependencies+=(alsamixer aplay arecord whiptail)
+            	forder="/dev/shm/jarvis-order"
+                ;;
+    darwin*)    platform="osx"
+                jv_arch="$(uname -m)"
+                jv_os_name="$(sw_vers -productName)"
+                jv_os_version="$(sw_vers -productVersion)"
+                dependencies+=(osascript)
+                forder="/tmp/jarvis-order"
+                ;;
+    *)          jv_error "ERROR: $OSTYPE is not a supported platform"
+                exit 1;;
+esac
 source utils/dialog_$platform.sh # load default & user configuration
 
 # Initiate files & directories
@@ -471,10 +477,8 @@ if [ "$just_execute" == false ]; then
             speaker="Default"
         fi
         [ "$rec_hw" != "false" ] && microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || microphone="Default"
-        [[ "$OSTYPE" = darwin* ]] && os="$(sw_vers -productVersion)" || os="$(head -n1 /etc/*release | cut -f2 -d=)"
-        system="$(uname -mrs)"
         echo -e "$_gray\n------------ Config ------------"
-        for parameter in jv_version system os language play_hw rec_hw speaker microphone trigger_stt command_stt tts_engine conversation_mode; do
+        for parameter in jv_version jv_arch jv_os_name jv_os_version language play_hw rec_hw speaker microphone trigger_stt command_stt tts_engine; do
             printf "%-20s %s \n" "$parameter" "${!parameter}"
         done
         echo -e "--------------------------------\n$_reset"

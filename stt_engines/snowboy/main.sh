@@ -1,33 +1,58 @@
 #!/bin/bash
+stt_sb_install () {
+    set -e
+    local sb_supported_os=false
+    echo "1/2 Preparation of dependencies"
+    if [ "$platform" = "linux" ]; then
+        if [ "$jv_os_name" == "raspbian" ]; then
+            if [ "$jv_os_version" == 8 ]; then
+                sb_supported_os=true
+                binaries="rpi-arm-raspbian-8.0-1.1.0"
+            fi
+        elif [ "$jv_os_name" == "ubuntu" ]; then
+            if [ "$jv_arch" == "x86_64" ] && ([ "$jv_os_version" == "12.04"] || [ "$jv_os_version" == "14.04"]); then
+                sb_supported_os=true
+                binaries="ubuntu${jv_os_version/.}-x86_64-1.1.0.tar.bz2"
+            fi
+        fi
+        $sb_supported_os && jv_install python-pyaudio python3-pyaudio libatlas-base-dev
+    elif [ "$platform" = "osx" ]; then
+        sb_supported_os=true
+        binaries="osx-x86_64-1.1.0"
+        jv_install portaudio
+    fi
+    if [ "$sb_supported_os" == false ]; then
+        dialog_msg <<EOM
+Pre-packaged Snowboy binaries only available for:
+- Rasbpian 8 Jessie on Raspberry Pi
+- Ubuntu 12.04 and 14.04 on x86 64bits
+- Mac OS X
+Please use correct distribution or compile your own version of Snowboy:
+https://github.com/kitt-ai/snowboy
+EOM
+        exit 1
+    fi
+    
+    wget https://bootstrap.pypa.io/get-pip.py
+    sudo python get-pip.py
+    rm get-pip.py
+    sudo pip install pyaudio
+    echo "2/2 Installation of Snowboy"
+    cd `dirname "${BASH_SOURCE[0]}"`
+    wget https://s3-us-west-2.amazonaws.com/snowboy/snowboy-releases/$binaries.tar.bz2
+    tar xvjf $binaries.tar.bz2
+    rm $binaries.tar.bz2
+    mv $binaries/_snowboydetect.so .
+    cp $binaries/snowboydetect.py .
+    cp $binaries/snowboydecoder.py .
+    cp -r $binaries/resources .
+    rm -rf $binaries
+    cd "$jv_dir"
+}
+
 [ -f "`dirname "${BASH_SOURCE[0]}"`/_snowboydetect.so" ] || {
     dialog_yesno "Snowboy doesn't seem to be installed.\nDo you want to install it?" true >/dev/null && {
-        set -e
-        echo "1/2 Preparation of dependencies"
-        if [[ "$platform" == "linux" ]]; then
-            jv_install python-pyaudio python3-pyaudio libatlas-base-dev
-            binaries="rpi-arm-raspbian-8.0-1.0.2"
-        elif [[ "$platform" == "osx" ]]; then
-            jv_install portaudio
-            binaries="osx-x86_64-1.0.2"
-        else
-            dialog_msg "Unknown platform"
-            exit 1
-        fi
-        wget https://bootstrap.pypa.io/get-pip.py
-        sudo python get-pip.py
-        rm get-pip.py
-        sudo pip install pyaudio
-        echo "2/2 Installation of Snowboy"
-        cd `dirname "${BASH_SOURCE[0]}"`
-        wget https://s3-us-west-2.amazonaws.com/snowboy/snowboy-releases/$binaries.tar.bz2
-        tar xvjf $binaries.tar.bz2
-        rm $binaries.tar.bz2
-        mv $binaries/_snowboydetect.so .
-        cp $binaries/snowboydetect.py .
-        cp $binaries/snowboydecoder.py .
-        cp -r $binaries/resources .
-        rm -rf $binaries
-        cd "$jv_dir"
+        stt_sb_install
         dialog_msg "Snowboy installed sucessfully"
     }
 }
