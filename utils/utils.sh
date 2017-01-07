@@ -21,6 +21,18 @@ order=
 # Use `${language:0:2}` to only get `en`
 language=
 
+# Public: user's platform (linux, osx)
+platform=
+
+# Public: user's architecture (armv7l, x86_64)
+jv_arch=
+
+# Public: user's OS name (raspbian, ubuntu, Mac OS X...)
+jv_os_name=
+
+# Public: user's OS version (8, 16.02, ...)
+jv_os_version=
+
 # Internal: indicates if there are nested commands
 jv_possible_answers=false
 

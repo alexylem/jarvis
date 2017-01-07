@@ -36,6 +36,30 @@ Public: the user's language in Jarvis settings
 Ex: `en_GB` Use `${language:0:2}` to only get `en`
 
 
+`platform`
+----------
+
+Public: user's platform (linux, osx)
+
+
+`jv_arch`
+---------
+
+Public: user's architecture (armv7l, x86_64)
+
+
+`jv_os_name`
+------------
+
+Public: user's OS name (raspbian, ubuntu, Mac OS X...)
+
+
+`jv_os_version`
+---------------
+
+Public: user's OS version (8, 16.02, ...)
+
+
 `jv_possible_answers`
 ---------------------
 
