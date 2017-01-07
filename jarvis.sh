@@ -630,7 +630,7 @@ while true; do
     		printf "$_cyan$username$_reset: "
             
             $quiet || ( $bypass && PLAY sounds/triggered.wav || PLAY sounds/listening.wav )
-
+            
             while true; do
     			#$quiet || PLAY beep-high.wav
 
@@ -678,13 +678,13 @@ while true; do
     		#echo # new line
     	fi
     fi
-    was_in_conversation=$bypass
+    #was_in_conversation=$bypass
 	[ -n "$order" ] && handle_orders "$order"
     order=""
-    if $was_in_conversation && [ $conversation_mode = false ]; then
-        bypass=false
-        source hooks/exiting_cmd
-    fi
+    #if $was_in_conversation && ( ! $conversation_mode || ! $bypass ); then
+    $conversation_mode || bypass=false
+    $bypass || source hooks/exiting_cmd
+    #fi
     $just_listen && [ $bypass = false ] && jv_exit
     if [ "$just_execute" != false ]; then
         if $jv_possible_answers; then
