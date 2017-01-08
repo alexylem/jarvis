@@ -489,8 +489,9 @@ source hooks/program_startup
 
 # Include installed plugins
 shopt -s nullglob
-for f in plugins/*/config.sh; do source $f; done
-for f in plugins/*/${language:0:2}/functions.sh; do source $f; done
+for f in plugins/*/config.sh; do source $f; done # plugin configuration
+for f in plugins/*/functions.sh; do source $f; done # plugin functions
+for f in plugins/*/${language:0:2}/functions.sh; do source $f; done # plugin language specific functions
 shopt -u nullglob
 jv_plugins_order_rebuild
 jv_get_commands () {
