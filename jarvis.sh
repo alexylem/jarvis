@@ -277,7 +277,10 @@ check_dependencies () {
     if [[ "$platform" == "linux" ]]; then
         if ! groups "$(whoami)" | grep -qw audio; then
             jv_warning "Your user should be part of audio group to list audio devices"
-            jv_yesno "Would you like to add audio group to user $(whoami)?" && sudo usermod -a -G audio $(whoami)
+            jv_yesno "Would you like to add audio group to user $USER?" || exit 1
+            sudo usermod -a -G audio $USER # add audio group to user
+            jv_warning "Please logout and login for new group permissions to take effect, then restart Jarvis"
+            exit
         fi
     fi
 }

@@ -32,7 +32,7 @@ https://github.com/kitt-ai/snowboy
 EOM
         exit 1
     fi
-    
+    jv_install bzip2 # https://github.com/alexylem/jarvis/issues/327
     wget https://bootstrap.pypa.io/get-pip.py
     sudo python get-pip.py
     rm get-pip.py
