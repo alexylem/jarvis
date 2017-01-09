@@ -17,6 +17,7 @@ min_silence_level_to_stop="1%" # default 1%
 play_hw=false
 pocketsphinxlog="/dev/null" # can get very big on long run
 rec_hw=false
+send_usage_stats=true
 separator=""
 show_commands=true
 snowboy_sensitivity="0.4"

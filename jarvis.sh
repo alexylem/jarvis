@@ -120,6 +120,7 @@ configure () {
                    'play_hw'
                    'pocketsphinxlog'
                    'rec_hw'
+                   'send_usage_stats'
                    'separator'
                    'show_commands'
                    'snowboy_sensitivity'
@@ -231,6 +232,7 @@ configure () {
                   #echo "DEBUG: saving ${!varname} into config/$varname"
                   echo "${!varname}" > config/$varname
               done;;
+        send_usage_stats)    eval $1=`dialog_yesno "Send anynomous usage statistics to help improving Jarvis" "${!1}"`;;
         separator)           eval $1=`dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}"`;;
         show_commands)       eval $1=`dialog_yesno "Show commands on startup and possible answers" "${!1}"`;;
         snowboy_sensitivity) eval $1=`dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.5" "${!1}"`;;
@@ -417,7 +419,7 @@ check_dependencies
 # load user settings if exist else launch install wizard
 configure "load" || wizard
 # send google analytics hit
-( jv_ga_send_hit & )
+$send_usage_stats && ( jv_ga_send_hit & )
 
 trigger_sanitized=$(jv_sanitize "$trigger")
 [ -n "$conversation_mode_override" ] && conversation_mode=$conversation_mode_override

@@ -204,7 +204,8 @@ while [ "$no_menu" = false ]; do
                                      "Multi-command separator ($separator)"
                                      "Conversation mode ($conversation_mode)"
                                      "Language ($language)"
-                                     "Check Updates on Startup ($check_updates)")
+                                     "Check Updates on Startup ($check_updates)"
+                                     "Usage Statistics ($send_usage_stats)")
                             case "`dialog_menu 'Configuration > General' options[@]`" in
                                 Username*) configure "username";;
                                 Trigger*) configure "trigger_mode";;
@@ -214,6 +215,7 @@ while [ "$no_menu" = false ]; do
                                 Conversation*) configure "conversation_mode";;
                                 Language*) configure "language";;
                                 Check*Updates*) configure "check_updates";;
+                                Usage*Statistics*) configure "send_usage_stats";;
                                 *) break;;
                             esac
                         done;;
