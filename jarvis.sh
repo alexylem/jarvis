@@ -209,7 +209,7 @@ configure () {
         rec_hw)
             rec_export=''
             while true; do
-                dialog_yesno "Checking audio input, make sure your microphone is on, press [Yes] and say something.\nPress [No] if you don't have a micrphone." true || break
+                dialog_yesno "Checking audio input, make sure your microphone is on, press [Yes] and say something.\nPress [No] if you don't have a microphone." true || break
                 clear
                 rec -r 16000 -c 1 -b 16 -e signed-integer $audiofile trim 0 3
                 if [ $? -eq 0 ]; then
