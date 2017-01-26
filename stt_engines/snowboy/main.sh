@@ -12,7 +12,7 @@ stt_sb_install () {
         elif [ "$jv_os_name" == "ubuntu" ]; then
             if [ "$jv_arch" == "x86_64" ] && ([ "$jv_os_version" == "12.04" ] || [ "$jv_os_version" == "14.04" ]); then
                 sb_supported_os=true
-                binaries="ubuntu${jv_os_version/.}-x86_64-1.1.0.tar.bz2" # 12.04 => 1204
+                binaries="ubuntu${jv_os_version/.}-x86_64-1.1.0" # 12.04 => 1204
             fi
         fi
         $sb_supported_os && jv_install python-pyaudio python3-pyaudio libatlas-base-dev
