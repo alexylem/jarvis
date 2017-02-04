@@ -40,7 +40,7 @@ LISTEN_COMMAND () {
             PLAY sounds/timeout.wav
             sleep 1 # BUG here despite timeout mic still busy can't rec again...
             bypass=false
-            source hooks/exiting_cmd
+            $jv_json || source hooks/exiting_cmd # don't trigger hooks if API
             order='' # clean previous order
             commands="$(jv_get_commands)" # in case we were in nested commands
             break 2

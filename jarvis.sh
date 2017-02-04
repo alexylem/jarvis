@@ -438,6 +438,9 @@ EOM
     exit
 fi
 
+# don't trigger hooks from API
+$jv_json || source hooks/program_startup
+
 # if -s argument provided, just say it & exit (used in jarvis-events)
 if [[ "$just_say" != false ]]; then
 	say "$just_say"
@@ -489,8 +492,6 @@ if [ "$just_execute" == false ]; then
         echo -e "--------------------------------\n$_reset"
     fi
 fi
-
-source hooks/program_startup
 
 # Include installed plugins
 shopt -s nullglob

@@ -259,10 +259,14 @@ jv_kill_jarvis () {
 jv_exit () {
     local return_code=${1:-0}
     
-    $verbose && jv_debug "DEBUG: program exit handler"
-    source hooks/program_exit $return_code
-    
-    $jv_json && echo "]"
+    # If using API, terminate json table output
+    if $jv_json; then
+        echo "]"
+    else
+    # If not using API, trigger program exit hook
+        $verbose && jv_debug "DEBUG: program exit handler"
+        source hooks/program_exit $return_code
+    fi
     
     # termine child processes (ex: HTTP Server from Jarvis API Plugin)
     local jv_child_pids="$(jobs -p)"
@@ -271,7 +275,7 @@ jv_exit () {
     fi
     
     # make sure the lockfile is removed when we exit and then claim it
-    #[ "$(cat $lockfile)" == $$ ] && rm -f $lockfile # to test tested further
+    #[ "$(cat $lockfile)" == $$ ] && rm -f $lockfile # to be tested further
     #[ "$just_execute" == false ] && rm -f $lockfile # https://github.com/alexylem/jarvis-api/issues/3
     exit $return_code
 }
