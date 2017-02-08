@@ -1,10 +1,10 @@
 ### Description
 
-Description of your request/issue
+PLEASE SEARCH BEFORE existing tickets and in the docs
 NB: for issues with plugins, please create in the corresponding repository
 
 ### Result
 ```shell
 <paste here> content of the terminal after using Jarvis in troubleshooting mode
-or delete this section if not applicable
+or attach a session recording using https://asciinema.org/
 ```
