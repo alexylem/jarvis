@@ -60,6 +60,7 @@ editor () {
 #
 # args: list of packages to install
 jv_install () {
+    sudo apt-get update -y #421
     sudo apt-get install -y $@
 }
 
