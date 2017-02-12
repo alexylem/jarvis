@@ -36,3 +36,7 @@ hooks/program_startup
 plugins/
 
 plugins_order.txt
+
+hooks/start_listening
+
+hooks/stop_listening

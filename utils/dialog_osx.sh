@@ -59,5 +59,5 @@ jv_install () {
 
 # Public: open URL in default browser
 jv_browse_url () {
-    osascript -e "do shell script \"open '$1'\""
+    open "$1"
 }

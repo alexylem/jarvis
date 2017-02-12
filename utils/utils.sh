@@ -36,7 +36,7 @@ jv_os_version=
 # Internal: indicates if there are nested commands
 jv_possible_answers=false
 
-# Internal: indicates if called using API else normal usage
+# Public: indicates if called using API else normal usage
 jv_api=false
 
 # Public: Re-run last executed command. Use to create an order to repeat.
@@ -67,7 +67,7 @@ jv_display_commands () {
     jv_debug "$(grep -v "^#" jarvis-commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
     while read plugin_name; do
         jv_info "Commands from plugin $plugin_name:"
-        jv_debug "$(cat plugins/$plugin_name/${language:0:2}/commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
+        jv_debug "$(cat plugins/$plugin_name/${language:0:2}/commands 2>/dev/null | cut -d '=' -f 1 | pr -3 -l1 -t)"
     done <plugins_order.txt
 }
 
@@ -255,6 +255,12 @@ jv_kill_jarvis () {
     return 1
 }
 
+# Internal: trigger hooks
+jv_hook () {
+    source hooks/$1 $2 2>/dev/null # user hook
+    for f in plugins/*/hooks/$1; do source $f; done # plugins hooks
+}
+
 # Public: Exit properly jarvis
 # $1 - Return code
 #
@@ -268,7 +274,7 @@ jv_exit () {
     # If not using API, trigger program exit hook
     if ! $jv_api; then #410
         $verbose && jv_debug "DEBUG: program exit handler"
-        source hooks/program_exit $return_code
+        jv_hook "program_exit" $return_code
     fi
     
     # termine child processes (ex: HTTP Server from Jarvis API Plugin)

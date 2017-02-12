@@ -69,7 +69,7 @@ Internal: indicates if there are nested commands
 `jv_api`
 --------
 
-Internal: indicates if called using API else normal usage
+Public: indicates if called using API else normal usage
 
 
 `jv_repeat_last_command()`
@@ -234,6 +234,12 @@ Returns nothing
 ------------------
 
 Internal: Kill Jarvis if running in background
+
+
+`jv_hook()`
+-----------
+
+Internal: trigger hooks
 
 
 `jv_exit()`

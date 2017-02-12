@@ -60,6 +60,12 @@ Public: user's OS name (raspbian, ubuntu, Mac OS X...)
 Public: user's OS version (8, 16.02, ...)
 
 
+`jv_api`
+--------
+
+Public: indicates if called using API else normal usage
+
+
 `jv_repeat_last_command()`
 --------------------------
 

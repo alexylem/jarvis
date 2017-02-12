@@ -136,7 +136,9 @@ configure () {
     local hooks=(  'entering_cmd'
                    'exiting_cmd'
                    'program_startup'
-                   'program_exit')
+                   'program_exit'
+                   'start_listening'
+                   'stop_listening')
     case "$1" in
         bing_speech_api_key)   eval $1=`dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}"`;;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
@@ -156,6 +158,8 @@ configure () {
         program_exit)          editor hooks/$1;;
         entering_cmd)          editor hooks/$1;;
         exiting_cmd)           editor hooks/$1;;
+        start_listening)       editor hooks/$1;;
+        stop_listening)        editor hooks/$1;;
         language)              options=("en_GB" "es_ES" "fr_FR" "it_IT")
                                eval $1=`dialog_select "Language" options[@] "${!1}"`;;
         language_model)        eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;
@@ -440,9 +444,6 @@ EOM
     exit
 fi
 
-# don't trigger hooks from API
-$jv_api || source hooks/program_startup
-
 # if -s argument provided, just say it & exit (used in jarvis-events)
 if [[ "$just_say" != false ]]; then
 	say "$just_say"
@@ -508,6 +509,9 @@ jv_get_commands () {
         cat plugins/$REPLY/${language:0:2}/commands 2>/dev/null
     done <plugins_order.txt
 }
+
+# run startup hooks after plugin load
+$jv_api || jv_hook "program_startup" # don't trigger hooks from API
 
 # Public: handle an order and execute corresponding command
 # 
@@ -642,16 +646,16 @@ while true; do
             
             while true; do
     			#$quiet || PLAY beep-high.wav
-
-                $verbose && jv_debug "(listening...)"
                 
+                $verbose && jv_debug "(listening...)"
                 > $forder # empty $forder
                 if $bypass; then
+                    jv_hook "start_listening"
                     eval ${command_stt}_STT
+                    jv_hook "stop_listening"
                 else
                     eval ${trigger_stt}_STT
                 fi
-    			#$verbose && PLAY beep-low.wav
                 
     			order="$(cat $forder)"
     			if [ -z "$order" ]; then
@@ -663,7 +667,7 @@ while true; do
                         $verbose && jv_debug "DEBUG: 3 attempts failed, end of conversation"
                         PLAY sounds/timeout.wav
                         bypass=false
-                        source hooks/exiting_cmd
+                        jv_hook "exiting_cmd"
                         commands="$(jv_get_commands)" # in case we were in nested commands
                         $just_listen && jv_exit
                         continue 2
@@ -675,9 +679,9 @@ while true; do
                     break
                 elif [[ "$order" == *$trigger_sanitized* ]]; then
                     order=""
-                    bypass=true
                     echo $trigger # new line
-                    source hooks/entering_cmd
+                    bypass=true
+                    jv_hook "entering_cmd"
                     say "$phrase_triggered"
                     continue 2
                 fi
@@ -692,7 +696,7 @@ while true; do
     order=""
     #if $was_in_conversation && ( ! $conversation_mode || ! $bypass ); then
     $conversation_mode || bypass=false
-    $bypass || source hooks/exiting_cmd
+    $jv_api || $bypass || jv_hook "exiting_cmd"
     #fi
     $just_listen && [ $bypass = false ] && jv_exit
     if [ "$just_execute" != false ]; then
