@@ -66,6 +66,12 @@ Public: user's OS version (8, 16.02, ...)
 Internal: indicates if there are nested commands
 
 
+`jv_api`
+--------
+
+Internal: indicates if called using API else normal usage
+
+
 `jv_repeat_last_command()`
 --------------------------
 

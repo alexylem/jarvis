@@ -394,14 +394,16 @@ while getopts ":$flags" o; do
             exit;;
         q)  jv_kill_jarvis
             exit $?;;
-        s)	just_say=${OPTARG};;
+        s)	just_say=${OPTARG}
+            jv_api=true;;
         u)  jv_check_updates "./" true # force udpate
             jv_update_config # apply config updates
             jv_plugins_check_updates true # force udpate
             exit;;
         v)  verbose=true;;
         w)  unset _reset _red _orange _green _gray _blue _cyan _pink;;
-        x)  just_execute="${OPTARG}";;
+        x)  just_execute="${OPTARG}"
+            jv_api=true;;
         z)  jv_build
             exit;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
@@ -439,7 +441,7 @@ EOM
 fi
 
 # don't trigger hooks from API
-$jv_json || source hooks/program_startup
+$jv_api || source hooks/program_startup
 
 # if -s argument provided, just say it & exit (used in jarvis-events)
 if [[ "$just_say" != false ]]; then

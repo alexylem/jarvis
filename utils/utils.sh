@@ -36,6 +36,9 @@ jv_os_version=
 # Internal: indicates if there are nested commands
 jv_possible_answers=false
 
+# Internal: indicates if called using API else normal usage
+jv_api=false
+
 # Public: Re-run last executed command. Use to create an order to repeat.
 #
 # Usage:
@@ -259,11 +262,11 @@ jv_kill_jarvis () {
 jv_exit () {
     local return_code=${1:-0}
     
-    # If using API, terminate json table output
-    if $jv_json; then
-        echo "]"
-    else
+    # If using json formatting, terminate table
+    $jv_json && echo "]"
+    
     # If not using API, trigger program exit hook
+    if ! $jv_api; then #410
         $verbose && jv_debug "DEBUG: program exit handler"
         source hooks/program_exit $return_code
     fi
