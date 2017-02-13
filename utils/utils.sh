@@ -258,7 +258,9 @@ jv_kill_jarvis () {
 # Internal: trigger hooks
 jv_hook () {
     source hooks/$1 $2 2>/dev/null # user hook
+    shopt -s nullglob
     for f in plugins/*/hooks/$1; do source $f; done # plugins hooks
+    shopt -u nullglob
 }
 
 # Public: Exit properly jarvis
