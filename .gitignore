@@ -40,3 +40,7 @@ plugins_order.txt
 hooks/start_listening
 
 hooks/stop_listening
+
+hooks/start_speaking
+
+hooks/stop_speaking

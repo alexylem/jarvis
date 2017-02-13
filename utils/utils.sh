@@ -96,7 +96,11 @@ say () {
     else
         echo -e "$_pink$trigger$_reset: $1"
     fi
-    $quiet || $tts_engine'_TTS' "$1"
+    if ! $quiet; then
+        jv_hook "start_speaking"
+        $tts_engine'_TTS' "$1"
+        jv_hook "stop_speaking"
+    fi
 }
 
 # Public: Call HTTP requests

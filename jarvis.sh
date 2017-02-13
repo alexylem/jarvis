@@ -138,7 +138,9 @@ configure () {
                    'program_startup'
                    'program_exit'
                    'start_listening'
-                   'stop_listening')
+                   'stop_listening'
+                   'start_speaking'
+                   'stop_speaking')
     case "$1" in
         bing_speech_api_key)   eval $1=`dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}"`;;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
@@ -160,6 +162,8 @@ configure () {
         exiting_cmd)           editor hooks/$1;;
         start_listening)       editor hooks/$1;;
         stop_listening)        editor hooks/$1;;
+        start_speaking)        editor hooks/$1;;
+        stop_speaking)         editor hooks/$1;;
         language)              options=("en_GB" "es_ES" "fr_FR" "it_IT")
                                eval $1=`dialog_select "Language" options[@] "${!1}"`;;
         language_model)        eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;

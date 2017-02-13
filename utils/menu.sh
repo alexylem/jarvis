@@ -237,7 +237,9 @@ while [ "$no_menu" = false ]; do
                                  "Entering command mode"
                                  "Exiting command mode"
                                  "Start listening"
-                                 "Stop listening")
+                                 "Stop listening"
+                                 "Start speaking"
+                                 "Stop speaking")
                         case "`dialog_menu 'Configuration > Hooks' options[@]`" in
                             Program*startup*) configure "program_startup";;
                             Program*exit*) configure "program_exit";;
@@ -245,6 +247,8 @@ while [ "$no_menu" = false ]; do
                             Exiting*) configure "exiting_cmd";;
                             Start*listening*) configure "start_listening";;
                             Stop*listening*) configure "stop_listening";;
+                            Start*speaking*) configure "start_speaking";;
+                            Stop*speaking*) configure "stop_speaking";;
                             *) break;;
                         esac
                     done;;
