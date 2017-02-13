@@ -261,6 +261,7 @@ jv_kill_jarvis () {
 
 # Internal: trigger hooks
 jv_hook () {
+    $jv_api && return # don't trigger hooks from API
     source hooks/$1 $2 2>/dev/null # user hook
     shopt -s nullglob
     for f in plugins/*/hooks/$1; do source $f; done # plugins hooks
@@ -277,11 +278,8 @@ jv_exit () {
     # If using json formatting, terminate table
     $jv_json && echo "]"
     
-    # If not using API, trigger program exit hook
-    if ! $jv_api; then #410
-        $verbose && jv_debug "DEBUG: program exit handler"
-        jv_hook "program_exit" $return_code
-    fi
+    # Trigger program exit hook
+    jv_hook "program_exit" $return_code
     
     # termine child processes (ex: HTTP Server from Jarvis API Plugin)
     local jv_child_pids="$(jobs -p)"

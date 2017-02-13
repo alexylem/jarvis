@@ -515,7 +515,7 @@ jv_get_commands () {
 }
 
 # run startup hooks after plugin load
-$jv_api || jv_hook "program_startup" # don't trigger hooks from API
+jv_hook "program_startup"
 
 # Public: handle an order and execute corresponding command
 # 
@@ -699,8 +699,10 @@ while true; do
 	[ -n "$order" ] && handle_orders "$order"
     order=""
     #if $was_in_conversation && ( ! $conversation_mode || ! $bypass ); then
-    $conversation_mode || bypass=false
-    $jv_api || $bypass || jv_hook "exiting_cmd"
+    if ! $jv_possible_answers && ! $conversation_mode; then # jarvis-api#6
+        bypass=false
+    fi
+    $bypass || jv_hook "exiting_cmd"
     #fi
     $just_listen && [ $bypass = false ] && jv_exit
     if [ "$just_execute" != false ]; then
