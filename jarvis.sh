@@ -253,7 +253,7 @@ configure () {
                     eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
                     source tts_engines/$tts_engine/main.sh;;
         username) eval $1=`dialog_input "How would you like to be called?" "${!1}"`;;
-        voxygen_voice)       options=('Bruce' 'Jenny' 'Loic' 'Marion' 'Electra' 'Becool' 'Martha')
+        voxygen_voice)       options=('Bruce' 'Jenny' 'Loic' 'Marion' 'Electra' 'Becool' 'Martha' 'Sonia')
                              eval $1=`dialog_select "Voxygen Voice\nVisit https://www.voxygen.fr" options[@] "${!1}"`
                              rm -f /tmp/*.mp3 # remove cached voice
                              ;;
