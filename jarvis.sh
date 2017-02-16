@@ -653,17 +653,26 @@ while true; do
                 
                 $verbose && jv_debug "(listening...)"
                 > $forder # empty $forder
+                error=false
                 if $bypass; then
-                    jv_hook "start_listening"
                     eval ${command_stt}_STT
-                    jv_hook "stop_listening"
                 else
                     eval ${trigger_stt}_STT
                 fi
+                (( $? )) && error=true
                 
-    			order="$(cat $forder)"
-    			if [ -z "$order" ]; then
-                    printf '?'
+                # if there was no error doing speech to text
+                if ! $error; then
+                    # retrieve transcribed speech
+                    order="$(cat $forder)"
+                    # check if it is empty
+                    if [ -z "$order" ]; then
+                        printf '?'
+                        error=true
+                    fi
+                fi
+                
+    			if $error; then
                     PLAY sounds/error.wav
                     if [ $((++nb_failed)) -eq 3 ]; then
                         nb_failed=0

@@ -136,7 +136,7 @@ Returns the return code of curl
 
 Public: Displays a spinner for long running commmands
 
-Returns nothing
+Returns return code of background task
 
     command &; jv_spinner $!
     |/-\|\-\... (spinning bar)

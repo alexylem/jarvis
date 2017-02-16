@@ -127,7 +127,7 @@ jv_curl () {
 
 # Public: Displays a spinner for long running commmands
 # 
-# Returns nothing
+# Returns return code of background task
 # 
 #   command &; jv_spinner $!
 #   |/-\|\-\... (spinning bar)
@@ -138,6 +138,8 @@ jv_spinner () {
 			sleep .1
 		done
 	done
+    wait $1 # get return code of background task in $?
+    return $? # return return code of background task
 }
 
 # Public: XML Parser

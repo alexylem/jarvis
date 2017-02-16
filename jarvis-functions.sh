@@ -31,27 +31,32 @@ RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is det
 }
 
 LISTEN_COMMAND () {
-    while true; do
-        RECORD "$audiofile" 10
-        duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
-        $verbose && jv_debug "DEBUG: speech duration was $duration (10 = 1 sec)"
-        if [ -z "$duration" ]; then
-            $verbose && jv_debug "DEBUG: timeout, end of conversation" || printf '.'
-            PLAY sounds/timeout.wav
-            sleep 1 # BUG here despite timeout mic still busy can't rec again...
-            bypass=false
-            $jv_json || source hooks/exiting_cmd # don't trigger hooks if API
-            order='' # clean previous order
-            commands="$(jv_get_commands)" # in case we were in nested commands
-            break 2
-        elif [ "$duration" -gt 40 ]; then
-            $verbose && jv_debug "DEBUG: too long for a command (max 4 secs), ignoring..." || printf '#'
-            sleep 1 # https://github.com/alexylem/jarvis/issues/32
-            continue
+    RECORD "$audiofile" 10
+    duration=`sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p'`
+    $verbose && jv_debug "DEBUG: speech duration was $duration (10 = 1 sec)"
+    if [ -z "$duration" ]; then
+        $verbose && jv_debug "DEBUG: timeout, end of conversation" || printf '.'
+        PLAY sounds/timeout.wav
+        sleep 1 # BUG here despite timeout mic still busy can't rec again...
+        bypass=false
+        $jv_json || source hooks/exiting_cmd # don't trigger hooks if API
+        order='' # clean previous order
+        commands="$(jv_get_commands)" # in case we were in nested commands
+        break
+    elif [ "$duration" -gt 40 ]; then
+        if $verbose; then
+            jv_warning "WARNING: too long for a command (max 4 secs), ignoring..."
+            jv_warning "HELP: try in order the following options"
+            jv_warning "1) wait longer between voice commands"
+            jv_warning "2) reduce ambiant background noise"
+            jv_warning "3) decrease mic sensitivity in Settings > Audio"
+            jv_warning "4) increase Min Silence Level to Stop"
         else
-            break
+            printf '#'
         fi
-    done
+        sleep 1 # https://github.com/alexylem/jarvis/issues/32
+        return 1
+    fi
 }
 
 LISTEN_TRIGGER () {
@@ -72,7 +77,18 @@ LISTEN_TRIGGER () {
     done
 }
 
+# Calls appropriate voice record function depending on conversation mode
 LISTEN () {
-    $bypass && LISTEN_COMMAND || LISTEN_TRIGGER
+    local returncode=0
+    if $bypass; then
+        jv_hook "start_listening"
+        LISTEN_COMMAND
+        returncode=$?
+        jv_hook "stop_listening"
+    else
+        LISTEN_TRIGGER
+        returncode=$?
+    fi
     $verbose && PLAY "$audiofile"
+    return $returncode
 }

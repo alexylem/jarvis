@@ -74,8 +74,12 @@ _bing_transcribe () {
     fi
 }
 
+# Internal: Speech To Text function for Bing
+# Return value: none
+# Return code: 0 if success
 bing_STT () {
-    LISTEN $audiofile
+    LISTEN $audiofile || return $?
     _bing_transcribe &
    jv_spinner $!
+   return $? # return code of _bing_transcribe
 }

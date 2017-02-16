@@ -13,7 +13,7 @@ _google_transcribe () {
 }
 
 google_STT () { # STT () {} Listen & transcribes audio file then writes corresponding text in $forder
-    LISTEN $audiofile
+    LISTEN $audiofile || return $?
     _google_transcribe &
    jv_spinner $!
 }
