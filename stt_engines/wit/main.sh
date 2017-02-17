@@ -6,7 +6,7 @@ _wit_transcribe () {
 }
 
 wit_STT () { # STT () {} Transcribes audio file $1 and writes corresponding text in $forder
-    LISTEN $audiofile
+    LISTEN $audiofile || return $?
     _wit_transcribe &
    jv_spinner $!
 }

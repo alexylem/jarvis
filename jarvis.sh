@@ -136,7 +136,11 @@ configure () {
     local hooks=(  'entering_cmd'
                    'exiting_cmd'
                    'program_startup'
-                   'program_exit')
+                   'program_exit'
+                   'start_listening'
+                   'stop_listening'
+                   'start_speaking'
+                   'stop_speaking')
     case "$1" in
         bing_speech_api_key)   eval $1=`dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}"`;;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
@@ -156,6 +160,10 @@ configure () {
         program_exit)          editor hooks/$1;;
         entering_cmd)          editor hooks/$1;;
         exiting_cmd)           editor hooks/$1;;
+        start_listening)       editor hooks/$1;;
+        stop_listening)        editor hooks/$1;;
+        start_speaking)        editor hooks/$1;;
+        stop_speaking)         editor hooks/$1;;
         language)              options=("en_GB" "es_ES" "fr_FR" "it_IT")
                                eval $1=`dialog_select "Language" options[@] "${!1}"`;;
         language_model)        eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;
@@ -253,7 +261,7 @@ configure () {
                     eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
                     source tts_engines/$tts_engine/main.sh;;
         username) eval $1=`dialog_input "How would you like to be called?" "${!1}"`;;
-        voxygen_voice)       options=('Bruce' 'Jenny' 'Loic' 'Marion' 'Electra' 'Becool' 'Martha' 'Sonia')
+        voxygen_voice)       options=('Bruce' 'Jenny' 'Loic' 'Philippe' 'Marion' 'Electra' 'Becool' 'Martha' 'Sonia')
                              eval $1=`dialog_select "Voxygen Voice\nVisit https://www.voxygen.fr" options[@] "${!1}"`
                              rm -f /tmp/*.mp3 # remove cached voice
                              ;;
@@ -394,14 +402,16 @@ while getopts ":$flags" o; do
             exit;;
         q)  jv_kill_jarvis
             exit $?;;
-        s)	just_say=${OPTARG};;
+        s)	just_say=${OPTARG}
+            jv_api=true;;
         u)  jv_check_updates "./" true # force udpate
             jv_update_config # apply config updates
             jv_plugins_check_updates true # force udpate
             exit;;
         v)  verbose=true;;
         w)  unset _reset _red _orange _green _gray _blue _cyan _pink;;
-        x)  just_execute="${OPTARG}";;
+        x)  just_execute="${OPTARG}"
+            jv_api=true;;
         z)  jv_build
             exit;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
@@ -490,8 +500,6 @@ if [ "$just_execute" == false ]; then
     fi
 fi
 
-source hooks/program_startup
-
 # Include installed plugins
 shopt -s nullglob
 for f in plugins/*/config.sh; do source $f; done # plugin configuration
@@ -505,6 +513,9 @@ jv_get_commands () {
         cat plugins/$REPLY/${language:0:2}/commands 2>/dev/null
     done <plugins_order.txt
 }
+
+# run startup hooks after plugin load
+jv_hook "program_startup"
 
 # Public: handle an order and execute corresponding command
 # 
@@ -639,20 +650,29 @@ while true; do
             
             while true; do
     			#$quiet || PLAY beep-high.wav
-
-                $verbose && jv_debug "(listening...)"
                 
+                $verbose && jv_debug "(listening...)"
                 > $forder # empty $forder
+                error=false
                 if $bypass; then
                     eval ${command_stt}_STT
                 else
                     eval ${trigger_stt}_STT
                 fi
-    			#$verbose && PLAY beep-low.wav
+                (( $? )) && error=true
                 
-    			order="$(cat $forder)"
-    			if [ -z "$order" ]; then
-                    printf '?'
+                # if there was no error doing speech to text
+                if ! $error; then
+                    # retrieve transcribed speech
+                    order="$(cat $forder)"
+                    # check if it is empty
+                    if [ -z "$order" ]; then
+                        printf '?'
+                        error=true
+                    fi
+                fi
+                
+    			if $error; then
                     PLAY sounds/error.wav
                     if [ $((++nb_failed)) -eq 3 ]; then
                         nb_failed=0
@@ -660,7 +680,7 @@ while true; do
                         $verbose && jv_debug "DEBUG: 3 attempts failed, end of conversation"
                         PLAY sounds/timeout.wav
                         bypass=false
-                        source hooks/exiting_cmd
+                        jv_hook "exiting_cmd"
                         commands="$(jv_get_commands)" # in case we were in nested commands
                         $just_listen && jv_exit
                         continue 2
@@ -672,9 +692,9 @@ while true; do
                     break
                 elif [[ "$order" == *$trigger_sanitized* ]]; then
                     order=""
-                    bypass=true
                     echo $trigger # new line
-                    source hooks/entering_cmd
+                    bypass=true
+                    jv_hook "entering_cmd"
                     say "$phrase_triggered"
                     continue 2
                 fi
@@ -688,8 +708,10 @@ while true; do
 	[ -n "$order" ] && handle_orders "$order"
     order=""
     #if $was_in_conversation && ( ! $conversation_mode || ! $bypass ); then
-    $conversation_mode || bypass=false
-    $bypass || source hooks/exiting_cmd
+    if ! $jv_possible_answers && ! $conversation_mode; then # jarvis-api#6
+        bypass=false
+    fi
+    $bypass || jv_hook "exiting_cmd"
     #fi
     $just_listen && [ $bypass = false ] && jv_exit
     if [ "$just_execute" != false ]; then

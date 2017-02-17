@@ -36,6 +36,9 @@ jv_os_version=
 # Internal: indicates if there are nested commands
 jv_possible_answers=false
 
+# Public: indicates if called using API else normal usage
+jv_api=false
+
 # Public: Re-run last executed command. Use to create an order to repeat.
 #
 # Usage:
@@ -64,7 +67,7 @@ jv_display_commands () {
     jv_debug "$(grep -v "^#" jarvis-commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
     while read plugin_name; do
         jv_info "Commands from plugin $plugin_name:"
-        jv_debug "$(cat plugins/$plugin_name/${language:0:2}/commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
+        jv_debug "$(cat plugins/$plugin_name/${language:0:2}/commands 2>/dev/null | cut -d '=' -f 1 | pr -3 -l1 -t)"
     done <plugins_order.txt
 }
 
@@ -93,7 +96,11 @@ say () {
     else
         echo -e "$_pink$trigger$_reset: $1"
     fi
-    $quiet || $tts_engine'_TTS' "$1"
+    if ! $quiet; then
+        jv_hook "start_speaking"
+        $tts_engine'_TTS' "$1"
+        jv_hook "stop_speaking"
+    fi
 }
 
 # Public: Call HTTP requests
@@ -120,7 +127,7 @@ jv_curl () {
 
 # Public: Displays a spinner for long running commmands
 # 
-# Returns nothing
+# Returns return code of background task
 # 
 #   command &; jv_spinner $!
 #   |/-\|\-\... (spinning bar)
@@ -131,6 +138,8 @@ jv_spinner () {
 			sleep .1
 		done
 	done
+    wait $1 # get return code of background task in $?
+    return $? # return return code of background task
 }
 
 # Public: XML Parser
@@ -252,6 +261,15 @@ jv_kill_jarvis () {
     return 1
 }
 
+# Internal: trigger hooks
+jv_hook () {
+    $jv_api && return # don't trigger hooks from API
+    source hooks/$1 $2 2>/dev/null # user hook
+    shopt -s nullglob
+    for f in plugins/*/hooks/$1; do source $f; done # plugins hooks
+    shopt -u nullglob
+}
+
 # Public: Exit properly jarvis
 # $1 - Return code
 #
@@ -259,10 +277,11 @@ jv_kill_jarvis () {
 jv_exit () {
     local return_code=${1:-0}
     
-    $verbose && jv_debug "DEBUG: program exit handler"
-    source hooks/program_exit $return_code
-    
+    # If using json formatting, terminate table
     $jv_json && echo "]"
+    
+    # Trigger program exit hook
+    jv_hook "program_exit" $return_code
     
     # termine child processes (ex: HTTP Server from Jarvis API Plugin)
     local jv_child_pids="$(jobs -p)"
@@ -271,7 +290,7 @@ jv_exit () {
     fi
     
     # make sure the lockfile is removed when we exit and then claim it
-    #[ "$(cat $lockfile)" == $$ ] && rm -f $lockfile # to test tested further
+    #[ "$(cat $lockfile)" == $$ ] && rm -f $lockfile # to be tested further
     #[ "$just_execute" == false ] && rm -f $lockfile # https://github.com/alexylem/jarvis-api/issues/3
     exit $return_code
 }

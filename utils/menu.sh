@@ -232,12 +232,23 @@ while [ "$no_menu" = false ]; do
                         done;;
                     "Hooks")
                     while true; do
-                        options=("Program startup" "Program exit" "Entering command mode" "Exiting command mode")
+                        options=("Program startup"
+                                 "Program exit"
+                                 "Entering command mode"
+                                 "Exiting command mode"
+                                 "Start listening"
+                                 "Stop listening"
+                                 "Start speaking"
+                                 "Stop speaking")
                         case "`dialog_menu 'Configuration > Hooks' options[@]`" in
                             Program*startup*) configure "program_startup";;
                             Program*exit*) configure "program_exit";;
                             Entering*) configure "entering_cmd";;
                             Exiting*) configure "exiting_cmd";;
+                            Start*listening*) configure "start_listening";;
+                            Stop*listening*) configure "stop_listening";;
+                            Start*speaking*) configure "start_speaking";;
+                            Stop*speaking*) configure "stop_speaking";;
                             *) break;;
                         esac
                     done;;

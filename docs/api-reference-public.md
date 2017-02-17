@@ -60,6 +60,12 @@ Public: user's OS name (raspbian, ubuntu, Mac OS X...)
 Public: user's OS version (8, 16.02, ...)
 
 
+`jv_api`
+--------
+
+Public: indicates if called using API else normal usage
+
+
 `jv_repeat_last_command()`
 --------------------------
 
@@ -106,7 +112,7 @@ Returns the return code of curl
 
 Public: Displays a spinner for long running commmands
 
-Returns nothing
+Returns return code of background task
 
     command &; jv_spinner $!
     |/-\|\-\... (spinning bar)
