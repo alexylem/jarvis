@@ -10,8 +10,25 @@ dialog_msg () { # usages
 }
 
 dialog_input () { # usage ask "question" "default"
-    result=`osascript -e "display dialog \"$1\" default answer \"$2\""  -e 'text returned of result' 2>/dev/null`
+    
     (( $? )) && echo "$2" || echo "$result"
+}
+
+dialog_input () { # usage dialog_input "question" "default" true
+    local question="$1"
+    local default="$2"
+    local required="${3:-false}" # true / false (default)
+    while true; do
+        result="$(osascript -e "display dialog \"$question\" default answer \"$default\"" -e 'text returned of result' 2>/dev/null)" # don't put local or else return code always O
+        if (( $? )); then
+            echo "$default"
+        elif [ -n "$result" ]; then # if not null
+            echo "$result"
+        elif $required; then
+            continue
+        fi
+        return
+    done
 }
 
 dialog_select () { # usage dialog_select "question" list[@] "default"

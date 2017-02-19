@@ -9,10 +9,21 @@ dialog_msg () { # usages
     whiptail --msgbox "$1" 20 76
 }
 
-dialog_input () { # usage dialog_input "question" "default"
-    # don't put local or else return code always O
-    result=$(whiptail --inputbox "$1" 20 76 "$2" 3>&1 1>&2 2>&3)
-    (( $? )) && echo "$2" || echo "$result"
+dialog_input () { # usage dialog_input "question" "default" true
+    local question="$1"
+    local default="$2"
+    local required="${3:-false}" # true / false (default)
+    while true; do
+        result=$(whiptail --inputbox "$question" 20 76 "$default" 3>&1 1>&2 2>&3) # don't put local or else return code always O
+        if (( $? )); then
+            echo "$default"
+        elif [ -n "$result" ]; then # if not null
+            echo "$result"
+        elif $required; then
+            continue
+        fi
+        return
+    done
 }
 
 dialog_select () { # usage dialog_select "question" list[@] "default"

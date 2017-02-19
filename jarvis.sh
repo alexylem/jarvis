@@ -142,7 +142,7 @@ configure () {
                    'start_speaking'
                    'stop_speaking')
     case "$1" in
-        bing_speech_api_key)   eval $1=`dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}"`;;
+        bing_speech_api_key)   eval $1="$(dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}" true)";;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
                                case "$(dialog_select "Check Updates when Jarvis starts up\nRecommended: Daily" options[@] "Daily")" in
                                    Always) eval $1=0;;
@@ -244,9 +244,9 @@ configure () {
         separator)           eval $1=`dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}"`;;
         show_commands)       eval $1=`dialog_yesno "Show commands on startup and possible answers" "${!1}"`;;
         snowboy_sensitivity) eval $1=`dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.5" "${!1}"`;;
-        snowboy_token)       eval $1=$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai" "${!1}");;
+        snowboy_token)       eval $1=$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai (in profile settings)" "${!1}" true);;
         tmp_folder)          eval $1=`dialog_input "Cache folder" "${!1}"`;;
-        trigger)             eval "$1='`dialog_input \"Magic word to be said\" \"${!1}\"`'"
+        trigger)             eval $1="$(dialog_input "Magic word to be said" "${!1}" true)"
                              [ "$trigger_stt" = "snowboy" ] && stt_sb_train "$trigger"
                              ;;
         trigger_mode)        options=("magic_word" "enter_key" "physical_button")
@@ -260,12 +260,12 @@ configure () {
                     recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico'`
                     eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
                     source tts_engines/$tts_engine/main.sh;;
-        username) eval $1=`dialog_input "How would you like to be called?" "${!1}"`;;
+        username) eval $1="$(dialog_input "How would you like to be called?" "${!1}" true)";;
         voxygen_voice)       options=('Bruce' 'Jenny' 'Loic' 'Philippe' 'Marion' 'Electra' 'Becool' 'Martha' 'Sonia')
                              eval $1=`dialog_select "Voxygen Voice\nVisit https://www.voxygen.fr" options[@] "${!1}"`
                              rm -f /tmp/*.mp3 # remove cached voice
                              ;;
-        wit_server_access_token) eval $1=`dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}"`;;
+        wit_server_access_token) eval $1="$(dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}" true)";;
         *) jv_error "ERROR: Unknown configure $1";;
     esac
 }
@@ -306,7 +306,10 @@ wizard () {
     dialog_msg "Hello, my name is JARVIS, nice to meet you"
     configure "language"
 
-    [ "$language" != "en_EN" ] && dialog_msg "Note: the installation & menus are only in English for the moment."
+    [ "$language" != "en_EN" ] && dialog_msg <<EOM
+Note: the installation & menus are only in English for the moment.
+However, speech recognition and synthesis will be done in $language
+EOM
 
     configure "username"
     
@@ -321,7 +324,7 @@ wizard () {
 You can now record and train your own hotword within Jarvis
 Or you can immediately use the default universal hotword 'snowboy'
 EOM
-       trigger="snowboy"
+       trigger="${trigger:-snowboy}"
     fi
     configure "trigger"
     
