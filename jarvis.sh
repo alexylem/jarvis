@@ -44,6 +44,7 @@ shopt -s nocasematch # string comparison case insensitive
 source utils/utils.sh # needed for wizard / platform error
 source utils/store.sh # needed for plugin installation & store menu
 source utils/update.sh # needed for update of Jarvis config
+source jarvis-functions.sh # needed for jv_auto_levels
 
 # Check platform compatibility
 dependencies=(awk curl git iconv jq nano perl sed sox wget mpg123)
@@ -103,6 +104,7 @@ configure () {
                    'command_stt'
                    'conversation_mode'
                    'dictionary'
+                   'gain'
                    'google_speech_api_key'
                    'language'
                    'language_model'
@@ -155,6 +157,7 @@ configure () {
                                source stt_engines/$command_stt/main.sh;;
         conversation_mode)     eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
         dictionary)            eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
+        gain)                  eval $1="$(dialog_input "Microphone gain\nCan be positive of negative integer, ex: -5, 0, 10...\nAdjust it by steps of 5, or less to finetune" "${!1}" true)";;
         google_speech_api_key) eval $1=`dialog_input "Google Speech API Key\nHow to get one: http://stackoverflow.com/a/26833337" "${!1}"`;;
         program_startup)       editor hooks/$1;;
         program_exit)          editor hooks/$1;;
@@ -185,7 +188,7 @@ configure () {
             return $not_installed;;
         max_noise_duration_to_kill)     eval $1=`dialog_input "Max noise duration to kill" "${!1}"`;;
         min_noise_duration_to_start)    eval $1=`dialog_input "Min noise duration to start" "${!1}"`;;
-        min_noise_perc_to_start)        eval $1=`dialog_input "Min noise durpercentageation to start" "${!1}"`;;
+        min_noise_perc_to_start)        eval $1=`dialog_input "Min noise percentage to start" "${!1}"`;;
         min_silence_duration_to_stop)   eval $1=`dialog_input "Min silence duration to stop" "${!1}"`;;
         min_silence_level_to_stop)      eval $1=`dialog_input "Min silence level to stop" "${!1}"`;;
         osx_say_voice)
@@ -316,6 +319,8 @@ EOM
     configure "play_hw"
     configure "rec_hw" # needed to train hotword
     
+    jv_auto_levels
+    
     configure "trigger_stt"
     
     if [ "$trigger_stt" = "snowboy" ]; then
@@ -437,7 +442,6 @@ $send_usage_stats && ( jv_ga_send_hit & )
 trigger_sanitized=$(jv_sanitize "$trigger")
 [ -n "$conversation_mode_override" ] && conversation_mode=$conversation_mode_override
 #update_commands
-source jarvis-functions.sh
 source stt_engines/$trigger_stt/main.sh
 source stt_engines/$command_stt/main.sh
 source tts_engines/$tts_engine/main.sh

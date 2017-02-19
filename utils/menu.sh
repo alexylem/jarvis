@@ -254,10 +254,21 @@ while [ "$no_menu" = false ]; do
                     done;;
                     "Audio")
                         while true; do
-                            options=("Speaker ($play_hw)" "Mic ($rec_hw)" "Volume" "Sensitivity" "Min noise duration to start ($min_noise_duration_to_start)" "Min noise perc to start ($min_noise_perc_to_start)" "Min silence duration to stop ($min_silence_duration_to_stop)" "Min silence level to stop ($min_silence_level_to_stop)" "Max noise duration to kill ($max_noise_duration_to_kill)")
+                            options=("Speaker ($play_hw)"
+                                     "Mic ($rec_hw)"
+                                     "Auto-adjust levels"
+                                     "Volume"
+                                     "Sensitivity"
+                                     "Gain ($gain)"
+                                     "Min noise duration to start ($min_noise_duration_to_start)"
+                                     "Min noise perc to start ($min_noise_perc_to_start)"
+                                     "Min silence duration to stop ($min_silence_duration_to_stop)"
+                                     "Min silence level to stop ($min_silence_level_to_stop)"
+                                     "Max noise duration to kill ($max_noise_duration_to_kill)")
                             case "`dialog_menu 'Configuration > Audio' options[@]`" in
                                 Speaker*) configure "play_hw";;
                                 Mic*) configure "rec_hw";;
+                                Auto*) jv_auto_levels;;
                                 Volume) if [ "$platform" == "osx" ]; then
                                             osascript <<EOM
                                                 tell application "System Preferences"
@@ -281,11 +292,12 @@ EOM
                                         else
                                             alsamixer -c ${rec_hw:3:1} -V capture || read -p "ERROR: check above"
                                         fi;;
+                                Gain*)            configure "gain";;
                                 *duration*start*) configure "min_noise_duration_to_start";;
-                                *perc*start*) configure "min_noise_perc_to_start";;
-                                *duration*stop*) configure "min_silence_duration_to_stop";;
-                                *level*stop*) configure "min_silence_level_to_stop";;
-                                *duration*kill*) configure "max_noise_duration_to_kill";;
+                                *perc*start*)     configure "min_noise_perc_to_start";;
+                                *duration*stop*)  configure "min_silence_duration_to_stop";;
+                                *level*stop*)     configure "min_silence_level_to_stop";;
+                                *duration*kill*)  configure "max_noise_duration_to_kill";;
                                 *) break;;
                             esac
                         done;;
