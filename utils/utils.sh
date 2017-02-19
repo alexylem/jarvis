@@ -138,7 +138,7 @@ jv_spinner () {
 			sleep .1
 		done
 	done
-    wait $1 # get return code of background task in $?
+    wait $1 2>/dev/null # get return code of background task in $?
     return $? # return return code of background task
 }
 
