@@ -82,7 +82,7 @@ jv_add_timestamps () {
     done
 }
 
-# Public: Speak some text out loud 
+# Public: Speak some text out loud
 # $1 - text to speak
 # 
 # Returns nothing
@@ -96,7 +96,15 @@ say () {
     else
         echo -e "$_pink$trigger$_reset: $1"
     fi
-    if ! $quiet; then
+    $quiet && return
+    if $jv_api; then # if using API, put in queue
+        if jv_is_started; then
+            echo "$1" > $jv_say_queue # put in queue (read by say.sh)
+        else
+            jv_error "ERROR: Jarvis is not running"
+            jv_success "HELP: Start Jarvis using ./jarvis.sh -b"
+        fi
+    else # if using Jarvis, speak synchronously
         jv_hook "start_speaking"
         $tts_engine'_TTS' "$1"
         jv_hook "stop_speaking"
@@ -244,6 +252,10 @@ jv_debug() { jv_message "$1" "debug" "$_gray" ;}
 jv_press_enter_to_continue () {
     jv_debug "Press [Enter] to continue"
     read
+}
+
+jv_is_started () {
+    [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null
 }
 
 # Internal: Kill Jarvis if running in background

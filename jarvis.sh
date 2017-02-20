@@ -16,10 +16,10 @@ show_help () { cat <<EOF
 
     -b  run in background (no menu, continues after terminal is closed)
     -c  overrides conversation mode setting (true/false)
-    -i  install (dependencies, pocketsphinx, setup)
+    -i  install and setup wizard
     -h  display this help
     -j  output in JSON (for APIs)
-    -k  directly start on keyboard mode
+    -k  directly start in keyboard mode
     -l  directly listen for one command (ex: launch from physical button)
     -m  mute mode (overrides settings)
     -n  directly start jarvis without menu
@@ -74,6 +74,7 @@ mkdir -p plugins
 lockfile="$jv_cache_folder/jarvis.lock"
 audiofile="$jv_cache_folder/jarvis-record.wav"
 forder="$jv_cache_folder/jarvis-order"
+jv_say_queue="$jv_cache_folder/jarvis-say"
 rm -f $audiofile # sometimes, when error, previous recording is played
 
 # Only for retrocompatibility
@@ -387,7 +388,7 @@ jv_json=false
 while getopts ":$flags" o; do
     case "${o}" in
 		b)  # Check if Jarvis is already running in background
-            if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
+            if jv_is_started; then
                 echo "Jarvis is already running"
                 echo "run ./jarvis.sh -q to stop it"
                 exit 1
@@ -448,6 +449,7 @@ trigger_sanitized=$(jv_sanitize "$trigger")
 source stt_engines/$trigger_stt/main.sh
 source stt_engines/$command_stt/main.sh
 source tts_engines/$tts_engine/main.sh
+
 if ( [ "$play_hw" != "false" ] || [ "$rec_hw" != "false" ] ) && [ ! -f ~/.asoundrc ]; then
     update_alsa $play_hw $rec_hw  # retro compatibility
     dialog_msg<<EOM
@@ -460,13 +462,13 @@ fi
 
 # if -s argument provided, just say it & exit (used in jarvis-events)
 if [[ "$just_say" != false ]]; then
-	say "$just_say"
-	jv_exit # to properly end JSON if -j flag used
+    say "$just_say"
+    jv_exit # to properly end JSON if -j flag used
 fi
 
 if [ "$just_execute" == false ]; then
     # Check if Jarvis is already running in background
-    if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
+    if jv_is_started; then
         options=('Show Jarvis output' 'Stop Jarvis')
         case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
             Show*) cat jarvis.log;;
@@ -568,9 +570,9 @@ jv_handle_order() {
                 if [[ $sanitized =~ $regex ]]; then # HELLO THERE =~ .*HELLO.*
                     action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
     				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'` # replace captures
-    				$verbose && jv_debug "$> $action"
+    				[[ "$action" == *jv_repeat_last_command* ]] || jv_last_command="${action//\$order/$order}"
+                    $verbose && jv_debug "$> $action"
                     eval "$action" || say "$phrase_failed"
-                    [[ "$action" == *jv_repeat_last_command* ]] || jv_last_command="${action//\$order/$order}"
                     check_indented=true
                     commands=""
                     jv_possible_answers=false
@@ -615,6 +617,12 @@ if [ "$just_execute" = false ]; then
     
     # save pid in lockfile for proper kill
     echo $$ > $lockfile
+    
+    # start say service
+    if ! $jv_api; then
+        [ -p $jv_say_queue ] || mkfifo $jv_say_queue # create pipe if not exists
+        source utils/say.sh &
+    fi
     
     # welcome phrase
     [ $just_listen = false ] && [ ! -z "$phrase_welcome" ] && say "$phrase_welcome"
