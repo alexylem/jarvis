@@ -54,14 +54,14 @@ case "$OSTYPE" in
                 jv_os_name="$(cat /etc/*release | grep ^ID= | cut -f2 -d=)"
                 jv_os_version="$(cat /etc/*release | grep ^VERSION_ID= | cut -f2 -d= | tr -d '"')"
                 dependencies+=(alsamixer aplay arecord whiptail)
-            	forder="/dev/shm/jarvis-order"
+            	jv_cache_folder="/dev/shm"
                 ;;
     darwin*)    platform="osx"
                 jv_arch="$(uname -m)"
                 jv_os_name="$(sw_vers -productName)"
                 jv_os_version="$(sw_vers -productVersion)"
                 dependencies+=(osascript)
-                forder="/tmp/jarvis-order"
+                jv_cache_folder="/tmp"
                 ;;
     *)          jv_error "ERROR: $OSTYPE is not a supported platform"
                 exit 1;;
@@ -69,10 +69,11 @@ esac
 source utils/dialog_$platform.sh # load default & user configuration
 
 # Initiate files & directories
-lockfile="/tmp/jarvis.lock"
 mkdir -p config
 mkdir -p plugins
-audiofile="jarvis-record.wav"
+lockfile="$jv_cache_folder/jarvis.lock"
+audiofile="$jv_cache_folder/jarvis-record.wav"
+forder="$jv_cache_folder/jarvis-order"
 rm -f $audiofile # sometimes, when error, previous recording is played
 
 # Only for retrocompatibility
@@ -259,14 +260,16 @@ configure () {
                              eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}"`
                              source stt_engines/$trigger_stt/main.sh
                              ;;
-        tts_engine) options=('svox_pico' 'google' 'espeak' 'osx_say' 'voxygen')
-                    recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico'`
-                    eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
-                    source tts_engines/$tts_engine/main.sh;;
+        tts_engine)          options=('svox_pico' 'google' 'espeak' 'osx_say' 'voxygen')
+                             recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico'`
+                             eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
+                             source tts_engines/$tts_engine/main.sh
+                             rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
+                             ;;
         username) eval $1="$(dialog_input "How would you like to be called?" "${!1}" true)";;
         voxygen_voice)       options=('Bruce' 'Jenny' 'Loic' 'Philippe' 'Marion' 'Electra' 'Becool' 'Martha' 'Sonia')
                              eval $1=`dialog_select "Voxygen Voice\nVisit https://www.voxygen.fr" options[@] "${!1}"`
-                             rm -f /tmp/*.mp3 # remove cached voice
+                             rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
                              ;;
         wit_server_access_token) eval $1="$(dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}" true)";;
         *) jv_error "ERROR: Unknown configure $1";;
@@ -300,7 +303,7 @@ check_dependencies () {
 
 wizard () {
     jv_check_updates
-    jv_update_config
+    jv_update_config@
     
     # initiate user commands & events if don't exist yet
     [ -f jarvis-commands ] || cp jarvis-commands-default jarvis-commands
