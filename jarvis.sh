@@ -319,7 +319,7 @@ EOM
     configure "play_hw"
     configure "rec_hw" # needed to train hotword
     
-    jv_auto_levels
+    jv_auto_levels # || exit 1 # waiting to have more feedback on auto-adjust feature to make it mandatory
     
     configure "trigger_stt"
     

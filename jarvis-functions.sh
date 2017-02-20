@@ -33,7 +33,7 @@ RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is det
 jv_record_duration () {
     local audiofile=$1
     local duration=$2
-    rec $audiofile gain $gain trim 0 $duration
+    rec $audiofile gain $gain trim 0.5 $duration # skip first 0.5 secs due to mic activation noise
     if [ "$?" -ne 0 ]; then
         jv_error "ERROR: rec command failed"
         jv_warning "HELP: Verify your mic in Settings > Audio > Mic"
@@ -73,7 +73,7 @@ EOM
                     Decrease*) configure "gain"
                                continue 2
                                ;;
-                    Exit) return;;
+                    Exit) return 1;;
                 esac
             fi
         done
@@ -98,7 +98,7 @@ EOM
                     Increase*) configure "gain"
                                continue 2
                                ;;
-                    Exit) return;;
+                    Exit) return 1;;
                 esac
             elif [ $voice_level -gt $max_voice_level ]; then
                 options=("Retry and speak lower (recommended first)"
@@ -109,7 +109,7 @@ EOM
                     Decrease*) configure "gain"
                                continue 2
                                ;;
-                    Exit) return;;
+                    Exit) return 1;;
                 esac
             else
                 break
@@ -128,9 +128,9 @@ Results:
 - Silence level: $silence_level% (max $max_silence_level%)
 - Voice volume: $voice_level% (min $min_voice_level%, max $max_voice_level%)
 Sox parameters:
-- Microphone gain: $gain (default 0)
-- Min noise percentage to start: $min_noise_perc_to_start% (default 1%)
-- Min silence percentage to stop: $min_silence_level_to_stop% (default 1%)
+- Microphone gain: $gain
+- Min noise percentage to start: $min_noise_perc_to_start%
+- Min silence percentage to stop: $min_silence_level_to_stop%
 EOM
 }
 
