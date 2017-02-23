@@ -361,7 +361,7 @@ EOM
 }
 
 jv_start_in_background () {
-    nohup ./jarvis.sh -vn 2>&1 | jv_add_timestamps >> jarvis.log &
+    nohup ./jarvis.sh -n 2>&1 | jv_add_timestamps >> jarvis.log &
     cat <<EOM
 Jarvis has been launched in background
 
