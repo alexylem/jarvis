@@ -34,7 +34,7 @@ show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW: Check out speech synthesis fun voices of Voxygen"
+headline="NEW: Auto-adjust audio levels in Settings > Audio"
 
 # Move to Jarvis directory
 export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -156,6 +156,7 @@ configure () {
                                esac;;
         command_stt)           options=('bing' 'wit' 'snowboy' 'pocketsphinx')
                                eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: bing" options[@] "${!1}"`
+                               [ "$command_stt" == "snowboy" ] && dialog_msg "Attention: Snowboy for commands will only be able to understand trained commands.\nTrain your commands in Settings > Voice Reco > Snowboy Settings > Train..."
                                source stt_engines/$command_stt/main.sh;;
         conversation_mode)     eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
         dictionary)            eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
@@ -248,7 +249,7 @@ configure () {
         send_usage_stats)    eval $1=`dialog_yesno "Send anynomous usage statistics to help improving Jarvis" "${!1}"`;;
         separator)           eval $1=`dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}"`;;
         show_commands)       eval $1=`dialog_yesno "Show commands on startup and possible answers" "${!1}"`;;
-        snowboy_sensitivity) eval $1=`dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.5" "${!1}"`;;
+        snowboy_sensitivity) eval $1=`dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.4" "${!1}"`;;
         snowboy_token)       eval $1=$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai (in profile settings)" "${!1}" true);;
         tmp_folder)          eval $1=`dialog_input "Cache folder" "${!1}"`;;
         trigger)             eval $1="$(dialog_input "Magic word to be said" "${!1}" true)"
@@ -666,18 +667,19 @@ while true; do
             
             $quiet || ( $bypass && PLAY sounds/triggered.wav || PLAY sounds/listening.wav )
             
+            nb_failed=0
             while true; do
     			#$quiet || PLAY beep-high.wav
                 
                 $verbose && jv_debug "(listening...)"
                 > $forder # empty $forder
-                error=false
                 if $bypass; then
                     eval ${command_stt}_STT
                 else
                     eval ${trigger_stt}_STT
                 fi
-                (( $? )) && error=true
+                retcode=$?
+                (( $retcode )) && error=true || error=false
                 
                 # if there was no error doing speech to text
                 if ! $error; then
@@ -691,11 +693,20 @@ while true; do
                 fi
                 
     			if $error; then
-                    PLAY sounds/error.wav
-                    if [ $((++nb_failed)) -eq 3 ]; then
-                        nb_failed=0
-                        echo # new line
-                        $verbose && jv_debug "DEBUG: 3 attempts failed, end of conversation"
+                    finish=false
+                    if [ $retcode -eq 124 ]; then # timeout
+                        sleep 1 # BUG here despite timeout mic still busy can't rec again...
+                        $verbose && jv_debug "DEBUG: timeout, end of conversation" || jv_debug '(timeout)'
+                        finish=true
+                    else
+                        PLAY sounds/error.wav
+                        if [  $((++nb_failed)) -eq 3 ]; then
+                            $verbose && jv_debug "DEBUG: 3 attempts failed, end of conversation"
+                            finish=true
+                            echo # new line
+                        fi
+                    fi
+                    if $finish; then
                         PLAY sounds/timeout.wav
                         bypass=false
                         jv_hook "exiting_cmd"
@@ -705,6 +716,7 @@ while true; do
                     fi
                     continue
                 fi
+                
     			if $bypass; then
                     echo "$order" # printf fails when order has %
                     break

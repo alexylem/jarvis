@@ -193,12 +193,18 @@ while [ "$no_menu" = false ]; do
             done;;
         Settings)
             while true; do
-                options=('General' 'Phrases' 'Hooks' 'Audio' 'Voice recognition' 'Speech synthesis' 'Step-by-step wizard')
+                options=('Step-by-step wizard'
+                         'General'
+                         'Phrases'
+                         'Hooks'
+                         'Audio'
+                         'Voice recognition'
+                         'Speech synthesis')
                 case "`dialog_menu 'Configuration' options[@]`" in
                     "General")
                         while true; do
                             options=("Username ($username)"
-                                     "Trigger ($trigger_mode)"
+                                     "Trigger mode ($trigger_mode)"
                                      "Magic word ($trigger)"
                                      "Show possible commands ($show_commands)"
                                      "Multi-command separator ($separator)"
@@ -305,27 +311,55 @@ EOM
                         while true; do
                             options=("Recognition of magic word ($trigger_stt)"
                                      "Recognition of commands ($command_stt)"
-                                     "Snowboy sensitivity ($snowboy_sensitivity)"
-                                     "Snowboy token ($snowboy_token)"
-                                     "Snowboy train a hotword/command"
-                                     "Bing key ($bing_speech_api_key)"
-                                     #"Google key ($google_speech_api_key)"
-                                     "Wit key ($wit_server_access_token)"
-                                     "PocketSphinx dictionary ($dictionary)"
-                                     "PocketSphinx language model ($language_model)"
-                                     "PocketSphinx logs ($pocketsphinxlog)")
-                            case "`dialog_menu 'Configuration > Voice recognition' options[@]`" in
-                                Recognition*magic*word*) configure "trigger_stt";;
+                                     "Snowboy settings"
+                                     "Bing settings"
+                                     "Wit settings"
+                                     "PocketSphinx setting")
+                            case "`dialog_menu 'Settings > Voice recognition' options[@]`" in
+                                Recognition*magic*word*)    configure "trigger_stt";;
                                 Recognition*command*)       configure "command_stt";;
-                                Snowboy*sensitivity*)       configure "snowboy_sensitivity";;
-                                Snowboy*token*)             configure "snowboy_token";;
-                                Snowboy*train*)             stt_sb_train "$(dialog_input "Hotword / Quick Command to (re-)train" "$trigger")" true;;
-                                #Google*)                   configure "google_speech_api_key";;
-                                Wit*)                       configure "wit_server_access_token";;
-                                Bing*key*)                  configure "bing_speech_api_key";;
-                                PocketSphinx*dictionary*)   configure "dictionary";;
-                                PocketSphinx*model*)        configure "language_model";;
-                                PocketSphinx*logs*)         configure "pocketsphinxlog";;
+                                Snowboy*)
+                                    while true; do
+                                        options=("Show trained hotwords/commands"
+                                                 "Token ($snowboy_token)"
+                                                 "Train a hotword/command"
+                                                 "Sensitivity ($snowboy_sensitivity)")
+                                        case "`dialog_menu 'Settings > Voice recognition > Snowboy' options[@]`" in
+                                            Show*)          IFS=','; dialog_msg "Models stored in stt_engines/snowboy/resources/:\n${snowboy_models[*]}";;
+                                            Sensitivity*)   configure "snowboy_sensitivity";;
+                                            Token*)         configure "snowboy_token";;
+                                            Train*)         stt_sb_train "$(dialog_input "Hotword / Quick Command to (re-)train" "$trigger")" true;;
+                                            *) break;;
+                                        esac
+                                    done;;
+                                Bing*)
+                                        while true; do
+                                            options=("Bing key ($bing_speech_api_key)")
+                                            case "`dialog_menu 'Settings > Voice recognition > Bing' options[@]`" in
+                                                Bing*key*)  configure "bing_speech_api_key";;
+                                                *) break;;
+                                            esac
+                                        done;;
+                                Wit*)
+                                    while true; do
+                                        options=("Wit key ($wit_server_access_token)")
+                                        case "`dialog_menu 'Settings > Voice recognition > Wit' options[@]`" in
+                                            Wit*)   configure "wit_server_access_token";;
+                                            *) break;;
+                                        esac
+                                    done;;
+                                PocketSphinx*)
+                                    while true; do
+                                        options=("PocketSphinx dictionary ($dictionary)"
+                                                 "PocketSphinx language model ($language_model)"
+                                                 "PocketSphinx logs ($pocketsphinxlog)")
+                                        case "`dialog_menu 'Settings > Voice recognition > PocketSphinx' options[@]`" in
+                                            PocketSphinx*dictionary*)   configure "dictionary";;
+                                            PocketSphinx*model*)        configure "language_model";;
+                                            PocketSphinx*logs*)         configure "pocketsphinxlog";;
+                                            *) break;;
+                                        esac
+                                    done;;
                                 *) break;;
                             esac
                         done;;

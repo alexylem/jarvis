@@ -22,8 +22,10 @@ RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is det
     [ $platform = "linux" ] && export AUDIODRIVER=alsa
     local cmd="$timeout rec -V1 -q -r 16000 -c 1 -b 16 -e signed-integer --endian little $1 gain $gain silence 1 $min_noise_duration_to_start $min_noise_perc_to_start 1 $min_silence_duration_to_stop $min_silence_level_to_stop trim 0 $max_noise_duration_to_kill"
     $verbose && jv_debug "$cmd"
-    eval $cmd
-    if [ "$?" -ne 0 ]; then
+    eval $cmd # need eval because of timeout, maybe better to change this
+    local retcode=$?
+    [ $retcode -eq 124 ] && return 124 # timeout
+    if [ "$retcode" -ne 0 ]; then
         jv_error "ERROR: rec command failed"
         jv_warning "HELP: Verify your mic in Settings > Audio > Mic"
         jv_exit 1
@@ -136,18 +138,11 @@ EOM
 
 LISTEN_COMMAND () {
     RECORD "$audiofile" 10
+    [ $? -eq 124 ] && return 124
+    
     duration=$(sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p')
     $verbose && jv_debug "DEBUG: speech duration was $duration (10 = 1 sec)"
-    if [ -z "$duration" ]; then
-        $verbose && jv_debug "DEBUG: timeout, end of conversation" || printf '.'
-        PLAY sounds/timeout.wav
-        sleep 1 # BUG here despite timeout mic still busy can't rec again...
-        bypass=false
-        $jv_json || source hooks/exiting_cmd # don't trigger hooks if API
-        order='' # clean previous order
-        commands="$(jv_get_commands)" # in case we were in nested commands
-        break
-    elif [ "$duration" -gt 40 ]; then
+    if [ "$duration" -gt 40 ]; then
         if $verbose; then
             jv_warning "WARNING: too long for a command (max 4 secs), ignoring..."
             jv_warning "HELP: try in order the following options"
