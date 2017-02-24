@@ -69,13 +69,15 @@ EOM
             else
                 options=("Retry (recommended first)"
                          "Decrease microphone gain"
-                         "Exit")
+                         "Skip")
                 case "$(dialog_menu "Oups! Your silence level ($silence_level%) is above $max_silence_level%" options[@])" in
-                    Retry*) continue;;
-                    Decrease*) configure "gain"
-                               continue 2
-                               ;;
-                    Exit) return 1;;
+                    Retry*)     continue;;
+                    Decrease*)  configure "gain"
+                                continue 2
+                                ;;
+                    Skip)       dialog_msg "You can auto-adjust later in Settings > Audio"
+                                return 1
+                                ;;
                 esac
             fi
         done
@@ -94,13 +96,15 @@ EOM
             if [ $voice_level -lt $min_voice_level ]; then
                 options=("Retry and speak louder/closer (recommended first)"
                          "Increase microphone gain"
-                         "Exit")
+                         "Skip")
                 case "$(dialog_menu "Oups! Your voice volume ($voice_level%) is below $min_voice_level%" options[@])" in
-                    Retry*) continue;;
-                    Increase*) configure "gain"
-                               continue 2
-                               ;;
-                    Exit) return 1;;
+                    Retry*)     continue;;
+                    Increase*)  configure "gain"
+                                continue 2
+                                ;;
+                   Skip)        dialog_msg "You can auto-adjust later in Settings > Audio"
+                                return 1
+                                ;;
                 esac
             elif [ $voice_level -gt $max_voice_level ]; then
                 options=("Retry and speak lower (recommended first)"

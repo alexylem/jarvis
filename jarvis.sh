@@ -267,6 +267,10 @@ configure () {
                              eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
                              source tts_engines/$tts_engine/main.sh
                              rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
+                             case "$tts_engine" in
+                                 osx_say) configure "osx_say_voice";;
+                                 voxygen) configure "voxygen_voice";;
+                             esac
                              ;;
         username) eval $1="$(dialog_input "How would you like to be called?" "${!1}" true)";;
         voxygen_voice)       case "$language" in
@@ -312,7 +316,7 @@ check_dependencies () {
 
 wizard () {
     jv_check_updates
-    jv_update_config@
+    jv_update_config
     
     # initiate user commands & events if don't exist yet
     [ -f jarvis-commands ] || cp jarvis-commands-default jarvis-commands
@@ -357,7 +361,7 @@ EOM
     fi
 
     configure "tts_engine"
-
+    
     configure "save"
     dialog_msg <<EOM
 Congratulations! You can start using Jarvis
@@ -374,7 +378,7 @@ jv_start_in_background () {
 Jarvis has been launched in background
 
 To view Jarvis output:
-cat jarvis.log
+tail -f jarvis.log
 To check if jarvis is running:
 pgrep -lf jarvis.sh
 To stop Jarvis:
@@ -639,7 +643,7 @@ if [ "$just_execute" = false ]; then
     if $show_commands; then
         jv_display_commands
     else
-        jv_debug "Use \"?\" to display possible commands"
+        jv_debug "Use \"?\" to display possible commands (in keyboard mode)"
     fi
     
     bypass=$just_listen
