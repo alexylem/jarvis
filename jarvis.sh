@@ -170,7 +170,7 @@ configure () {
         stop_listening)        editor hooks/$1;;
         start_speaking)        editor hooks/$1;;
         stop_speaking)         editor hooks/$1;;
-        language)              options=("en_GB" "es_ES" "fr_FR" "it_IT")
+        language)              options=("de_DE" "en_GB" "es_ES" "fr_FR" "it_IT")
                                eval $1=`dialog_select "Language" options[@] "${!1}"`;;
         language_model)        eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;
         load)
