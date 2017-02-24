@@ -269,8 +269,15 @@ configure () {
                              rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
                              ;;
         username) eval $1="$(dialog_input "How would you like to be called?" "${!1}" true)";;
-        voxygen_voice)       options=('Bruce' 'Jenny' 'Loic' 'Philippe' 'Marion' 'Electra' 'Becool' 'Martha' 'Sonia')
-                             eval $1=`dialog_select "Voxygen Voice\nVisit https://www.voxygen.fr" options[@] "${!1}"`
+        voxygen_voice)       case "$language" in
+                                de_DE) options=('Matthias');;
+                                es_ES) options=('Martha');;
+                                fr_FR) options=('Loic' 'Philippe' 'Marion' 'Electra' 'Becool');;
+                                it_IT) options=('Sonia');;
+                                en_GB) options=('Bruce' 'Jenny');;
+                                *)     options=();;
+                             esac
+                             eval $1=`dialog_select "Voxygen $language Voices\nVisit https://www.voxygen.fr to test them" options[@] "${!1}"`
                              rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
                              ;;
         wit_server_access_token) eval $1="$(dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}" true)";;
