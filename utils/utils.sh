@@ -440,8 +440,8 @@ jv_build () {
         date +"%y.%m.%d" > version.txt
         jv_success "Done"
     printf "Generating documentation..."
-        utils/tomdoc.sh --markdown --access Public utils/utils.sh > docs/api-reference-public.md
-        utils/tomdoc.sh --markdown utils/utils.sh utils/update.sh > docs/api-reference-internal.md
+        utils/tomdoc.sh --markdown --access Public utils/utils.sh utils/dialog_linux.sh > docs/api-reference-public.md
+        utils/tomdoc.sh --markdown utils/utils.sh utils/update.sh utils/dialog_linux.sh > docs/api-reference-internal.md
         jv_success "Done"
     printf "Opening GitHub Desktop..."
         open -a "GitHub Desktop" /Users/alex/Documents/jarvis

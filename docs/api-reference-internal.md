@@ -320,3 +320,17 @@ Returns nothing
 Internal: apply needed local config modifications following updates of Jarvis
 
 
+`jv_install()`
+--------------
+
+Public: install packages, used for dependencies
+
+args: list of packages to install
+
+
+`jv_browse_url()`
+-----------------
+
+Public: open URL in default browser
+
+

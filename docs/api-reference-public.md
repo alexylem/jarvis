@@ -210,3 +210,17 @@ Usage
     if jv_yesno "question?"; then...
 
 
+`jv_install()`
+--------------
+
+Public: install packages, used for dependencies
+
+args: list of packages to install
+
+
+`jv_browse_url()`
+-----------------
+
+Public: open URL in default browser
+
+
