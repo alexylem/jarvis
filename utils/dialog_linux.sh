@@ -13,6 +13,9 @@ dialog_input () { # usage dialog_input "question" "default" true
     local question="$1"
     local default="$2"
     local required="${3:-false}" # true / false (default)
+    
+    [ ${default:0:1} == "-" ] && default=" $default" # https://github.com/alexylem/jarvis/issues/246#issuecomment-282426847
+    
     while true; do
         result=$(whiptail --inputbox "$question" 20 76 "$default" 3>&1 1>&2 2>&3) # don't put local or else return code always O
         if (( $? )); then
