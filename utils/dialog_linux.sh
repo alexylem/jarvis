@@ -33,7 +33,7 @@ dialog_select () { # usage dialog_select "question" list[@] "default"
     #echo "nb=$nb"
     local items=()
     for item in "${list[@]}"; do
-        items+=("$item" "" `[ "$item" = "$3" ] && echo "ON" || echo "OFF"` )
+        items+=("$item" "" $([[ "$item" == "$3"* ]] && echo "ON" || echo "OFF") )
     done
     #echo "items=${items[@]} (${#items[@]})"
     # don't put local or else return code always O

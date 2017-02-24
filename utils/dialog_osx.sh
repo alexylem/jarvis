@@ -33,8 +33,12 @@ dialog_input () { # usage dialog_input "question" "default" true
 
 dialog_select () { # usage dialog_select "question" list[@] "default"
     declare -a list=("${!2}")
+    default="$3"
+    for item in "${list[@]}"; do
+        [[ "$item" == "$3"* ]] && default="$item"
+    done
     list=$(printf ",\"%s\"" "${list[@]}")
-    result=`osascript -e 'set front_app_name to short name of (info for (path to frontmost application))' -e "tell application front_app_name to choose from list {${list:1}} with prompt \"$1\" default items {\"$3\"}"`
+    result=`osascript -e 'set front_app_name to short name of (info for (path to frontmost application))' -e "tell application front_app_name to choose from list {${list:1}} with prompt \"$1\" default items {\"$default\"}"`
     [ "$result" = false ] && echo "$3" || echo "$result"
 }
 

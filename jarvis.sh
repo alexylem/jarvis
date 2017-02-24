@@ -170,8 +170,14 @@ configure () {
         stop_listening)        editor hooks/$1;;
         start_speaking)        editor hooks/$1;;
         stop_speaking)         editor hooks/$1;;
-        language)              options=("de_DE" "en_GB" "es_ES" "fr_FR" "it_IT")
-                               eval $1=`dialog_select "Language" options[@] "${!1}"`;;
+        language)              options=("de_DE (Deutsch)"
+                                        "en_GB (English)"
+                                        "es_ES (Español)"
+                                        "fr_FR (Français)"
+                                        "it_IT (Italiano)")
+                               language="$(dialog_select "Language" options[@] "$language")"
+                               language="${language% *}" # "fr_FR (Français)" => "fr_FR"
+                               ;;
         language_model)        eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;
         load)
             source jarvis-config-default.sh
