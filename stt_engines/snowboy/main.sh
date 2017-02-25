@@ -169,6 +169,8 @@ stt_sb_train () {
     # get microphone information #103
     #[ "$rec_hw" != "false" ] && local microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || local microphone="Default"
     local microphone="Default"
+    local language_code="${language:0:2}"
+    [ "$language_code" == "de" ] && language_code="dt"
     
     # build json data parameter
     local WAV1=$(base64 /tmp/1.wav)
@@ -178,7 +180,7 @@ stt_sb_train () {
     cat <<EOF >/tmp/data.json
 {
     "name": "$lowercase",
-    "language": "${language:0:2}",
+    "language": "$language_code",
     "microphone": "$microphone",
     "token": "$snowboy_token",
     "voice_samples": [
