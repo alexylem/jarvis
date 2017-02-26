@@ -211,7 +211,7 @@ configure () {
             while true; do
                 dialog_msg "Checking audio output, make sure your speakers are on and press [Ok]"
                 play "sounds/applause.wav"
-                dialog_yesno "Did you hear something?" true && break
+                dialog_yesno "Did you hear something?" true >/dev/null && break
                 clear
                 jv_warning "Selection of the speaker device"
                 aplay -l
@@ -226,10 +226,10 @@ configure () {
             done
             ;;
         pocketsphinxlog) eval $1=`dialog_input "File to store PocketSphinx logs" "${!1}"`;;
-        rec_hw)
+        rec_hw) # returns 1 if no mic
             rec_export=''
             while true; do
-                dialog_yesno "Checking audio input, make sure your microphone is on, press [Yes] and say something.\nPress [No] if you don't have a microphone." true || break
+                dialog_yesno "Checking audio input, make sure your microphone is on, press [Yes] and say something.\nPress [No] if you don't have a microphone." true >/dev/null || return 1
                 clear
                 rec -r 16000 -c 1 -b 16 -e signed-integer $audiofile trim 0 3
                 if [ $? -eq 0 ]; then
@@ -258,7 +258,7 @@ configure () {
         snowboy_sensitivity) eval $1=`dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.4" "${!1}"`;;
         snowboy_token)       eval $1=$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai (in profile settings)" "${!1}" true);;
         tmp_folder)          eval $1=`dialog_input "Cache folder" "${!1}"`;;
-        trigger)             eval $1="$(dialog_input "Magic word to be said" "${!1}" true)"
+        trigger)             eval $1="$(dialog_input "How would you like your Jarvis to be called?\n(Hotword to be said before speaking commands)" "${!1}" true)"
                              [ "$trigger_stt" = "snowboy" ] && stt_sb_train "$trigger"
                              ;;
         trigger_mode)        options=("magic_word" "enter_key" "physical_button")
@@ -293,6 +293,7 @@ configure () {
         wit_server_access_token) eval $1="$(dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}" true)";;
         *) jv_error "ERROR: Unknown configure $1";;
     esac
+    return 0
 }
 
 check_dependencies () {
@@ -339,33 +340,42 @@ EOM
     configure "username"
     
     configure "play_hw"
-    configure "rec_hw" # needed to train hotword
+    # rec_hw needed to train hotword 
+    local has_mic=false
+    configure "rec_hw" && has_mic=true  # returns 1 if no mic
     
-    jv_auto_levels # || exit 1 # waiting to have more feedback on auto-adjust feature to make it mandatory
+    if $has_mic; then
+        jv_auto_levels # adjust audio levels only if mic is present
+        # || exit 1 # waiting to have more feedback on auto-adjust feature to make it mandatory
     
-    configure "trigger_stt"
+        configure "trigger_stt"
     
-    if [ "$trigger_stt" = "snowboy" ]; then
-        # use ' instead of " in dialog_msg
-        dialog_msg <<EOM
+        if [ "$trigger_stt" = "snowboy" ]; then
+            # use ' instead of " in dialog_msg
+            dialog_msg <<EOM
 You can now record and train your own hotword within Jarvis
 Or you can immediately use the default universal hotword 'snowboy'
 EOM
-       trigger="${trigger:-snowboy}"
+           trigger="${trigger:-snowboy}"
+        fi
+    else
+        trigger_stt=false
     fi
     configure "trigger"
     
-    configure "command_stt"
-    if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
-        configure "google_speech_api_key"
+    if $has_mic; then
+        configure "command_stt"
+        if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
+            configure "google_speech_api_key"
+        fi
+        if [ $trigger_stt = 'wit' ] || [ $command_stt = 'wit' ]; then
+            configure "wit_server_access_token"
+        fi
+        if [ $trigger_stt = 'bing' ] || [ $command_stt = 'bing' ]; then
+            configure "bing_speech_api_key"
+        fi
     fi
-    if [ $trigger_stt = 'wit' ] || [ $command_stt = 'wit' ]; then
-        configure "wit_server_access_token"
-    fi
-    if [ $trigger_stt = 'bing' ] || [ $command_stt = 'bing' ]; then
-        configure "bing_speech_api_key"
-    fi
-
+    
     configure "tts_engine"
     
     configure "save"
