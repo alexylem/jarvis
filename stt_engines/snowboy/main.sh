@@ -9,11 +9,17 @@ stt_sb_install () {
                 sb_supported_os=true
                 binaries="rpi-arm-raspbian-8.0-1.1.0"
             fi
-        elif [ "$jv_os_name" == "ubuntu" ]; then
-            if [ "$jv_arch" == "x86_64" ] && ([ "$jv_os_version" == "12.04" ] || [ "$jv_os_version" == "14.04" ]); then
-                sb_supported_os=true
-                binaries="ubuntu${jv_os_version/.}-x86_64-1.1.0" # 12.04 => 1204
-            fi
+        elif [ "$jv_os_name" == "ubuntu" ] && [ "$jv_arch" == "x86_64" ]; then
+            case "$jv_os_version" in
+                "12.04") 
+                    sb_supported_os=true
+                    binaries="ubuntu1204-x86_64-1.1.0"
+                    ;;
+                "14.04"|"16.04")
+                    sb_supported_os=true
+                    binaries="ubuntu1404-x86_64-1.1.0"
+                    ;;
+            esac
         fi
         $sb_supported_os && jv_install python-pyaudio python3-pyaudio libatlas-base-dev
     elif [ "$platform" = "osx" ]; then
