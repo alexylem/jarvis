@@ -146,22 +146,22 @@ configure () {
                    'start_speaking'
                    'stop_speaking')
     case "$1" in
-        bing_speech_api_key)   eval $1="$(dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}" true)";;
+        bing_speech_api_key)   eval "$1=\"$(dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}" true)\"";;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
                                case "$(dialog_select "Check Updates when Jarvis starts up\nRecommended: Daily" options[@] "Daily")" in
-                                   Always) eval $1=0;;
-                                   Daily) eval $1=1;;
-                                   Weekly) eval $1=7;;
-                                   Never) eval $1=false;;
+                                   Always) check_updates=0;;
+                                   Daily)  check_updates=1;;
+                                   Weekly) check_updates=7;;
+                                   Never)  check_updates=false;;
                                esac;;
         command_stt)           options=('bing' 'wit' 'snowboy' 'pocketsphinx')
-                               eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: bing" options[@] "${!1}"`
+                               eval "$1=\"$(dialog_select "Which engine to use for the recognition of commands\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: bing" options[@] "${!1}")\""
                                [ "$command_stt" == "snowboy" ] && dialog_msg "Attention: Snowboy for commands will only be able to understand trained commands.\nTrain your commands in Settings > Voice Reco > Snowboy Settings > Train..."
                                source stt_engines/$command_stt/main.sh;;
-        conversation_mode)     eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
-        dictionary)            eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
-        gain)                  eval $1="$(dialog_input "Microphone gain\nCan be positive of negative integer, ex: -5, 0, 10...\nAdjust it by steps of 5, or less to finetune" "${!1}" true)";;
-        google_speech_api_key) eval $1=`dialog_input "Google Speech API Key\nHow to get one: http://stackoverflow.com/a/26833337" "${!1}"`;;
+        conversation_mode)     eval "$1=\"$(dialog_yesno "Wait for another command after first executed" "${!1}")\"";;
+        dictionary)            eval "$1=\"$(dialog_input "PocketSphinx dictionary file" "${!1}")\"";;
+        gain)                  eval "$1=\"$(dialog_input "Microphone gain\nCan be positive of negative integer, ex: -5, 0, 10...\nAdjust it by steps of 5, or less to finetune" "${!1}" true)\"";;
+        google_speech_api_key) eval "$1=\"$(dialog_input "Google Speech API Key\nHow to get one: http://stackoverflow.com/a/26833337" "${!1}")\"";;
         program_startup)       editor hooks/$1;;
         program_exit)          editor hooks/$1;;
         entering_cmd)          editor hooks/$1;;
@@ -178,7 +178,7 @@ configure () {
                                language="$(dialog_select "Language" options[@] "$language")"
                                language="${language% *}" # "fr_FR (Français)" => "fr_FR"
                                ;;
-        language_model)        eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;
+        language_model)        eval "$1=\"$(dialog_input "PocketSphinx language model file" "${!1}")\"";;
         load)
             source jarvis-config-default.sh
             [ -f jarvis-config.sh ] && source jarvis-config.sh # backward compatibility
@@ -190,23 +190,23 @@ configure () {
             local not_installed=1
             for varname in "${variables[@]}"; do
                 if [ -f "config/$varname" ]; then
-                    eval "$varname=\"`cat config/$varname`\""
+                    eval "$varname=\"$(cat config/$varname)\""
                     not_installed=0
                 fi
             done
             return $not_installed;;
-        max_noise_duration_to_kill)     eval $1=`dialog_input "Max noise duration to kill" "${!1}"`;;
-        min_noise_duration_to_start)    eval $1=`dialog_input "Min noise duration to start" "${!1}"`;;
-        min_noise_perc_to_start)        eval $1=`dialog_input "Min noise percentage to start" "${!1}"`;;
-        min_silence_duration_to_stop)   eval $1=`dialog_input "Min silence duration to stop" "${!1}"`;;
-        min_silence_level_to_stop)      eval $1=`dialog_input "Min silence level to stop" "${!1}"`;;
+        max_noise_duration_to_kill)     eval "$1=\"$(dialog_input "Max noise duration to kill" "${!1}")\"";;
+        min_noise_duration_to_start)    eval "$1=\"$(dialog_input "Min noise duration to start" "${!1}")\"";;
+        min_noise_perc_to_start)        eval "$1=\"$(dialog_input "Min noise percentage to start" "${!1}")\"";;
+        min_silence_duration_to_stop)   eval "$1=\"$(dialog_input "Min silence duration to stop" "${!1}")\"";;
+        min_silence_level_to_stop)      eval "$1=\"$(dialog_input "Min silence level to stop" "${!1}")\"";;
         osx_say_voice)
-            local voices=(`/usr/bin/say -v ? | grep $language | awk '{print $1}'`)
-            eval $1=`dialog_select "Select a voice for $language" voices[@] $osx_say_voice`;;
-        phrase_failed)                  eval "$1=\"`dialog_input 'What to say if user command failed' "${!1}"`\"";;
-        phrase_misunderstood)           eval "$1=\"`dialog_input 'What to say if order not recognized' "${!1}"`\"";;
-        phrase_triggered)               eval "$1=\"`dialog_input 'What to say when magic word is heard' "${!1}"`\"";;
-        phrase_welcome)                 eval "$1=\"`dialog_input 'What to say at program startup' "${!1}"`\"";;
+            local voices=($(/usr/bin/say -v ? | grep $language | awk '{print $1}'))
+            eval "$1=\"$(dialog_select "Select a voice for $language" voices[@] ${!1})\"";;
+        phrase_failed)                  eval "$1=\"$(dialog_input 'What to say if user command failed' "${!1}")\"";;
+        phrase_misunderstood)           eval "$1=\"$(dialog_input 'What to say if order not recognized' "${!1}")\"";;
+        phrase_triggered)               eval "$1=\"$(dialog_input 'What to say when magic word is heard' "${!1}")\"";;
+        phrase_welcome)                 eval "$1=\"$(dialog_input 'What to say at program startup' "${!1}")\"";;
         play_hw)
             while true; do
                 dialog_msg "Checking audio output, make sure your speakers are on and press [Ok]"
@@ -225,7 +225,7 @@ configure () {
                 update_alsa $play_hw $rec_hw
             done
             ;;
-        pocketsphinxlog) eval $1=`dialog_input "File to store PocketSphinx logs" "${!1}"`;;
+        pocketsphinxlog) eval "$1=\"$(dialog_input "File to store PocketSphinx logs" "${!1}")\"";;
         rec_hw) # returns 1 if no mic
             rec_export=''
             while true; do
@@ -252,25 +252,25 @@ configure () {
                   #echo "DEBUG: saving ${!varname} into config/$varname"
                   echo "${!varname}" > config/$varname
               done;;
-        send_usage_stats)    eval $1=`dialog_yesno "Send anynomous usage statistics to help improving Jarvis" "${!1}"`;;
-        separator)           eval $1=`dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}"`;;
-        show_commands)       eval $1=`dialog_yesno "Show commands on startup and possible answers" "${!1}"`;;
-        snowboy_sensitivity) eval $1=`dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.4" "${!1}"`;;
-        snowboy_token)       eval $1=$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai (in profile settings)" "${!1}" true);;
-        tmp_folder)          eval $1=`dialog_input "Cache folder" "${!1}"`;;
-        trigger)             eval $1="$(dialog_input "How would you like your Jarvis to be called?\n(Hotword to be said before speaking commands)" "${!1}" true)"
+        send_usage_stats)    eval "$1=\"$(dialog_yesno "Send anynomous usage statistics to help improving Jarvis" "${!1}")\"";;
+        separator)           eval "$1=\"$(dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}")\"";;
+        show_commands)       eval "$1=\"$(dialog_yesno "Show commands on startup and possible answers" "${!1}")\"";;
+        snowboy_sensitivity) eval "$1=\"$(dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.4" "${!1}")\"";;
+        snowboy_token)       eval "$1=\"$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai (in profile settings)" "${!1}" true)\"";;
+        tmp_folder)          eval "$1=\"$(dialog_input "Cache folder" "${!1}")\"";;
+        trigger)             eval "$1=\"$(dialog_input "How would you like your Jarvis to be called?\n(Hotword to be said before speaking commands)" "${!1}" true)\""
                              [ "$trigger_stt" = "snowboy" ] && stt_sb_train "$trigger"
                              ;;
         trigger_mode)        options=("magic_word" "enter_key" "physical_button")
-                             eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`
+                             eval "$1=\"$(dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}")\""
                              ;;
         trigger_stt)         options=('snowboy' 'pocketsphinx' 'bing')
-                             eval $1=`dialog_select "Which engine to use for the recognition of the hotword ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}"`
+                             eval "$1=\"$(dialog_select "Which engine to use for the recognition of the hotword ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}")\""
                              source stt_engines/$trigger_stt/main.sh
                              ;;
         tts_engine)          options=('svox_pico' 'google' 'espeak' 'osx_say' 'voxygen')
-                             recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico'`
-                             eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
+                             recommended="$([ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico')"
+                             eval "$1=\"$(dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}")\""
                              source tts_engines/$tts_engine/main.sh
                              rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
                              case "$tts_engine" in
@@ -278,7 +278,7 @@ configure () {
                                  voxygen) configure "voxygen_voice";;
                              esac
                              ;;
-        username) eval $1="$(dialog_input "How would you like to be called?" "${!1}" true)";;
+        username)            eval "$1=\"$(dialog_input "How would you like to be called?" "${!1}" true)\"";;
         voxygen_voice)       case "$language" in
                                 de_DE) options=('Matthias');;
                                 es_ES) options=('Martha');;
@@ -287,11 +287,11 @@ configure () {
                                 en_GB) options=('Bruce' 'Jenny');;
                                 *)     options=();;
                              esac
-                             eval $1=`dialog_select "Voxygen $language Voices\nVisit https://www.voxygen.fr to test them" options[@] "${!1}"`
+                             eval "$1=\"$(dialog_select "Voxygen $language Voices\nVisit https://www.voxygen.fr to test them" options[@] "${!1}")\""
                              rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
                              ;;
-        wit_server_access_token) eval $1="$(dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}" true)";;
-        *) jv_error "ERROR: Unknown configure $1";;
+        wit_server_access_token) eval "$1=\"$(dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}" true)\"";;
+        *)                   jv_error "ERROR: Unknown configure $1";;
     esac
     return 0
 }
@@ -499,7 +499,7 @@ if [ "$just_execute" == false ]; then
     # Check if Jarvis is already running in background
     if jv_is_started; then
         options=('Show Jarvis output' 'Stop Jarvis')
-        case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
+        case "$(dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@])" in
             Show*) cat jarvis.log;;
             Stop*) jv_kill_jarvis;;
         esac
@@ -598,7 +598,7 @@ jv_handle_order() {
     			regex="^${pattern//'*'/.*}$" # .*HELLO.*
                 if [[ $sanitized =~ $regex ]]; then # HELLO THERE =~ .*HELLO.*
                     action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
-    				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'` # replace captures
+    				action="$(echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g')" # replace captures
     				[[ "$action" == *jv_repeat_last_command* ]] || jv_last_command="${action//\$order/$order}"
                     $verbose && jv_debug "$> $action"
                     eval "$action" || say "$phrase_failed"
