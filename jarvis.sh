@@ -265,7 +265,7 @@ configure () {
                              eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`
                              ;;
         trigger_stt)         options=('snowboy' 'pocketsphinx' 'bing')
-                             eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}"`
+                             eval $1=`dialog_select "Which engine to use for the recognition of the hotword ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}"`
                              source stt_engines/$trigger_stt/main.sh
                              ;;
         tts_engine)          options=('svox_pico' 'google' 'espeak' 'osx_say' 'voxygen')
@@ -307,6 +307,7 @@ check_dependencies () {
             echo "$missing: Not found"
         done
         jv_yesno "Attempt to automatically install the above packages?" || exit 1
+        jv_update # split jv_update and jv_install to make overall jarvis installation faster
         jv_install ${missings[@]} || exit 1
     fi
     

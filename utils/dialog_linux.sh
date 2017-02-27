@@ -70,11 +70,15 @@ editor () {
     "${EDITOR:-nano}" "$1"
 }
 
+# Public: update package/formula list
+jv_update () {
+    sudo apt-get update -y #421
+}
+
 # Public: install packages, used for dependencies
 #
 # args: list of packages to install
 jv_install () {
-    sudo apt-get update -y #421
     sudo apt-get install -y $@
 }
 

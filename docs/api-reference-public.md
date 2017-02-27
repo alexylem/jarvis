@@ -210,6 +210,12 @@ Usage
     if jv_yesno "question?"; then...
 
 
+`jv_update()`
+-------------
+
+Public: update package/formula list
+
+
 `jv_install()`
 --------------
 

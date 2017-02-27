@@ -320,6 +320,12 @@ Returns nothing
 Internal: apply needed local config modifications following updates of Jarvis
 
 
+`jv_update()`
+-------------
+
+Public: update package/formula list
+
+
 `jv_install()`
 --------------
 
