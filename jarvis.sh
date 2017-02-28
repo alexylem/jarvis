@@ -507,7 +507,7 @@ if [ "$just_execute" == false ]; then
     fi
     
     # check for updates
-    if [ $check_updates != false ] && [ $just_listen = false ]; then
+    if [ $check_updates != false ] && [ $no_menu = false ]; then
         if [ "$(find config/last_update_check -mtime -$check_updates 2>/dev/null | wc -l)" -eq 0 ]; then
             jv_jarvis_updated=false
             jv_check_updates
