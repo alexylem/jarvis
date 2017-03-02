@@ -135,7 +135,7 @@ configure () {
                    'trigger_mode'
                    'tts_engine'
                    'username'
-                   'voxygen_voice'
+                   #'voxygen_voice'
                    'wit_server_access_token')
     local hooks=(  'entering_cmd'
                    'exiting_cmd'
@@ -194,6 +194,11 @@ configure () {
                     not_installed=0
                 fi
             done
+            if [ "$tts_engine" == "voxygen" ]; then
+                jv_error "Voxygen speech engine has been removed as no longer supported"
+                jv_debug "See https://github.com/alexylem/jarvis/issues/446"
+                jv_warning "Change your speech engine in Settings > Speech synthesis"
+            fi
             return $not_installed;;
         max_noise_duration_to_kill)     eval "$1=\"$(dialog_input "Max noise duration to kill" "${!1}")\"";;
         min_noise_duration_to_start)    eval "$1=\"$(dialog_input "Min noise duration to start" "${!1}")\"";;
@@ -268,28 +273,28 @@ configure () {
                              eval "$1=\"$(dialog_select "Which engine to use for the recognition of the hotword ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}")\""
                              source stt_engines/$trigger_stt/main.sh
                              ;;
-        tts_engine)          options=('svox_pico' 'google' 'espeak' 'osx_say' 'voxygen')
+        tts_engine)          options=('svox_pico' 'google' 'espeak' 'osx_say') # 'voxygen'
                              recommended="$([ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico')"
                              eval "$1=\"$(dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}")\""
                              source tts_engines/$tts_engine/main.sh
                              rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
                              case "$tts_engine" in
                                  osx_say) configure "osx_say_voice";;
-                                 voxygen) configure "voxygen_voice";;
+                                 #voxygen) configure "voxygen_voice";;
                              esac
                              ;;
         username)            eval "$1=\"$(dialog_input "How would you like to be called?" "${!1}" true)\"";;
-        voxygen_voice)       case "$language" in
-                                de_DE) options=('Matthias');;
-                                es_ES) options=('Martha');;
-                                fr_FR) options=('Loic' 'Philippe' 'Marion' 'Electra' 'Becool');;
-                                it_IT) options=('Sonia');;
-                                en_GB) options=('Bruce' 'Jenny');;
-                                *)     options=();;
-                             esac
-                             eval "$1=\"$(dialog_select "Voxygen $language Voices\nVisit https://www.voxygen.fr to test them" options[@] "${!1}")\""
-                             rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
-                             ;;
+#        voxygen_voice)       case "$language" in
+#                                de_DE) options=('Matthias');;
+#                                es_ES) options=('Martha');;
+#                                fr_FR) options=('Loic' 'Philippe' 'Marion' 'Electra' 'Becool');;
+#                                it_IT) options=('Sonia');;
+#                                en_GB) options=('Bruce' 'Jenny');;
+#                                *)     options=();;
+#                             esac
+#                             eval "$1=\"$(dialog_select "Voxygen $language Voices\nVisit https://www.voxygen.fr to test them" options[@] "${!1}")\""
+#                             rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
+#                             ;;
         wit_server_access_token) eval "$1=\"$(dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}" true)\"";;
         *)                   jv_error "ERROR: Unknown configure $1";;
     esac
@@ -418,8 +423,8 @@ while getopts ":$flags" o; do
     case "${o}" in
 		b)  # Check if Jarvis is already running in background
             if jv_is_started; then
-                echo "Jarvis is already running"
-                echo "run ./jarvis.sh -q to stop it"
+                jv_error "Jarvis is already running"
+                jv_warning "run ./jarvis.sh -q to stop it"
                 exit 1
             fi
             jv_start_in_background

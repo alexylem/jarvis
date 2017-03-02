@@ -365,10 +365,10 @@ EOM
                         done;;
                     "Speech synthesis")
                         while true; do
-                            options=("Speech engine ($tts_engine)" "Voxygen voice ($voxygen_voice)" "OSX voice ($osx_say_voice)" "Cache folder ($tmp_folder)")
+                            options=("Speech engine ($tts_engine)" "OSX voice ($osx_say_voice)" "Cache folder ($tmp_folder)") #"Voxygen voice ($voxygen_voice)" 
                             case "`dialog_menu 'Configuration > Speech synthesis' options[@]`" in
                                 Speech*engine*) configure "tts_engine";;
-                                Voxygen*voice*) configure "voxygen_voice";;
+                                #Voxygen*voice*) configure "voxygen_voice";;
                                 OSX*voice*)     configure "osx_say_voice";;
                                 Cache*folder*)  configure "tmp_folder";;
                                 *) break;;

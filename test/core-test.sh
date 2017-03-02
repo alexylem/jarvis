@@ -7,7 +7,7 @@ it_shows_help() {
 }
 
 it_checks_root () {
-    test "$(sudo ./jarvis.sh -w)" = "ERROR: Jarvis must not be used as root"
+    test "$(sudo ./jarvis.sh -w 2>&1)" = "ERROR: Jarvis must not be used as root"
 }
 
 it_says_hello() {

@@ -229,7 +229,7 @@ jv_message() {
 }
 # Public: Displays a error in red
 # $1 - message to display
-jv_error() { jv_message "$1" "error" "$_red" ;}
+jv_error() { jv_message "$1" "error" "$_red" 1>&2 ;}
 # Public: Displays a warning in yellow
 # $1 - message to display
 jv_warning() { jv_message "$1" "warning" "$_orange" ;}
