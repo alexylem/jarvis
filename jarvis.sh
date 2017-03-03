@@ -210,7 +210,7 @@ configure () {
             eval "$1=\"$(dialog_select "Select a voice for $language" voices[@] ${!1})\"";;
         phrase_failed)                  eval "$1=\"$(dialog_input 'What to say if user command failed' "${!1}")\"";;
         phrase_misunderstood)           eval "$1=\"$(dialog_input 'What to say if order not recognized' "${!1}")\"";;
-        phrase_triggered)               eval "$1=\"$(dialog_input 'What to say when magic word is heard' "${!1}")\"";;
+        phrase_triggered)               eval "$1=\"$(dialog_input 'What to say when magic word is heard\nEx: Yes?' "${!1}")\"";;
         phrase_welcome)                 eval "$1=\"$(dialog_input 'What to say at program startup' "${!1}")\"";;
         play_hw)
             while true; do
@@ -758,7 +758,7 @@ while true; do
                     echo $trigger # new line
                     bypass=true
                     jv_hook "entering_cmd"
-                    say "$phrase_triggered"
+                    [ -n "$phrase_triggered" ] && say "$phrase_triggered"
                     continue 2
                 fi
     			
