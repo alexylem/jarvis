@@ -3,14 +3,15 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://domotiquefacile.fr/jarvis       |
 # +----------------------------------------+
-flags='bc:ihjklmnp:qs:uvwx:z'
+flags='bc:ihjklmnp:qrs:uvwx:z'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
 
-    Jarvis.sh is a lightweight configurable multi-lang jarvis-like bot
+    Jarvis.sh is a lightweight configurable multi-lang voice assistant
     Meant for home automation running on slow computer (ex: Raspberry Pi)
-    It installs automatically speech recognition & synthesis engines of your choice
+    Installs automatically speech recognition & synthesis engines of your choice
+    Highly extendable thanks to a wide catalog of community plugins
 
     Main options are now accessible through the application menu
 
@@ -25,6 +26,7 @@ show_help () { cat <<EOF
     -n  directly start jarvis without menu
     -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/time
     -q  quit jarvis if running in background
+    -r  uninstall jarvis and its dependencies
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
     -u  force update Jarvis and plugins (ex: use in cron)
     -v  troubleshooting mode
@@ -66,7 +68,7 @@ case "$OSTYPE" in
     *)          jv_error "ERROR: $OSTYPE is not a supported platform"
                 exit 1;;
 esac
-source utils/dialog_$platform.sh # load default & user configuration
+source utils/dialog_$platform.sh
 
 # Initiate files & directories
 mkdir -p config
@@ -447,6 +449,8 @@ while getopts ":$flags" o; do
 		p)  store_install_plugin "${OPTARG}"
             exit;;
         q)  jv_kill_jarvis
+            exit $?;;
+        r)  source uninstall.sh
             exit $?;;
         s)	just_say=${OPTARG}
             jv_api=true;;

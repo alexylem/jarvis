@@ -76,5 +76,4 @@ store_plugin_uninstall () { # $1:plugin_name
     cd ../
     jv_plugins_order_rebuild
     cd plugins/
-    dialog_msg "Uninstallation Complete"
 }

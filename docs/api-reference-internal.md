@@ -334,6 +334,14 @@ Public: install packages, used for dependencies
 args: list of packages to install
 
 
+`jv_remove()`
+-------------
+
+Public: remove packages, used for uninstalls
+
+args: list of packages to remove
+
+
 `jv_browse_url()`
 -----------------
 

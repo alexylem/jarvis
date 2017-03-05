@@ -82,6 +82,13 @@ jv_install () {
     sudo apt-get install -y $@
 }
 
+# Public: remove packages, used for uninstalls
+#
+# args: list of packages to remove
+jv_remove () {
+    sudo apt-get remove $@
+}
+
 # Public: open URL in default browser
 jv_browse_url () {
     sensible-browser "$1"

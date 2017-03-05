@@ -88,6 +88,21 @@ jv_install () {
     brew install $@
 }
 
+# Public: remove packages, used for uninstalls
+#
+# args: list of packages to remove
+jv_remove () {
+    # assuming brew is installed
+    local to_remove=""
+    for formula in "$@"; do
+        brew ls --versions "$formula" >/dev/null && to_remove+=" $formula"
+    done
+    [ -z "to_remove" ] && return # nothing installed to remove
+    echo "The following packages will be REMOVED:"
+    echo "$to_remove"
+    jv_yesno "Do you want to continue?" && brew uninstall $to_remove
+}
+
 # Public: open URL in default browser
 jv_browse_url () {
     open "$1"

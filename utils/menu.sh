@@ -119,6 +119,7 @@ menu_store () {
                                             Uninstall)
                                                 if dialog_yesno "Are you sure?" true >/dev/null; then
                                                     store_plugin_uninstall "$plugin"
+                                                    dialog_msg "Uninstallation Complete"
                                                     break 2
                                                 fi
                                                 ;;
