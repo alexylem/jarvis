@@ -1,5 +1,7 @@
 # Jarvis [![Version-shield]](CHANGELOG.md) [![License-shield]](LICENSE.md)
 
+![Banner]
+
 ## ![English][English] English
 Jarvis.sh is a lightweight configurable multi-lang jarvis-like bot.
 Meant for home automation running on slow computer (ex: Raspberry Pi 2 & 3).  
