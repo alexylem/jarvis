@@ -210,3 +210,31 @@ Usage
     if jv_yesno "question?"; then...
 
 
+`jv_update()`
+-------------
+
+Public: update package/formula list
+
+
+`jv_install()`
+--------------
+
+Public: install packages, used for dependencies
+
+args: list of packages to install
+
+
+`jv_remove()`
+-------------
+
+Public: remove packages, used for uninstalls
+
+args: list of packages to remove
+
+
+`jv_browse_url()`
+-----------------
+
+Public: open URL in default browser
+
+

@@ -3,28 +3,30 @@
 # | JARVIS by Alexandre Mély - MIT license |
 # | http://domotiquefacile.fr/jarvis       |
 # +----------------------------------------+
-flags='bc:ihjklmnp:qs:uvwx:z'
+flags='bc:ihjklmnp:qrs:uvwx:z'
 show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
 
-    Jarvis.sh is a lightweight configurable multi-lang jarvis-like bot
+    Jarvis.sh is a lightweight configurable multi-lang voice assistant
     Meant for home automation running on slow computer (ex: Raspberry Pi)
-    It installs automatically speech recognition & synthesis engines of your choice
+    Installs automatically speech recognition & synthesis engines of your choice
+    Highly extendable thanks to a wide catalog of community plugins
 
     Main options are now accessible through the application menu
 
     -b  run in background (no menu, continues after terminal is closed)
     -c  overrides conversation mode setting (true/false)
-    -i  install (dependencies, pocketsphinx, setup)
+    -i  install and setup wizard
     -h  display this help
     -j  output in JSON (for APIs)
-    -k  directly start on keyboard mode
+    -k  directly start in keyboard mode
     -l  directly listen for one command (ex: launch from physical button)
     -m  mute mode (overrides settings)
     -n  directly start jarvis without menu
     -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/time
     -q  quit jarvis if running in background
+    -r  uninstall jarvis and its dependencies
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
     -u  force update Jarvis and plugins (ex: use in cron)
     -v  troubleshooting mode
@@ -34,7 +36,7 @@ show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW: Check out speech synthesis fun voices of Voxygen"
+headline="NEW: Auto-adjust audio levels in Settings > Audio"
 
 # Move to Jarvis directory
 export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -44,6 +46,7 @@ shopt -s nocasematch # string comparison case insensitive
 source utils/utils.sh # needed for wizard / platform error
 source utils/store.sh # needed for plugin installation & store menu
 source utils/update.sh # needed for update of Jarvis config
+source jarvis-functions.sh # needed for jv_auto_levels
 
 # Check platform compatibility
 dependencies=(awk curl git iconv jq nano perl sed sox wget mpg123)
@@ -53,25 +56,27 @@ case "$OSTYPE" in
                 jv_os_name="$(cat /etc/*release | grep ^ID= | cut -f2 -d=)"
                 jv_os_version="$(cat /etc/*release | grep ^VERSION_ID= | cut -f2 -d= | tr -d '"')"
                 dependencies+=(alsamixer aplay arecord whiptail)
-            	forder="/dev/shm/jarvis-order"
+            	jv_cache_folder="/dev/shm"
                 ;;
     darwin*)    platform="osx"
                 jv_arch="$(uname -m)"
                 jv_os_name="$(sw_vers -productName)"
                 jv_os_version="$(sw_vers -productVersion)"
                 dependencies+=(osascript)
-                forder="/tmp/jarvis-order"
+                jv_cache_folder="/tmp"
                 ;;
     *)          jv_error "ERROR: $OSTYPE is not a supported platform"
                 exit 1;;
 esac
-source utils/dialog_$platform.sh # load default & user configuration
+source utils/dialog_$platform.sh
 
 # Initiate files & directories
-lockfile="/tmp/jarvis.lock"
 mkdir -p config
 mkdir -p plugins
-audiofile="jarvis-record.wav"
+lockfile="$jv_cache_folder/jarvis.lock"
+audiofile="$jv_cache_folder/jarvis-record.wav"
+forder="$jv_cache_folder/jarvis-order"
+jv_say_queue="$jv_cache_folder/jarvis-say"
 rm -f $audiofile # sometimes, when error, previous recording is played
 
 # Only for retrocompatibility
@@ -103,6 +108,7 @@ configure () {
                    'command_stt'
                    'conversation_mode'
                    'dictionary'
+                   'gain'
                    'google_speech_api_key'
                    'language'
                    'language_model'
@@ -131,7 +137,7 @@ configure () {
                    'trigger_mode'
                    'tts_engine'
                    'username'
-                   'voxygen_voice'
+                   #'voxygen_voice'
                    'wit_server_access_token')
     local hooks=(  'entering_cmd'
                    'exiting_cmd'
@@ -142,20 +148,22 @@ configure () {
                    'start_speaking'
                    'stop_speaking')
     case "$1" in
-        bing_speech_api_key)   eval $1=`dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}"`;;
+        bing_speech_api_key)   eval "$1=\"$(dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}" true)\"";;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
                                case "$(dialog_select "Check Updates when Jarvis starts up\nRecommended: Daily" options[@] "Daily")" in
-                                   Always) eval $1=0;;
-                                   Daily) eval $1=1;;
-                                   Weekly) eval $1=7;;
-                                   Never) eval $1=false;;
+                                   Always) check_updates=0;;
+                                   Daily)  check_updates=1;;
+                                   Weekly) check_updates=7;;
+                                   Never)  check_updates=false;;
                                esac;;
         command_stt)           options=('bing' 'wit' 'snowboy' 'pocketsphinx')
-                               eval $1=`dialog_select "Which engine to use for the recognition of commands\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: bing" options[@] "${!1}"`
+                               eval "$1=\"$(dialog_select "Which engine to use for the recognition of commands\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: bing" options[@] "${!1}")\""
+                               [ "$command_stt" == "snowboy" ] && dialog_msg "Attention: Snowboy for commands will only be able to understand trained commands.\nTrain your commands in Settings > Voice Reco > Snowboy Settings > Train..."
                                source stt_engines/$command_stt/main.sh;;
-        conversation_mode)     eval $1=`dialog_yesno "Wait for another command after first executed" "${!1}"`;;
-        dictionary)            eval $1=`dialog_input "PocketSphinx dictionary file" "${!1}"`;;
-        google_speech_api_key) eval $1=`dialog_input "Google Speech API Key\nHow to get one: http://stackoverflow.com/a/26833337" "${!1}"`;;
+        conversation_mode)     eval "$1=\"$(dialog_yesno "Wait for another command after first executed" "${!1}")\"";;
+        dictionary)            eval "$1=\"$(dialog_input "PocketSphinx dictionary file" "${!1}")\"";;
+        gain)                  eval "$1=\"$(dialog_input "Microphone gain\nCan be positive of negative integer, ex: -5, 0, 10...\nAdjust it by steps of 5, or less to finetune" "${!1}" true)\"";;
+        google_speech_api_key) eval "$1=\"$(dialog_input "Google Speech API Key\nHow to get one: http://stackoverflow.com/a/26833337" "${!1}")\"";;
         program_startup)       editor hooks/$1;;
         program_exit)          editor hooks/$1;;
         entering_cmd)          editor hooks/$1;;
@@ -164,9 +172,15 @@ configure () {
         stop_listening)        editor hooks/$1;;
         start_speaking)        editor hooks/$1;;
         stop_speaking)         editor hooks/$1;;
-        language)              options=("en_GB" "es_ES" "fr_FR" "it_IT")
-                               eval $1=`dialog_select "Language" options[@] "${!1}"`;;
-        language_model)        eval $1=`dialog_input "PocketSphinx language model file" "${!1}"`;;
+        language)              options=("de_DE (Deutsch)"
+                                        "en_GB (English)"
+                                        "es_ES (Español)"
+                                        "fr_FR (Français)"
+                                        "it_IT (Italiano)")
+                               language="$(dialog_select "Language" options[@] "$language")"
+                               language="${language% *}" # "fr_FR (Français)" => "fr_FR"
+                               ;;
+        language_model)        eval "$1=\"$(dialog_input "PocketSphinx language model file" "${!1}")\"";;
         load)
             source jarvis-config-default.sh
             [ -f jarvis-config.sh ] && source jarvis-config.sh # backward compatibility
@@ -178,28 +192,33 @@ configure () {
             local not_installed=1
             for varname in "${variables[@]}"; do
                 if [ -f "config/$varname" ]; then
-                    eval "$varname=\"`cat config/$varname`\""
+                    eval "$varname=\"$(cat config/$varname)\""
                     not_installed=0
                 fi
             done
+            if [ "$tts_engine" == "voxygen" ]; then
+                jv_error "Voxygen speech engine has been removed as no longer supported"
+                jv_debug "See https://github.com/alexylem/jarvis/issues/446"
+                jv_warning "Change your speech engine in Settings > Speech synthesis"
+            fi
             return $not_installed;;
-        max_noise_duration_to_kill)     eval $1=`dialog_input "Max noise duration to kill" "${!1}"`;;
-        min_noise_duration_to_start)    eval $1=`dialog_input "Min noise duration to start" "${!1}"`;;
-        min_noise_perc_to_start)        eval $1=`dialog_input "Min noise durpercentageation to start" "${!1}"`;;
-        min_silence_duration_to_stop)   eval $1=`dialog_input "Min silence duration to stop" "${!1}"`;;
-        min_silence_level_to_stop)      eval $1=`dialog_input "Min silence level to stop" "${!1}"`;;
+        max_noise_duration_to_kill)     eval "$1=\"$(dialog_input "Max noise duration to kill" "${!1}")\"";;
+        min_noise_duration_to_start)    eval "$1=\"$(dialog_input "Min noise duration to start" "${!1}")\"";;
+        min_noise_perc_to_start)        eval "$1=\"$(dialog_input "Min noise percentage to start" "${!1}")\"";;
+        min_silence_duration_to_stop)   eval "$1=\"$(dialog_input "Min silence duration to stop" "${!1}")\"";;
+        min_silence_level_to_stop)      eval "$1=\"$(dialog_input "Min silence level to stop" "${!1}")\"";;
         osx_say_voice)
-            local voices=(`/usr/bin/say -v ? | grep $language | awk '{print $1}'`)
-            eval $1=`dialog_select "Select a voice for $language" voices[@] $osx_say_voice`;;
-        phrase_failed)                  eval "$1=\"`dialog_input 'What to say if user command failed' "${!1}"`\"";;
-        phrase_misunderstood)           eval "$1=\"`dialog_input 'What to say if order not recognized' "${!1}"`\"";;
-        phrase_triggered)               eval "$1=\"`dialog_input 'What to say when magic word is heard' "${!1}"`\"";;
-        phrase_welcome)                 eval "$1=\"`dialog_input 'What to say at program startup' "${!1}"`\"";;
+            local voices=($(/usr/bin/say -v ? | grep $language | awk '{print $1}'))
+            eval "$1=\"$(dialog_select "Select a voice for $language" voices[@] ${!1})\"";;
+        phrase_failed)                  eval "$1=\"$(dialog_input 'What to say if user command failed' "${!1}")\"";;
+        phrase_misunderstood)           eval "$1=\"$(dialog_input 'What to say if order not recognized' "${!1}")\"";;
+        phrase_triggered)               eval "$1=\"$(dialog_input 'What to say when magic word is heard\nEx: Yes?' "${!1}")\"";;
+        phrase_welcome)                 eval "$1=\"$(dialog_input 'What to say at program startup' "${!1}")\"";;
         play_hw)
             while true; do
                 dialog_msg "Checking audio output, make sure your speakers are on and press [Ok]"
                 play "sounds/applause.wav"
-                dialog_yesno "Did you hear something?" true && break
+                dialog_yesno "Did you hear something?" true >/dev/null && break
                 clear
                 jv_warning "Selection of the speaker device"
                 aplay -l
@@ -213,11 +232,11 @@ configure () {
                 update_alsa $play_hw $rec_hw
             done
             ;;
-        pocketsphinxlog) eval $1=`dialog_input "File to store PocketSphinx logs" "${!1}"`;;
-        rec_hw)
+        pocketsphinxlog) eval "$1=\"$(dialog_input "File to store PocketSphinx logs" "${!1}")\"";;
+        rec_hw) # returns 1 if no mic
             rec_export=''
             while true; do
-                dialog_yesno "Checking audio input, make sure your microphone is on, press [Yes] and say something.\nPress [No] if you don't have a microphone." true || break
+                dialog_yesno "Checking audio input, make sure your microphone is on, press [Yes] and say something.\nPress [No] if you don't have a microphone." true >/dev/null || return 1
                 clear
                 rec -r 16000 -c 1 -b 16 -e signed-integer $audiofile trim 0 3
                 if [ $? -eq 0 ]; then
@@ -240,34 +259,48 @@ configure () {
                   #echo "DEBUG: saving ${!varname} into config/$varname"
                   echo "${!varname}" > config/$varname
               done;;
-        send_usage_stats)    eval $1=`dialog_yesno "Send anynomous usage statistics to help improving Jarvis" "${!1}"`;;
-        separator)           eval $1=`dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}"`;;
-        show_commands)       eval $1=`dialog_yesno "Show commands on startup and possible answers" "${!1}"`;;
-        snowboy_sensitivity) eval $1=`dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.5" "${!1}"`;;
-        snowboy_token)       eval $1=$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai" "${!1}");;
-        tmp_folder)          eval $1=`dialog_input "Cache folder" "${!1}"`;;
-        trigger)             eval "$1='`dialog_input \"Magic word to be said\" \"${!1}\"`'"
+        send_usage_stats)    eval "$1=\"$(dialog_yesno "Send anynomous usage statistics to help improving Jarvis" "${!1}")\"";;
+        separator)           eval "$1=\"$(dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}")\"";;
+        show_commands)       eval "$1=\"$(dialog_yesno "Show commands on startup and possible answers" "${!1}")\"";;
+        snowboy_sensitivity) eval "$1=\"$(dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.4" "${!1}")\"";;
+        snowboy_token)       eval "$1=\"$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai (in profile settings)" "${!1}" true)\"";;
+        tmp_folder)          eval "$1=\"$(dialog_input "Cache folder" "${!1}")\"";;
+        trigger)             eval "$1=\"$(dialog_input "How would you like your Jarvis to be called?\n(Hotword to be said before speaking commands)" "${!1}" true)\""
                              [ "$trigger_stt" = "snowboy" ] && stt_sb_train "$trigger"
                              ;;
         trigger_mode)        options=("magic_word" "enter_key" "physical_button")
-                             eval $1=`dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}"`
+                             eval "$1=\"$(dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}")\""
                              ;;
         trigger_stt)         options=('snowboy' 'pocketsphinx' 'bing')
-                             eval $1=`dialog_select "Which engine to use for the recognition of the trigger ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}"`
+                             eval "$1=\"$(dialog_select "Which engine to use for the recognition of the hotword ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}")\""
                              source stt_engines/$trigger_stt/main.sh
                              ;;
-        tts_engine) options=('svox_pico' 'google' 'espeak' 'osx_say' 'voxygen')
-                    recommended=`[ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico'`
-                    eval $1=`dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}"`
-                    source tts_engines/$tts_engine/main.sh;;
-        username) eval $1=`dialog_input "How would you like to be called?" "${!1}"`;;
-        voxygen_voice)       options=('Bruce' 'Jenny' 'Loic' 'Philippe' 'Marion' 'Electra' 'Becool' 'Martha' 'Sonia')
-                             eval $1=`dialog_select "Voxygen Voice\nVisit https://www.voxygen.fr" options[@] "${!1}"`
-                             rm -f /tmp/*.mp3 # remove cached voice
+        tts_engine)          options=('svox_pico' 'google' 'espeak' 'osx_say') # 'voxygen'
+                             recommended="$([ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico')"
+                             eval "$1=\"$(dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}")\""
+                             source tts_engines/$tts_engine/main.sh
+                             rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
+                             case "$tts_engine" in
+                                 osx_say) configure "osx_say_voice";;
+                                 #voxygen) configure "voxygen_voice";;
+                             esac
                              ;;
-        wit_server_access_token) eval $1=`dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}"`;;
-        *) jv_error "ERROR: Unknown configure $1";;
+        username)            eval "$1=\"$(dialog_input "How would you like to be called?" "${!1}" true)\"";;
+#        voxygen_voice)       case "$language" in
+#                                de_DE) options=('Matthias');;
+#                                es_ES) options=('Martha');;
+#                                fr_FR) options=('Loic' 'Philippe' 'Marion' 'Electra' 'Becool');;
+#                                it_IT) options=('Sonia');;
+#                                en_GB) options=('Bruce' 'Jenny');;
+#                                *)     options=();;
+#                             esac
+#                             eval "$1=\"$(dialog_select "Voxygen $language Voices\nVisit https://www.voxygen.fr to test them" options[@] "${!1}")\""
+#                             rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
+#                             ;;
+        wit_server_access_token) eval "$1=\"$(dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}" true)\"";;
+        *)                   jv_error "ERROR: Unknown configure $1";;
     esac
+    return 0
 }
 
 check_dependencies () {
@@ -281,6 +314,7 @@ check_dependencies () {
             echo "$missing: Not found"
         done
         jv_yesno "Attempt to automatically install the above packages?" || exit 1
+        jv_update # split jv_update and jv_install to make overall jarvis installation faster
         jv_install ${missings[@]} || exit 1
     fi
     
@@ -306,38 +340,52 @@ wizard () {
     dialog_msg "Hello, my name is JARVIS, nice to meet you"
     configure "language"
 
-    [ "$language" != "en_EN" ] && dialog_msg "Note: the installation & menus are only in English for the moment."
+    [ "$language" != "en_EN" ] && dialog_msg <<EOM
+Note: the installation & menus are only in English for the moment.
+However, speech recognition and synthesis will be done in $language
+EOM
 
     configure "username"
     
     configure "play_hw"
-    configure "rec_hw" # needed to train hotword
+    # rec_hw needed to train hotword 
+    local has_mic=false
+    configure "rec_hw" && has_mic=true  # returns 1 if no mic
     
-    configure "trigger_stt"
+    if $has_mic; then
+        jv_auto_levels # adjust audio levels only if mic is present
+        # || exit 1 # waiting to have more feedback on auto-adjust feature to make it mandatory
     
-    if [ "$trigger_stt" = "snowboy" ]; then
-        # use ' instead of " in dialog_msg
-        dialog_msg <<EOM
+        configure "trigger_stt"
+    
+        if [ "$trigger_stt" = "snowboy" ]; then
+            # use ' instead of " in dialog_msg
+            dialog_msg <<EOM
 You can now record and train your own hotword within Jarvis
 Or you can immediately use the default universal hotword 'snowboy'
 EOM
-       trigger="snowboy"
+           trigger="${trigger:-snowboy}"
+        fi
+    else
+        trigger_stt=false
     fi
     configure "trigger"
     
-    configure "command_stt"
-    if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
-        configure "google_speech_api_key"
+    if $has_mic; then
+        configure "command_stt"
+        if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
+            configure "google_speech_api_key"
+        fi
+        if [ $trigger_stt = 'wit' ] || [ $command_stt = 'wit' ]; then
+            configure "wit_server_access_token"
+        fi
+        if [ $trigger_stt = 'bing' ] || [ $command_stt = 'bing' ]; then
+            configure "bing_speech_api_key"
+        fi
     fi
-    if [ $trigger_stt = 'wit' ] || [ $command_stt = 'wit' ]; then
-        configure "wit_server_access_token"
-    fi
-    if [ $trigger_stt = 'bing' ] || [ $command_stt = 'bing' ]; then
-        configure "bing_speech_api_key"
-    fi
-
+    
     configure "tts_engine"
-
+    
     configure "save"
     dialog_msg <<EOM
 Congratulations! You can start using Jarvis
@@ -354,7 +402,7 @@ jv_start_in_background () {
 Jarvis has been launched in background
 
 To view Jarvis output:
-cat jarvis.log
+tail -f jarvis.log
 To check if jarvis is running:
 pgrep -lf jarvis.sh
 To stop Jarvis:
@@ -376,9 +424,9 @@ jv_json=false
 while getopts ":$flags" o; do
     case "${o}" in
 		b)  # Check if Jarvis is already running in background
-            if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
-                echo "Jarvis is already running"
-                echo "run ./jarvis.sh -q to stop it"
+            if jv_is_started; then
+                jv_error "Jarvis is already running"
+                jv_warning "run ./jarvis.sh -q to stop it"
                 exit 1
             fi
             jv_start_in_background
@@ -401,6 +449,8 @@ while getopts ":$flags" o; do
 		p)  store_install_plugin "${OPTARG}"
             exit;;
         q)  jv_kill_jarvis
+            exit $?;;
+        r)  source uninstall.sh
             exit $?;;
         s)	just_say=${OPTARG}
             jv_api=true;;
@@ -434,10 +484,10 @@ $send_usage_stats && ( jv_ga_send_hit & )
 trigger_sanitized=$(jv_sanitize "$trigger")
 [ -n "$conversation_mode_override" ] && conversation_mode=$conversation_mode_override
 #update_commands
-source jarvis-functions.sh
 source stt_engines/$trigger_stt/main.sh
 source stt_engines/$command_stt/main.sh
 source tts_engines/$tts_engine/main.sh
+
 if ( [ "$play_hw" != "false" ] || [ "$rec_hw" != "false" ] ) && [ ! -f ~/.asoundrc ]; then
     update_alsa $play_hw $rec_hw  # retro compatibility
     dialog_msg<<EOM
@@ -450,15 +500,15 @@ fi
 
 # if -s argument provided, just say it & exit (used in jarvis-events)
 if [[ "$just_say" != false ]]; then
-	say "$just_say"
-	jv_exit # to properly end JSON if -j flag used
+    say "$just_say"
+    jv_exit # to properly end JSON if -j flag used
 fi
 
 if [ "$just_execute" == false ]; then
     # Check if Jarvis is already running in background
-    if [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null; then
+    if jv_is_started; then
         options=('Show Jarvis output' 'Stop Jarvis')
-        case "`dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@]`" in
+        case "$(dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@])" in
             Show*) cat jarvis.log;;
             Stop*) jv_kill_jarvis;;
         esac
@@ -466,7 +516,7 @@ if [ "$just_execute" == false ]; then
     fi
     
     # check for updates
-    if [ $check_updates != false ] && [ $just_listen = false ]; then
+    if [ $check_updates != false ] && [ $no_menu = false ]; then
         if [ "$(find config/last_update_check -mtime -$check_updates 2>/dev/null | wc -l)" -eq 0 ]; then
             jv_jarvis_updated=false
             jv_check_updates
@@ -557,10 +607,10 @@ jv_handle_order() {
     			regex="^${pattern//'*'/.*}$" # .*HELLO.*
                 if [[ $sanitized =~ $regex ]]; then # HELLO THERE =~ .*HELLO.*
                     action=${line#*==} # *HELLO*|*GOOD*MORNING*==say Hi => say Hi
-    				action=`echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g'` # replace captures
-    				$verbose && jv_debug "$> $action"
+    				action="$(echo $action | sed 's/(\([0-9]\))/${BASH_REMATCH[\1]}/g')" # replace captures
+    				[[ "$action" == *jv_repeat_last_command* ]] || jv_last_command="${action//\$order/$order}"
+                    $verbose && jv_debug "$> $action"
                     eval "$action" || say "$phrase_failed"
-                    [[ "$action" == *jv_repeat_last_command* ]] || jv_last_command="${action//\$order/$order}"
                     check_indented=true
                     commands=""
                     jv_possible_answers=false
@@ -606,6 +656,12 @@ if [ "$just_execute" = false ]; then
     # save pid in lockfile for proper kill
     echo $$ > $lockfile
     
+    # start say service
+    if ! $jv_api; then
+        [ -p $jv_say_queue ] || mkfifo $jv_say_queue # create pipe if not exists
+        source utils/say.sh &
+    fi
+    
     # welcome phrase
     [ $just_listen = false ] && [ ! -z "$phrase_welcome" ] && say "$phrase_welcome"
     
@@ -613,7 +669,7 @@ if [ "$just_execute" = false ]; then
     if $show_commands; then
         jv_display_commands
     else
-        jv_debug "Use \"?\" to display possible commands"
+        jv_debug "Use \"?\" to display possible commands (in keyboard mode)"
     fi
     
     bypass=$just_listen
@@ -648,18 +704,19 @@ while true; do
             
             $quiet || ( $bypass && PLAY sounds/triggered.wav || PLAY sounds/listening.wav )
             
+            nb_failed=0
             while true; do
     			#$quiet || PLAY beep-high.wav
                 
                 $verbose && jv_debug "(listening...)"
                 > $forder # empty $forder
-                error=false
                 if $bypass; then
                     eval ${command_stt}_STT
                 else
                     eval ${trigger_stt}_STT
                 fi
-                (( $? )) && error=true
+                retcode=$?
+                (( $retcode )) && error=true || error=false
                 
                 # if there was no error doing speech to text
                 if ! $error; then
@@ -673,11 +730,20 @@ while true; do
                 fi
                 
     			if $error; then
-                    PLAY sounds/error.wav
-                    if [ $((++nb_failed)) -eq 3 ]; then
-                        nb_failed=0
-                        echo # new line
-                        $verbose && jv_debug "DEBUG: 3 attempts failed, end of conversation"
+                    finish=false
+                    if [ $retcode -eq 124 ]; then # timeout
+                        sleep 1 # BUG here despite timeout mic still busy can't rec again...
+                        $verbose && jv_debug "DEBUG: timeout, end of conversation" || jv_debug '(timeout)'
+                        finish=true
+                    else
+                        PLAY sounds/error.wav
+                        if [  $((++nb_failed)) -eq 3 ]; then
+                            $verbose && jv_debug "DEBUG: 3 attempts failed, end of conversation"
+                            finish=true
+                            echo # new line
+                        fi
+                    fi
+                    if $finish; then
                         PLAY sounds/timeout.wav
                         bypass=false
                         jv_hook "exiting_cmd"
@@ -687,6 +753,7 @@ while true; do
                     fi
                     continue
                 fi
+                
     			if $bypass; then
                     echo "$order" # printf fails when order has %
                     break
@@ -695,7 +762,7 @@ while true; do
                     echo $trigger # new line
                     bypass=true
                     jv_hook "entering_cmd"
-                    say "$phrase_triggered"
+                    [ -n "$phrase_triggered" ] && say "$phrase_triggered"
                     continue 2
                 fi
     			

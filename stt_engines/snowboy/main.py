@@ -28,8 +28,8 @@ def interrupt_callback():
     return interrupted
 
 def detected_callback(modelid):
-    #global detector #makes is slower to react
-    #detector.terminate() #makes is slower to react
+    #global detector #makes it slower to react
+    #detector.terminate() #makes it slower to react
     sys.exit(modelid+10) # main.sh substracts 10
 
 if len(sys.argv) < 3:

@@ -82,7 +82,7 @@ jv_add_timestamps () {
     done
 }
 
-# Public: Speak some text out loud 
+# Public: Speak some text out loud
 # $1 - text to speak
 # 
 # Returns nothing
@@ -96,7 +96,15 @@ say () {
     else
         echo -e "$_pink$trigger$_reset: $1"
     fi
-    if ! $quiet; then
+    $quiet && return
+    if $jv_api; then # if using API, put in queue
+        if jv_is_started; then
+            echo "$1" > $jv_say_queue # put in queue (read by say.sh)
+        else
+            jv_error "ERROR: Jarvis is not running"
+            jv_success "HELP: Start Jarvis using ./jarvis.sh -b"
+        fi
+    else # if using Jarvis, speak synchronously
         jv_hook "start_speaking"
         $tts_engine'_TTS' "$1"
         jv_hook "stop_speaking"
@@ -138,7 +146,7 @@ jv_spinner () {
 			sleep .1
 		done
 	done
-    wait $1 # get return code of background task in $?
+    wait $1 2>/dev/null # get return code of background task in $?
     return $? # return return code of background task
 }
 
@@ -221,7 +229,7 @@ jv_message() {
 }
 # Public: Displays a error in red
 # $1 - message to display
-jv_error() { jv_message "$1" "error" "$_red" ;}
+jv_error() { jv_message "$1" "error" "$_red" 1>&2 ;}
 # Public: Displays a warning in yellow
 # $1 - message to display
 jv_warning() { jv_message "$1" "warning" "$_orange" ;}
@@ -246,13 +254,21 @@ jv_press_enter_to_continue () {
     read
 }
 
+jv_is_started () {
+    [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null
+}
+
 # Internal: Kill Jarvis if running in background
 jv_kill_jarvis () {
     if [ -e $lockfile ]; then
-        local pid=$(cat $lockfile) # process id de jarvis
+        local pid=$(cat $lockfile) # process id of jarvis
         if kill -0 $pid 2>/dev/null; then
-            local gid=$(ps -p $pid -o pgid=) # group id de jarvis
-            kill -TERM -$(echo $gid) # tuer le group complet
+            # Trigger program exit hook
+            jv_hook "program_exit" #410 for some reason below kill TERM is not caught by jarvis. Need to trigger hook manually before
+            
+            # Kill jarvis group of processes
+            local gid=$(ps -p $pid -o pgid=)
+            kill -TERM -$(echo $gid)
             echo "Jarvis has been terminated"
             return 0
         fi
@@ -424,8 +440,8 @@ jv_build () {
         date +"%y.%m.%d" > version.txt
         jv_success "Done"
     printf "Generating documentation..."
-        utils/tomdoc.sh --markdown --access Public utils/utils.sh > docs/api-reference-public.md
-        utils/tomdoc.sh --markdown utils/utils.sh utils/update.sh > docs/api-reference-internal.md
+        utils/tomdoc.sh --markdown --access Public utils/utils.sh utils/dialog_linux.sh > docs/api-reference-public.md
+        utils/tomdoc.sh --markdown utils/utils.sh utils/update.sh utils/dialog_linux.sh > docs/api-reference-internal.md
         jv_success "Done"
     printf "Opening GitHub Desktop..."
         open -a "GitHub Desktop" /Users/alex/Documents/jarvis

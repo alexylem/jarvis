@@ -9,11 +9,17 @@ stt_sb_install () {
                 sb_supported_os=true
                 binaries="rpi-arm-raspbian-8.0-1.1.0"
             fi
-        elif [ "$jv_os_name" == "ubuntu" ]; then
-            if [ "$jv_arch" == "x86_64" ] && ([ "$jv_os_version" == "12.04" ] || [ "$jv_os_version" == "14.04" ]); then
-                sb_supported_os=true
-                binaries="ubuntu${jv_os_version/.}-x86_64-1.1.0" # 12.04 => 1204
-            fi
+        elif [ "$jv_os_name" == "ubuntu" ] && [ "$jv_arch" == "x86_64" ]; then
+            case "$jv_os_version" in
+                "12.04") 
+                    sb_supported_os=true
+                    binaries="ubuntu1204-x86_64-1.1.0"
+                    ;;
+                "14.04"|"16.04")
+                    sb_supported_os=true
+                    binaries="ubuntu1404-x86_64-1.1.0"
+                    ;;
+            esac
         fi
         $sb_supported_os && jv_install python-pyaudio python3-pyaudio libatlas-base-dev
     elif [ "$platform" = "osx" ]; then
@@ -69,44 +75,77 @@ stt_sb_load () {
 }
 stt_sb_load # load models at startup
 
-snowboy_STT () { # STT () {} Transcribes audio file $1 and writes corresponding text in $forder
-    shopt -s nocasematch
+# Internal: hidden function to launch snowboy recognition
+# $1 - timeout in secs, default false (no timeout)
+# Write recognized model text to $forder
+# Returns 124 if timeout
+# Exits if error
+_snowboy_STT () {
+    [ -n "$1" ] && local timeout="utils/timeout.sh $1" || local timeout=""
     
     if $verbose; then
         $verbose && (IFS=','; jv_debug "DEBUG: models=${snowboy_models[*]}")
         local quiet=''
-        printf $_gray
     else
         local quiet='2>/dev/null'
     fi;
     
-    # check if model already exists for trigger
-    # exit if model already exists for trigger
-    if [[ ! -f "stt_engines/snowboy/resources/$trigger_sanitized.pmdl" && ! -f "stt_engines/snowboy/resources/$trigger_sanitized.umdl" ]]; then
-        jv_error "\nERROR: personal model for '$trigger' not found"
-        jv_success "HELP: See how to create '$trigger_sanitized.pmdl' here:"
-        jv_success "HELP: http://domotiquefacile.fr/jarvis/content/snowboy"
-        jv_success "HELP: Or change your hotword to default model 'snowboy':"
-        jv_success "HELP: Settings > General > Magic word"
-        jv_exit 1
-    fi
+    printf $_gray
+    eval $timeout python stt_engines/snowboy/main.py $snowboy_sensitivity $snowboy_smodels $quiet #TODO on mac: WARNING:  140: This application, or a library it uses, is using the deprecated Carbon Component Manager for hosting Audio Units. Support for this will be removed in a future release. Also, this makes the host incompatible with version 3 audio units. Please transition to the API's in AudioComponent.h.
+    local retcode=$?
+    printf $_reset
+    [ $retcode -eq 124 ] && return 124 # timeout
     
-    #local model="snowboy.umdl"
-    #[ $trigger != "SNOWBOY" ] && model="$(tr '[:upper:]' '[:lower:]' <<< $trigger).pmdl"
-    
-    eval python stt_engines/snowboy/main.py $snowboy_sensitivity $snowboy_smodels $quiet #TODO on mac: WARNING:  140: This application, or a library it uses, is using the deprecated Carbon Component Manager for hosting Audio Units. Support for this will be removed in a future release. Also, this makes the host incompatible with version 3 audio units. Please transition to the API's in AudioComponent.h.
     # 0-10 fail  -   11 - 101 ok  - 102-255 fail
-    modelid=$(($?-11))
-    $verbose && echo "DEBUG: modelid=$modelid"
+    modelid=$(($retcode-11))
+    $verbose && jv_debug "DEBUG: modelid=$modelid"
     if [ "$modelid" -lt 0 ] || [ "$modelid" -gt 90 ]; then
         jv_error "ERROR: snowboy recognition failed"
         jv_exit 1
-    else
-        local order="${snowboy_models[modelid]}"
-        [[ "$order" == "$trigger_sanitized" ]] || bypass=true # case insensitive comparison ex for snowboy
-        echo "$order" > $forder
     fi
-    printf $_reset
+    echo "${snowboy_models[modelid]}" > $forder
+    return 0 # mandatory
+}
+
+# Internal: internal function for snowboy speech to text
+# Transcribes input from microphone and writes corresponding text in $forder
+# Return 124 if timeout
+snowboy_STT () {
+    if $bypass; then
+        _snowboy_STT 10
+        [ $? -eq 124 ] && return 124 # timeout
+    else
+        # check if model already exists for trigger
+        # exit if model already exists for trigger
+        if [[ ! -f "stt_engines/snowboy/resources/$trigger_sanitized.pmdl" && ! -f "stt_engines/snowboy/resources/$trigger_sanitized.umdl" ]]; then
+            jv_error "\nERROR: personal model for '$trigger' not found"
+            jv_warning "HELP: Train '$trigger_sanitized.pmdl' in:"
+            jv_warning "HELP: Settings > Voice Recognition > Snowboy settings > Train"
+            jv_warning "HELP: Or change your hotword to default model 'snowboy' in:"
+            jv_warning "HELP: Settings > General > Magic word"
+            jv_exit 1
+        fi
+        _snowboy_STT
+        order="$(cat $forder)"
+        
+        shopt -s nocasematch
+        if [[ "$order" != "$trigger_sanitized" ]]; then # case insensitive comparison
+            if [ $command_stt == 'snowboy' ]; then
+                # quick commands not allowed here
+                if $verbose; then
+                    jv_warning "WARNING: Quick commands are ignored if STT for commands is snowboy"
+                    jv_warning "HELP: Say \"$trigger\" before to enter in conversation mode"
+                    jv_warning "HELP: Or choose another STT for commands"
+                fi
+                # empty order to consider as not recognized
+                order=""
+            else
+                # quick commands are allowed here
+                bypass=true # force conversation mode
+            fi
+        fi
+    fi
+    return 0 # mandatory
 }
 
 stt_sb_train () {
@@ -136,6 +175,8 @@ stt_sb_train () {
     # get microphone information #103
     #[ "$rec_hw" != "false" ] && local microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || local microphone="Default"
     local microphone="Default"
+    local language_code="${language:0:2}"
+    [ "$language_code" == "de" ] && language_code="dt"
     
     # build json data parameter
     local WAV1=$(base64 /tmp/1.wav)
@@ -145,7 +186,7 @@ stt_sb_train () {
     cat <<EOF >/tmp/data.json
 {
     "name": "$lowercase",
-    "language": "${language:0:2}",
+    "language": "$language_code",
     "microphone": "$microphone",
     "token": "$snowboy_token",
     "voice_samples": [

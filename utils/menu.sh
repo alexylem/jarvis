@@ -119,6 +119,7 @@ menu_store () {
                                             Uninstall)
                                                 if dialog_yesno "Are you sure?" true >/dev/null; then
                                                     store_plugin_uninstall "$plugin"
+                                                    dialog_msg "Uninstallation Complete"
                                                     break 2
                                                 fi
                                                 ;;
@@ -193,12 +194,18 @@ while [ "$no_menu" = false ]; do
             done;;
         Settings)
             while true; do
-                options=('General' 'Phrases' 'Hooks' 'Audio' 'Voice recognition' 'Speech synthesis' 'Step-by-step wizard')
+                options=('Step-by-step wizard'
+                         'General'
+                         'Phrases'
+                         'Hooks'
+                         'Audio'
+                         'Voice recognition'
+                         'Speech synthesis')
                 case "`dialog_menu 'Configuration' options[@]`" in
                     "General")
                         while true; do
                             options=("Username ($username)"
-                                     "Trigger ($trigger_mode)"
+                                     "Trigger mode ($trigger_mode)"
                                      "Magic word ($trigger)"
                                      "Show possible commands ($show_commands)"
                                      "Multi-command separator ($separator)"
@@ -254,10 +261,21 @@ while [ "$no_menu" = false ]; do
                     done;;
                     "Audio")
                         while true; do
-                            options=("Speaker ($play_hw)" "Mic ($rec_hw)" "Volume" "Sensitivity" "Min noise duration to start ($min_noise_duration_to_start)" "Min noise perc to start ($min_noise_perc_to_start)" "Min silence duration to stop ($min_silence_duration_to_stop)" "Min silence level to stop ($min_silence_level_to_stop)" "Max noise duration to kill ($max_noise_duration_to_kill)")
+                            options=("Speaker ($play_hw)"
+                                     "Mic ($rec_hw)"
+                                     "Auto-adjust levels"
+                                     "Volume"
+                                     "Sensitivity"
+                                     "Gain ($gain)"
+                                     "Min noise duration to start ($min_noise_duration_to_start)"
+                                     "Min noise perc to start ($min_noise_perc_to_start)"
+                                     "Min silence duration to stop ($min_silence_duration_to_stop)"
+                                     "Min silence level to stop ($min_silence_level_to_stop)"
+                                     "Max noise duration to kill ($max_noise_duration_to_kill)")
                             case "`dialog_menu 'Configuration > Audio' options[@]`" in
                                 Speaker*) configure "play_hw";;
                                 Mic*) configure "rec_hw";;
+                                Auto*) jv_auto_levels;;
                                 Volume) if [ "$platform" == "osx" ]; then
                                             osascript <<EOM
                                                 tell application "System Preferences"
@@ -281,11 +299,12 @@ EOM
                                         else
                                             alsamixer -c ${rec_hw:3:1} -V capture || read -p "ERROR: check above"
                                         fi;;
+                                Gain*)            configure "gain";;
                                 *duration*start*) configure "min_noise_duration_to_start";;
-                                *perc*start*) configure "min_noise_perc_to_start";;
-                                *duration*stop*) configure "min_silence_duration_to_stop";;
-                                *level*stop*) configure "min_silence_level_to_stop";;
-                                *duration*kill*) configure "max_noise_duration_to_kill";;
+                                *perc*start*)     configure "min_noise_perc_to_start";;
+                                *duration*stop*)  configure "min_silence_duration_to_stop";;
+                                *level*stop*)     configure "min_silence_level_to_stop";;
+                                *duration*kill*)  configure "max_noise_duration_to_kill";;
                                 *) break;;
                             esac
                         done;;
@@ -293,36 +312,64 @@ EOM
                         while true; do
                             options=("Recognition of magic word ($trigger_stt)"
                                      "Recognition of commands ($command_stt)"
-                                     "Snowboy sensitivity ($snowboy_sensitivity)"
-                                     "Snowboy token ($snowboy_token)"
-                                     "Snowboy train a hotword/command"
-                                     "Bing key ($bing_speech_api_key)"
-                                     #"Google key ($google_speech_api_key)"
-                                     "Wit key ($wit_server_access_token)"
-                                     "PocketSphinx dictionary ($dictionary)"
-                                     "PocketSphinx language model ($language_model)"
-                                     "PocketSphinx logs ($pocketsphinxlog)")
-                            case "`dialog_menu 'Configuration > Voice recognition' options[@]`" in
-                                Recognition*magic*word*) configure "trigger_stt";;
+                                     "Snowboy settings"
+                                     "Bing settings"
+                                     "Wit settings"
+                                     "PocketSphinx setting")
+                            case "`dialog_menu 'Settings > Voice recognition' options[@]`" in
+                                Recognition*magic*word*)    configure "trigger_stt";;
                                 Recognition*command*)       configure "command_stt";;
-                                Snowboy*sensitivity*)       configure "snowboy_sensitivity";;
-                                Snowboy*token*)             configure "snowboy_token";;
-                                Snowboy*train*)             stt_sb_train "$(dialog_input "Hotword / Quick Command to (re-)train" "$trigger")" true;;
-                                #Google*)                   configure "google_speech_api_key";;
-                                Wit*)                       configure "wit_server_access_token";;
-                                Bing*key*)                  configure "bing_speech_api_key";;
-                                PocketSphinx*dictionary*)   configure "dictionary";;
-                                PocketSphinx*model*)        configure "language_model";;
-                                PocketSphinx*logs*)         configure "pocketsphinxlog";;
+                                Snowboy*)
+                                    while true; do
+                                        options=("Show trained hotwords/commands"
+                                                 "Token ($snowboy_token)"
+                                                 "Train a hotword/command"
+                                                 "Sensitivity ($snowboy_sensitivity)")
+                                        case "`dialog_menu 'Settings > Voice recognition > Snowboy' options[@]`" in
+                                            Show*)          IFS=','; dialog_msg "Models stored in stt_engines/snowboy/resources/:\n${snowboy_models[*]}";;
+                                            Sensitivity*)   configure "snowboy_sensitivity";;
+                                            Token*)         configure "snowboy_token";;
+                                            Train*)         stt_sb_train "$(dialog_input "Hotword / Quick Command to (re-)train" "$trigger")" true;;
+                                            *) break;;
+                                        esac
+                                    done;;
+                                Bing*)
+                                        while true; do
+                                            options=("Bing key ($bing_speech_api_key)")
+                                            case "`dialog_menu 'Settings > Voice recognition > Bing' options[@]`" in
+                                                Bing*key*)  configure "bing_speech_api_key";;
+                                                *) break;;
+                                            esac
+                                        done;;
+                                Wit*)
+                                    while true; do
+                                        options=("Wit key ($wit_server_access_token)")
+                                        case "`dialog_menu 'Settings > Voice recognition > Wit' options[@]`" in
+                                            Wit*)   configure "wit_server_access_token";;
+                                            *) break;;
+                                        esac
+                                    done;;
+                                PocketSphinx*)
+                                    while true; do
+                                        options=("PocketSphinx dictionary ($dictionary)"
+                                                 "PocketSphinx language model ($language_model)"
+                                                 "PocketSphinx logs ($pocketsphinxlog)")
+                                        case "`dialog_menu 'Settings > Voice recognition > PocketSphinx' options[@]`" in
+                                            PocketSphinx*dictionary*)   configure "dictionary";;
+                                            PocketSphinx*model*)        configure "language_model";;
+                                            PocketSphinx*logs*)         configure "pocketsphinxlog";;
+                                            *) break;;
+                                        esac
+                                    done;;
                                 *) break;;
                             esac
                         done;;
                     "Speech synthesis")
                         while true; do
-                            options=("Speech engine ($tts_engine)" "Voxygen voice ($voxygen_voice)" "OSX voice ($osx_say_voice)" "Cache folder ($tmp_folder)")
+                            options=("Speech engine ($tts_engine)" "OSX voice ($osx_say_voice)" "Cache folder ($tmp_folder)") #"Voxygen voice ($voxygen_voice)" 
                             case "`dialog_menu 'Configuration > Speech synthesis' options[@]`" in
                                 Speech*engine*) configure "tts_engine";;
-                                Voxygen*voice*) configure "voxygen_voice";;
+                                #Voxygen*voice*) configure "voxygen_voice";;
                                 OSX*voice*)     configure "osx_say_voice";;
                                 Cache*folder*)  configure "tmp_folder";;
                                 *) break;;

@@ -42,6 +42,7 @@ hash 'pocketsphinx_continuous' 2>/dev/null || {
         make >/dev/null || exit 1
         echo -e "\tInstalling..."
         sudo make install >/dev/null || exit 1
+        cd ../
         echo "4/4 Cleanup"
         echo -e "\tCleaning files..."
         rm sphinxbase-5prealpha.tar.gz || exit 1

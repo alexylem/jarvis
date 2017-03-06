@@ -10,14 +10,35 @@ dialog_msg () { # usages
 }
 
 dialog_input () { # usage ask "question" "default"
-    result=`osascript -e "display dialog \"$1\" default answer \"$2\""  -e 'text returned of result' 2>/dev/null`
+    
     (( $? )) && echo "$2" || echo "$result"
+}
+
+dialog_input () { # usage dialog_input "question" "default" true
+    local question="$1"
+    local default="$2"
+    local required="${3:-false}" # true / false (default)
+    while true; do
+        result="$(osascript -e "display dialog \"$question\" default answer \"$default\"" -e 'text returned of result' 2>/dev/null)" # don't put local or else return code always O
+        if (( $? )); then
+            echo "$default"
+        elif [ -n "$result" ]; then # if not null
+            echo "$result"
+        elif $required; then
+            continue
+        fi
+        return
+    done
 }
 
 dialog_select () { # usage dialog_select "question" list[@] "default"
     declare -a list=("${!2}")
+    default="$3"
+    for item in "${list[@]}"; do
+        [[ "$item" == "$3"* ]] && default="$item"
+    done
     list=$(printf ",\"%s\"" "${list[@]}")
-    result=`osascript -e 'set front_app_name to short name of (info for (path to frontmost application))' -e "tell application front_app_name to choose from list {${list:1}} with prompt \"$1\" default items {\"$3\"}"`
+    result=`osascript -e 'set front_app_name to short name of (info for (path to frontmost application))' -e "tell application front_app_name to choose from list {${list:1}} with prompt \"$1\" default items {\"$default\"}"`
     [ "$result" = false ] && echo "$3" || echo "$result"
 }
 
@@ -45,6 +66,16 @@ editor () {
     sed -i '' -e '$a\' "$1" # append new line if missing
 }
 
+# Public: update package/formula list
+jv_update () {
+    if ! hash brew 2>/dev/null; then
+        if jv_yesno "You need Homebrew package manager, install it?"; then
+            ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
+        fi
+    fi
+    brew update
+}
+
 # Public: install packages, used for dependencies
 #
 # args: list of packages to install
@@ -55,6 +86,21 @@ jv_install () {
         fi
     fi
     brew install $@
+}
+
+# Public: remove packages, used for uninstalls
+#
+# args: list of packages to remove
+jv_remove () {
+    # assuming brew is installed
+    local to_remove=""
+    for formula in "$@"; do
+        brew ls --versions "$formula" >/dev/null && to_remove+=" $formula"
+    done
+    [ -z "to_remove" ] && return # nothing installed to remove
+    echo "The following packages will be REMOVED:"
+    echo "$to_remove"
+    jv_yesno "Do you want to continue?" && brew uninstall $to_remove
 }
 
 # Public: open URL in default browser
