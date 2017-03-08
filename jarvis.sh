@@ -457,6 +457,7 @@ while getopts ":$flags" o; do
         u)  jv_check_updates "./" true # force udpate
             jv_update_config # apply config updates
             jv_plugins_check_updates true # force udpate
+            touch config/last_update_check
             exit;;
         v)  verbose=true;;
         w)  unset _reset _red _orange _green _gray _blue _cyan _pink;;

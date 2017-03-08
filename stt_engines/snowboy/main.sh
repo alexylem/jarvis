@@ -21,7 +21,7 @@ stt_sb_install () {
                     ;;
             esac
         fi
-        $sb_supported_os && jv_install python-pyaudio python3-pyaudio libatlas-base-dev
+        $sb_supported_os && jv_install bzip2 python-pyaudio python3-pyaudio libatlas-base-dev # https://github.com/alexylem/jarvis/issues/327
     elif [ "$platform" = "osx" ]; then
         sb_supported_os=true
         binaries="osx-x86_64-1.1.0"
@@ -38,7 +38,6 @@ https://github.com/kitt-ai/snowboy
 EOM
         exit 1
     fi
-    jv_install bzip2 # https://github.com/alexylem/jarvis/issues/327
     wget https://bootstrap.pypa.io/get-pip.py
     sudo python get-pip.py
     rm get-pip.py
