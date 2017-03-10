@@ -10,6 +10,8 @@ It works with a [plugin store](http://domotiquefacile.fr/jarvis/plugins) to add 
 
 This project is multilingual, which means that you may receive assistance, at least in French and in English.
 
+---
+
 <details>
 	<summary id="TOC"><strong>Table Of Contents</strong></summary>
 - [Requirements]
@@ -23,8 +25,6 @@ This project is multilingual, which means that you may receive assistance, at le
 - [Disclaimer & License]
 
 </details>
-
----
 
 ### Requirements
 
@@ -43,7 +43,6 @@ Compatible with any Linux distribution that has installed the tools needed. The 
 	<summary id="distroslinux"><strong>Tested on these compatible Linux distributions</strong></summary>
 - *Raspbian 7 (Wheezy) and 8 (Jessie) (Raspberry Pi)*
 </details>
-
 
 #### Essential tools &#8592; The script does not work if you don't have installed all of them
 
@@ -66,7 +65,6 @@ Compatible with any Linux distribution that has installed the tools needed. The 
 Overview & full documentation available on http://domotiquefacile.fr/jarvis/
 Please, take a look at [Docs](http://domotiquefacile.fr/jarvis/content/installation) and [Issues](https://github.com/alexylem/jarvis/issues) (mostly [question](https://github.com/alexylem/jarvis/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3Aquestion%20),  [help wanted](https://github.com/alexylem/jarvis/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3A%22help%20wanted%22%20) and [plugin request](https://github.com/alexylem/jarvis/issues?q=is%3Aissue+label%3A%22plugin+request%22)) before opening a new issue.
 
----
 
 ### Contributing
 
@@ -74,8 +72,6 @@ Please, take a look at [Docs](http://domotiquefacile.fr/jarvis/content/installat
 - More distribution and equipment support compatibility
 - New features
 - Testing and feedback
-
----
 
 #### Getting started with Git and GitHub
 
@@ -87,20 +83,14 @@ Once you're familiar with Git and GitHub, you'll be able to clone the repository
 
 Read the [Contributing File] for more details on the process of project collaborating and on our code of conduct.
 
----
-
 ### Changelog
 
 Read the [Changelog File] to review changes.
-
----
 
 ### Disclaimer & License
 
 Use this script on your own networks and equipment.<br/>
 `Jarvis` staff is not responsible of its use in any case.
-
----
 
 ### License
 
