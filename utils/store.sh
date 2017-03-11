@@ -55,7 +55,7 @@ store_install_plugin () { # $1:plugin_url
     git clone "$1.git" #https://github.com/alexylem/jarvis.git
     if [[ $? -eq 0 ]]; then
         cd "$plugin_name"
-        ./install.sh
+        source install.sh
         if [[ -s "config.sh" ]]; then
             dialog_msg "This plugin needs configuration"
             editor "config.sh"
