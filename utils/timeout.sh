@@ -38,7 +38,7 @@ cleanup()
     trap - ALRM               #reset handler to default
     kill -ALRM $a 2>/dev/null #stop timer subshell if running
     kill $! 2>/dev/null &&    #kill last job
-      exit 124                #exit with 124 if it was running
+    exit 124                  #exit with 124 if it was running
 }
 
 watchit()

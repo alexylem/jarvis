@@ -113,7 +113,6 @@ configure () {
                    'language'
                    'language_model'
                    'trigger_mode'
-                   'max_noise_duration_to_kill'
                    'min_noise_duration_to_start'
                    'min_noise_perc_to_start'
                    'min_silence_duration_to_stop'
@@ -202,7 +201,6 @@ configure () {
                 jv_warning "Change your speech engine in Settings > Speech synthesis"
             fi
             return $not_installed;;
-        max_noise_duration_to_kill)     eval "$1=\"$(dialog_input "Max noise duration to kill" "${!1}")\"";;
         min_noise_duration_to_start)    eval "$1=\"$(dialog_input "Min noise duration to start" "${!1}")\"";;
         min_noise_perc_to_start)        eval "$1=\"$(dialog_input "Min noise percentage to start" "${!1}")\"";;
         min_silence_duration_to_stop)   eval "$1=\"$(dialog_input "Min silence duration to stop" "${!1}")\"";;
