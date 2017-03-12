@@ -341,7 +341,7 @@ jv_check_updates () {
                  elif [ 1 -eq $(git diff --name-only ..origin/master config.sh | wc -l) ]; then
                      # save user configuration if config.sh file changed on repo (only for plugins)
                      jv_config_changed=true
-                     mv config.sh user-config.sh.old # save user config
+                     mv config.sh config.sh.old # save user config
                  fi
                  
                  # pull changes from repo
@@ -352,13 +352,14 @@ jv_check_updates () {
                  
                  # if config changed, merge with user configuration and open in editor
                  if $jv_config_changed; then
-                     sed -i.old -e 's/^/#/' config.sh # comment out new config file
-                     cat user-config.sh.old >> config.sh # append saved user config
+                     sed -i.old -e 's/^/#/' config.sh.old # comment out old config file
+                     echo -e "\n#Your previous config below (to copy from)" >> config.sh
+                     cat config.sh.old >> config.sh # and append to new config file (for reference)
                      rm -f *.old # remove temp files
                      if $force; then
-                         jv_warning "Config file has changed, check new variables"
+                         jv_warning "Config file has changed, reset your variables"
                      else
-                         dialog_msg "Config file has changed, check new variables"
+                         dialog_msg "Config file has changed, reset your variables"
                          editor "config.sh"
                      fi
                  fi
