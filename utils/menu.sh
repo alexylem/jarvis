@@ -93,6 +93,7 @@ menu_store () {
                                              "Update"
                                              "Rate"
                                              "Report an issue"
+                                             "Reinstall"
                                              "Uninstall")
                                     while true; do
                                         case "`dialog_menu \"$plugin\" options[@]`" in
@@ -115,6 +116,10 @@ menu_store () {
                                                 ;;
                                             Report*)
                                                 dialog_msg "$plugin_url/issues/new"
+                                                ;;
+                                            Reinstall)
+                                                source "$plugin/install.sh"
+                                                dialog_msg "Installation Complete"
                                                 ;;
                                             Uninstall)
                                                 if dialog_yesno "Are you sure?" true >/dev/null; then
