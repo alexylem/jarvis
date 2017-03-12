@@ -198,7 +198,10 @@ class JarvisHotwordDetector(object):
         tticks = self.trigger_ticks
         aticks = collections.deque()
         w_ticks = False
-        if tticks[0] != -1 or tticks[1] != -1 or tticks[2] != -1 or tticks[3] != -1:
+        w_ticks_onsilence = False
+        if tticks[2] != -1 or tticks[3] != -1:
+            w_ticks_onsilence = True
+        if tticks[0] != -1 or tticks[1] != -1 or w_ticks_onsilence != False:
             w_ticks = True
         callback = None
 
@@ -206,12 +209,14 @@ class JarvisHotwordDetector(object):
             if interrupt_check():
                 logger.debug("detect voice break")
                 break
+
             data = self.ring_buffer.get()
             if len(data) == 0:
                 time.sleep(sleep_time)
                 continue
 
             ans = self.detector.RunDetection(data)
+            check_ticks = False
 
             """ with ticks: append and keep it under 100 ticks """
             if w_ticks:
@@ -224,9 +229,23 @@ class JarvisHotwordDetector(object):
 
             elif ans == -2:
                 """ silence can trigger the callback if w_ticks and matches """
-                if w_ticks == False or callback is None:
+                if w_ticks_onsilence == False or callback is None:
                     continue
+                check_ticks = True
 
+            elif ans > 0:
+                message = "Keyword " + str(ans) + " detected at time: "
+                message += time.strftime("%Y-%m-%d %H:%M:%S",
+                                         time.localtime(time.time()))
+                logger.info(message)
+                callback = detected_callback[ans-1]
+                if callback is not None:
+                    if w_ticks == False:
+                        callback()
+                    elif w_ticks_onsilence == False:
+                        check_ticks = True
+
+            if check_ticks:
                 ret = self.match_ticks( aticks )
                 if ret == -1:
                     """ Not a match """
@@ -236,15 +255,6 @@ class JarvisHotwordDetector(object):
                     callback()
                     callback = None
                 """ ret == 0 : Not a match yet """
-
-            elif ans > 0:
-                message = "Keyword " + str(ans) + " detected at time: "
-                message += time.strftime("%Y-%m-%d %H:%M:%S",
-                                         time.localtime(time.time()))
-                logger.info(message)
-                callback = detected_callback[ans-1]
-                if callback is not None and w_ticks == False:
-                    callback()
 
         logger.debug("finished.")
 
