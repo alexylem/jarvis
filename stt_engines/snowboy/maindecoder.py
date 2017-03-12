@@ -86,6 +86,8 @@ class JarvisHotwordDetector(object):
             rate=self.detector.SampleRate(),
             frames_per_buffer=2048,
             stream_callback=audio_callback)
+        
+        logger.info ("Ticks: %s", self.trigger_ticks)
 
     def match_ticks(self,aticks):
         tticks = self.trigger_ticks
@@ -142,19 +144,19 @@ class JarvisHotwordDetector(object):
         """ Match? """
         if tticks[0]>0 and silence_before < tticks[0]:
             """ will never match """
-            logger.info( "No match silence_before" )
+            logger.warning( "No match silence_before" )
             return -1
         if tticks[1]>0 and voice_before > tticks[1]:
             """ will never match """
-            logger.info( "No match voice_before" )
+            logger.warning( "No match voice_before" )
             return -1
         if tticks[2]>0 and voice_after > tticks[2]:
             """ will never match """
-            logger.info( "No match voice_after" )
+            logger.warning( "No match voice_after" )
             return -1
         if tticks[3]>0 and silence_after < tticks[3]:
             """ can still match on next tick """
-            logger.info( "No match silence_after - wait next tick" )
+            logger.warning( "No match silence_after - wait next tick" )
             return 0
         """ A match ! """
         return 1
@@ -251,7 +253,7 @@ class JarvisHotwordDetector(object):
                     """ Not a match """
                     callback = None
                 elif ret == 1:
-                    logger.warning("Callback run");
+                    #logger.warning("Callback run");
                     callback()
                     callback = None
                 """ ret == 0 : Not a match yet """

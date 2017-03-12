@@ -58,7 +58,7 @@ sensitivities = [sensitivity]*nbmodel
 #       max voice ticks after detection
 #   [3] ticks_silence_after_detect:
 #       min silence ticks after detection
-trigger_ticks = [ 2, 10, 3, 2 ]
+trigger_ticks = [ 2, 20, 3, -1 ] # 2, 10, 3, 2
 
 detector = maindecoder.JarvisHotwordDetector(
     models,
