@@ -1,4 +1,4 @@
-import snowboydecoder
+import maindecoder
 import sys
 import signal
 
@@ -48,7 +48,22 @@ for i in range(1,nbmodel+1):
 
 sensitivity = sys.argv[1]
 sensitivities = [sensitivity]*nbmodel
-detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivities)
+# Trigger ticks:
+#   a tick is the sleep time of snowboy - argument of start()
+#   [0] ticks_silence_before_detect:
+#       min silence ticks before detection
+#   [1] param ticks_voice_before_detect:
+#       max voice ticks before detection
+#   [2] ticks_voice_after_detect:
+#       max voice ticks after detection
+#   [3] ticks_silence_after_detect:
+#       min silence ticks after detection
+trigger_ticks = [ 2, 10, 3, 2 ]
+
+detector = maindecoder.JarvisHotwordDetector(
+    models,
+    sensitivity=sensitivities,
+    trigger_ticks=trigger_ticks)
 
 # main loop
 # make sure you have the same numbers of callbacks and models
