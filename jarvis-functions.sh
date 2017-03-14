@@ -20,7 +20,7 @@ RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is det
     $verbose && local quiet='' || local quiet='-d'
     [ -n "$2" ] && local timeout="utils/timeout.sh $2" || local timeout=""
     [ $platform = "linux" ] && export AUDIODRIVER=alsa
-    local cmd="$timeout python $quiet stt_engines/snowboy/mainwave.py $gain $1"
+    local cmd="$timeout python $quiet stt_engines/snowboy/mainwav.py $gain $1"
     $verbose && jv_debug "$cmd"
     eval $cmd # need eval because of timeout, maybe better to change this
     local retcode=$?
