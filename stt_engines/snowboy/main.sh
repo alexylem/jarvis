@@ -66,10 +66,17 @@ stt_sb_load () {
     # build list of models to pass in parameter
     snowboy_models=()
     snowboy_smodels=""
-    for model in stt_engines/snowboy/resources/*mdl; do
+    snowboy_trigger_models=()
+    snowboy_trigger_smodels=""
+    for model in stt_engines/snowboy/resources/*.[up]mdl; do
         snowboy_model=$(basename "$model")
-        snowboy_models+=("${snowboy_model%.*}")
+        model_name="${snowboy_model%.*}"
+        snowboy_models+=("${model_name}")
         snowboy_smodels+=" \"$model\"" # in case there are spaces in models for quick commands
+        if [ "${model_name}" = "$trigger_sanitized" ]; then
+            snowboy_trigger_models+=("${model_name}")
+            snowboy_trigger_smodels+=" \"$model\""
+        fi
     done
 }
 stt_sb_load # load models at startup
@@ -81,16 +88,25 @@ stt_sb_load # load models at startup
 # Exits if error
 _snowboy_STT () {
     [ -n "$1" ] && local timeout="utils/timeout.sh $1" || local timeout=""
-    
+
+    local models=$snowboy_models
+    local smodels="$snowboy_smodels"
+
+    # Limit model to trigger one
+    if [ -n "$2" ]; then
+        models=$snowboy_trigger_models
+        smodels="$snowboy_trigger_smodels"
+    fi
+
     if $verbose; then
-        $verbose && (IFS=','; jv_debug "DEBUG: models=${snowboy_models[*]}")
+        $verbose && (IFS=','; jv_debug "DEBUG: models=${models[*]}")
         local quiet=''
     else
         local quiet='2>/dev/null'
     fi;
     
     printf $_gray
-    eval $timeout python stt_engines/snowboy/main.py $snowboy_sensitivity $snowboy_smodels $quiet #TODO on mac: WARNING:  140: This application, or a library it uses, is using the deprecated Carbon Component Manager for hosting Audio Units. Support for this will be removed in a future release. Also, this makes the host incompatible with version 3 audio units. Please transition to the API's in AudioComponent.h.
+    eval $timeout python stt_engines/snowboy/main.py $snowboy_sensitivity $smodels $quiet #TODO on mac: WARNING:  140: This application, or a library it uses, is using the deprecated Carbon Component Manager for hosting Audio Units. Support for this will be removed in a future release. Also, this makes the host incompatible with version 3 audio units. Please transition to the API's in AudioComponent.h.
     local retcode=$?
     printf $_reset
     [ $retcode -eq 124 ] && return 124 # timeout
@@ -102,7 +118,7 @@ _snowboy_STT () {
         jv_error "ERROR: snowboy recognition failed"
         jv_exit 1
     fi
-    echo "${snowboy_models[modelid]}" > $forder
+    echo "${models[modelid]}" > $forder
     return 0 # mandatory
 }
 
@@ -124,7 +140,7 @@ snowboy_STT () {
             jv_warning "HELP: Settings > General > Magic word"
             jv_exit 1
         fi
-        _snowboy_STT
+        _snowboy_STT "" "trigger"
         order="$(cat $forder)"
         
         shopt -s nocasematch
