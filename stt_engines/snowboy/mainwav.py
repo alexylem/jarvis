@@ -34,6 +34,16 @@ signal.signal(signal.SIGINT, signal_handler)
 
 audio_gain = sys.argv[1]
 output_file = sys.argv[2]
+track_mode = False
+
+
+if int(audio_gain) <= 0:
+    """ mandatory """
+    audio_gain = 1
+
+if output_file == "track":
+    output_file = "/dev/null"
+    track_mode = True
 
 # Trigger ticks:
 #   a tick is the sleep time of snowboy (default: 0.03)
@@ -45,7 +55,7 @@ output_file = sys.argv[2]
 #       min silence ticks after detection
 trigger_ticks = [ 2, 6, 3 ]
 
-detector = wavget.WaveGet(
+detector = wavget.WavGet(
         audio_gain=audio_gain,
         trigger_ticks=trigger_ticks )
 
@@ -53,6 +63,7 @@ detector = wavget.WaveGet(
 # make sure you have the same numbers of callbacks and models
 detector.start(interrupt_check=interrupt_callback,
         output_file=output_file,
+        track_mode=track_mode,
         sleep_time=0.03)
 
 detector.terminate()
