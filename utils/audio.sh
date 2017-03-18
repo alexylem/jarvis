@@ -1,12 +1,8 @@
-##################
-# Main Functions #
-##################
+# Audio related functions for Jarvis
 
-# How to install sox?
-# MacOSX: http://sourceforge.net/projects/sox/files/sox/14.4.2/
-# Linux: "sudo apt-get install sox"
-
-PLAY () { # PLAY () {} Play audio file $1
+# play an audio file to speakers
+# $1: audio file to play
+jv_play () {
     [ $platform = "linux" ] && local play_export="AUDIODRIVER=alsa" || local play_export=''
     eval "$play_export play -V1 -q $1"
     if [ "$?" -ne 0 ]; then
@@ -16,6 +12,8 @@ PLAY () { # PLAY () {} Play audio file $1
     fi
 }
 
+<<<<<<< HEAD:utils/audio.sh
+=======
 RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is detected until silence
     $verbose && local quiet='' || local quiet='-d'
     [ -n "$2" ] && local timeout="utils/timeout.sh $2" || local timeout=""
@@ -32,6 +30,7 @@ RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is det
     fi
 }
 
+>>>>>>> origin/pr/478:jarvis-functions.sh
 jv_record_duration () {
     local audiofile=$1
     local duration=$2
@@ -192,6 +191,6 @@ LISTEN () {
         LISTEN_TRIGGER
         returncode=$?
     fi
-    $verbose && PLAY "$audiofile"
+    $verbose && jv_play "$audiofile"
     return $returncode
 }
