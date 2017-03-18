@@ -36,7 +36,7 @@ show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW: Auto-adjust audio levels in Settings > Audio"
+headline="NEW: Try snowboy recorder in Settings > Audio > Recorder"
 
 # Move to Jarvis directory
 export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -255,7 +255,7 @@ configure () {
             done
             ;;
         recorder)            options=("snowboy" "sox")
-                             eval "$1=\"$(dialog_select "Method to record from microphone" options[@] "${!1}")\""
+                             eval "$1=\"$(dialog_select "Method to record commands from microphone" options[@] "${!1}")\""
                              ;;
         save) for varname in "${variables[@]}"; do
                   #echo "DEBUG: saving ${!varname} into config/$varname"
