@@ -1,3 +1,6 @@
+###17.03.18
+- snowboy as voice recorder in addition to sox, check settings > audio > recorder
+
 ###17.03.12
 - changed plugin config update to use new variables
           See b31eda4 for more information.
