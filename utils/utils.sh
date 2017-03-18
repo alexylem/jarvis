@@ -99,7 +99,7 @@ say () {
     $quiet && return
     if $jv_api; then # if using API, put in queue
         if jv_is_started; then
-            echo "$1" > $jv_say_queue # put in queue (read by say.sh)
+            echo "$1" >> $jv_say_queue # put in queue (read by say.sh)
         else
             jv_error "ERROR: Jarvis is not running"
             jv_success "HELP: Start Jarvis using ./jarvis.sh -b"

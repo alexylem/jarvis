@@ -36,7 +36,7 @@ show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW: Auto-adjust audio levels in Settings > Audio"
+headline="NEW: Try snowboy recorder in Settings > Audio > Recorder"
 
 # Move to Jarvis directory
 export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -46,7 +46,7 @@ shopt -s nocasematch # string comparison case insensitive
 source utils/utils.sh # needed for wizard / platform error
 source utils/store.sh # needed for plugin installation & store menu
 source utils/update.sh # needed for update of Jarvis config
-source jarvis-functions.sh # needed for jv_auto_levels
+source utils/audio.sh # needed for jv_auto_levels
 
 # Check platform compatibility
 dependencies=(awk curl git iconv jq nano perl sed sox wget mpg123)
@@ -113,7 +113,6 @@ configure () {
                    'language'
                    'language_model'
                    'trigger_mode'
-                   'max_noise_duration_to_kill'
                    'min_noise_duration_to_start'
                    'min_noise_perc_to_start'
                    'min_silence_duration_to_stop'
@@ -126,6 +125,7 @@ configure () {
                    'play_hw'
                    'pocketsphinxlog'
                    'rec_hw'
+                   'recorder'
                    'send_usage_stats'
                    'separator'
                    'show_commands'
@@ -202,7 +202,6 @@ configure () {
                 jv_warning "Change your speech engine in Settings > Speech synthesis"
             fi
             return $not_installed;;
-        max_noise_duration_to_kill)     eval "$1=\"$(dialog_input "Max noise duration to kill" "${!1}")\"";;
         min_noise_duration_to_start)    eval "$1=\"$(dialog_input "Min noise duration to start" "${!1}")\"";;
         min_noise_perc_to_start)        eval "$1=\"$(dialog_input "Min noise percentage to start" "${!1}")\"";;
         min_silence_duration_to_stop)   eval "$1=\"$(dialog_input "Min silence duration to stop" "${!1}")\"";;
@@ -255,6 +254,9 @@ configure () {
                 update_alsa $play_hw $rec_hw
             done
             ;;
+        recorder)            options=("snowboy" "sox")
+                             eval "$1=\"$(dialog_select "Method to record commands from microphone" options[@] "${!1}")\""
+                             ;;
         save) for varname in "${variables[@]}"; do
                   #echo "DEBUG: saving ${!varname} into config/$varname"
                   echo "${!varname}" > config/$varname
@@ -484,7 +486,7 @@ $send_usage_stats && ( jv_ga_send_hit & )
 
 trigger_sanitized=$(jv_sanitize "$trigger")
 [ -n "$conversation_mode_override" ] && conversation_mode=$conversation_mode_override
-#update_commands
+source recorders/$recorder/main.sh
 source stt_engines/$trigger_stt/main.sh
 source stt_engines/$command_stt/main.sh
 source tts_engines/$tts_engine/main.sh
@@ -530,9 +532,10 @@ if [ "$just_execute" == false ]; then
             fi
         fi
     fi
-
+    
     # main menu
     source utils/menu.sh
+    jv_main_menu
 
     # Dump config in troubleshooting mode
     if [ $verbose = true ]; then
@@ -703,11 +706,11 @@ while true; do
     		! $bypass && echo -e "$_pink$trigger$_reset: Waiting to hear '$trigger'"
     		printf "$_cyan$username$_reset: "
             
-            $quiet || ( $bypass && PLAY sounds/triggered.wav || PLAY sounds/listening.wav )
+            $quiet || ( $bypass && jv_play sounds/triggered.wav || jv_play sounds/listening.wav )
             
             nb_failed=0
             while true; do
-    			#$quiet || PLAY beep-high.wav
+    			#$quiet || jv_play beep-high.wav
                 
                 $verbose && jv_debug "(listening...)"
                 > $forder # empty $forder
@@ -737,7 +740,7 @@ while true; do
                         $verbose && jv_debug "DEBUG: timeout, end of conversation" || jv_debug '(timeout)'
                         finish=true
                     else
-                        PLAY sounds/error.wav
+                        jv_play sounds/error.wav
                         if [  $((++nb_failed)) -eq 3 ]; then
                             $verbose && jv_debug "DEBUG: 3 attempts failed, end of conversation"
                             finish=true
@@ -745,7 +748,7 @@ while true; do
                         fi
                     fi
                     if $finish; then
-                        PLAY sounds/timeout.wav
+                        jv_play sounds/timeout.wav
                         bypass=false
                         jv_hook "exiting_cmd"
                         commands="$(jv_get_commands)" # in case we were in nested commands
@@ -767,7 +770,7 @@ while true; do
                     continue 2
                 fi
     			
-    			#$verbose && PLAY beep-error.wav
+    			#$verbose && jv_play beep-error.wav
     		done
     		#echo # new line
     	fi
