@@ -44,3 +44,5 @@ hooks/stop_listening
 hooks/start_speaking
 
 hooks/stop_speaking
+
+*.pyc
