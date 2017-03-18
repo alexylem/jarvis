@@ -139,10 +139,12 @@ class WavGet(object):
 
             """ store file mode """
             if ans == -1:
-                logger.warning("Error initializing streams or reading audio data")
+                logger.error("Error initializing streams or reading audio data")
 
             elif ans == -2:
                 """ Silence """
+                sys.stdout.write('_')
+                sys.stdout.flush()
                 if voice == 0 or silence_before < tticks[0]:
                     silence_before += 1
                 elif voice >= tticks[1]:
@@ -154,11 +156,13 @@ class WavGet(object):
 
             elif ans >= 0:
                 """ Voice """
+                sys.stdout.write('|')
+                sys.stdout.flush()
                 if silence_before >= tticks[0]:
                     """ Have enough silence to count voice """
                     silence_after = 0
                     voice += 1
-
+            
             if voice > 0:
                 if fh_writen == False:
                     """

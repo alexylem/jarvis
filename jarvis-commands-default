@@ -10,4 +10,4 @@ ENCORE*==jv_repeat_last_command
 *REPETE (*) ET (*)==say "(1) (2)"
 *CA VA*==say "Très bien et toi ça va?"
 >*OUI*==say "ravi de l'entendre"
->*NON*==say "j'en suis navré"
+>*NON*|*PAS*==say "j'en suis navré"

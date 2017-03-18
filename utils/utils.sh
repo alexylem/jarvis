@@ -296,6 +296,9 @@ jv_exit () {
     # If using json formatting, terminate table
     $jv_json && echo "]"
     
+    # reset font color (sometimes needed)
+    $jv_api || echo -e $_reset
+    
     # Trigger program exit hook
     jv_hook "program_exit" $return_code
     

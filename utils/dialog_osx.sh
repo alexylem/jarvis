@@ -85,6 +85,11 @@ jv_install () {
             ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
         fi
     fi
+    local to_install=""
+    for formula in "$@"; do
+        brew ls --versions "$formula" >/dev/null || to_install+=" $formula"
+    done
+    [ -z "$to_install" ] && return # nothing to install
     brew install $@
 }
 
@@ -97,7 +102,7 @@ jv_remove () {
     for formula in "$@"; do
         brew ls --versions "$formula" >/dev/null && to_remove+=" $formula"
     done
-    [ -z "to_remove" ] && return # nothing installed to remove
+    [ -z "$to_remove" ] && return # nothing installed to remove
     echo "The following packages will be REMOVED:"
     echo "$to_remove"
     jv_yesno "Do you want to continue?" && brew uninstall $to_remove

@@ -2,7 +2,7 @@
 # $1: audio file to record to
 # $2: (optional) timeout in seconds
 RECORD () {
-    $verbose && local quiet='' || local quiet='2>/dev/null'
+    $verbose && local quiet='' || local quiet='>/dev/null 2>&1'
     [ -n "$2" ] && local timeout="utils/timeout.sh $2" || local timeout=""
     local cmd="$timeout python $quiet recorders/snowboy/main.py $gain $1 $quiet"
     $verbose && jv_debug "$cmd"
