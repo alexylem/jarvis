@@ -1,3 +1,7 @@
+###17.03.12
+- changed plugin config update to use new variables
+          See b31eda4 for more information.
+
 ###17.03.05
 - Uninstall script for jarvis and its dependencies
 
