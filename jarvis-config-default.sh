@@ -10,7 +10,6 @@ phrase_welcome="Hello"
 phrase_misunderstood="I did not understand"
 language="en_GB"
 language_model="stt_engines/pocketsphinx/jarvis-languagemodel.lm"
-max_noise_duration_to_kill="10" # default 10
 min_noise_duration_to_start="0.1" # default 0.1
 min_noise_perc_to_start="1%" # default 1%
 min_silence_duration_to_stop="0.5" # default 0.5
