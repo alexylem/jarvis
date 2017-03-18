@@ -1,33 +1,13 @@
-##################
-# Main Functions #
-##################
+# Audio related functions for Jarvis
 
-# How to install sox?
-# MacOSX: http://sourceforge.net/projects/sox/files/sox/14.4.2/
-# Linux: "sudo apt-get install sox"
-
-PLAY () { # PLAY () {} Play audio file $1
+# play an audio file to speakers
+# $1: audio file to play
+jv_play () {
     [ $platform = "linux" ] && local play_export="AUDIODRIVER=alsa" || local play_export=''
     eval "$play_export play -V1 -q $1"
     if [ "$?" -ne 0 ]; then
         jv_error "ERROR: play command failed"
         jv_warning "HELP: Verify your speaker in Settings > Audio > Speaker"
-        jv_exit 1
-    fi
-}
-
-RECORD () { # RECORD () {} record microhphone to audio file $1 when sound is detected until silence
-    $verbose && local quiet='' || local quiet='-d'
-    [ -n "$2" ] && local timeout="utils/timeout.sh $2" || local timeout=""
-    [ $platform = "linux" ] && export AUDIODRIVER=alsa
-    local cmd="$timeout python $quiet stt_engines/snowboy/mainwav.py $gain $1"
-    $verbose && jv_debug "$cmd"
-    eval $cmd # need eval because of timeout, maybe better to change this
-    local retcode=$?
-    [ $retcode -eq 124 ] && return 124 # timeout
-    if [ "$retcode" -ne 0 ]; then
-        jv_error "ERROR: rec command failed"
-        jv_warning "HELP: Verify your mic in Settings > Audio > Mic"
         jv_exit 1
     fi
 }
@@ -192,6 +172,6 @@ LISTEN () {
         LISTEN_TRIGGER
         returncode=$?
     fi
-    $verbose && PLAY "$audiofile"
+    $verbose && jv_play "$audiofile"
     return $returncode
 }

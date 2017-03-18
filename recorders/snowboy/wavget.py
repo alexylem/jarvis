@@ -1,19 +1,25 @@
 #!/usr/bin/env python
+import os
+REC_DIR = os.path.dirname(os.path.abspath(__file__))
+
+import sys
+SB_DIR=os.path.join (REC_DIR, '../../stt_engines/snowboy')
+sys.path.insert(0, SB_DIR)
 
 import snowboydecoder
 import snowboydetect
+
 import pyaudio
 import collections
 import time
-import os
 import logging
 import glob
-
-logging.basicConfig()
-logger = logging.getLogger("jarvis")
+ 
+logger = logging.getLogger("recorder")
 logger.setLevel(logging.INFO)
-TOP_DIR = os.path.dirname(os.path.abspath(__file__))
-RESOURCE_FILE = os.path.join(TOP_DIR, "resources","common.res")
+logging.basicConfig()
+
+RESOURCE_FILE = os.path.join(SB_DIR, "resources","common.res")
 
 class WavGet(object):
     """
@@ -36,10 +42,10 @@ class WavGet(object):
             self.ring_buffer.extend(in_data)
             play_data = chr(0) * len(in_data)
             return play_data, pyaudio.paContinue
-
-        a_model=glob.glob( os.path.join(TOP_DIR,"resources","*.[up]mdl") );
+        
+        a_model=glob.glob( os.path.join(SB_DIR,"resources","*.[up]mdl") );
         assert len(a_model) > 0, "Need at least one model in resources to proceed"
-
+        
         self.detector = snowboydetect.SnowboyDetect(
             resource_filename=RESOURCE_FILE.encode(),
             model_str=a_model[0].encode())
@@ -86,10 +92,10 @@ class WavGet(object):
         tticks = None
         fh = None
         if track_mode == False:
-            if os.path.isfile(output_file):
-                os.unlink(output_file)
+            if os.path.isfile(output_file): # check output file already exists
+                os.unlink(output_file) # delete
             tticks = self.trigger_ticks
-            fh = open( output_file + ".raw", 'wb' )
+            fh = open( output_file + ".raw", 'wb' ) # initialize output file
 
         """
         to avoid 'truncate' system call.
@@ -97,7 +103,7 @@ class WavGet(object):
         """
         fh_writen = False
 
-        cnt = 0
+        #cnt = 0
         silence_before = 0
         voice = 0
         silence_after = 0
@@ -107,24 +113,28 @@ class WavGet(object):
             if interrupt_check():
                 logger.debug("detect voice break")
                 break
-
+            
             data = self.ring_buffer.get()
             if len(data) == 0:
                 time.sleep(sleep_time)
                 continue
-
+            
             ans = self.detector.RunDetection(data)
-            cnt += 1
+            #cnt += 1
 
             """ track mode """
             if track_mode:
-                fmt = "%6d " % (cnt)
+                #fmt = "%6d " % (cnt)
                 if ans == -1:
-                    logger.warning(fmt+"Error initializing streams or reading audio data")
+                    logger.error("Error initializing streams or reading audio data")
                 elif ans == -2:
-                    logger.warning(fmt+"Silence")
+                    sys.stdout.write('_')
+                    sys.stdout.flush()
+                    #logger.warning(fmt+"Silence")
                 elif ans >= 0:
-                    logger.warning(fmt+"Voice")
+                    sys.stdout.write('|')
+                    sys.stdout.flush()
+                    #logger.warning(fmt+"Voice")
                 continue
 
             """ store file mode """
@@ -173,12 +183,12 @@ class WavGet(object):
         if track_mode == False:
             fh.close()
 
-            logger.warning("Ticks status: " +
+            logger.info("Ticks status: " +
                     `silence_before` + " " +
                     `voice` + " " +
                     `silence_after` + " - return: " + `fh_writen`)
-
-            logger.warning("Error initializing streams or reading audio data")
+            
+            #logger.warning("Error initializing streams or reading audio data")
             logger.debug("finished.")
 
             if fh_writen == True:
