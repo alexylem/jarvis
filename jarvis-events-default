@@ -25,7 +25,7 @@
 #___|_______|_______|_______|_______|________|_________________________________
 #            Your events below (Remove leading # to enable)
 #---|-------|-------|-------|-------|--------|---------------------------------
-#   @reboot                                 ~/jarvis/jarvis.sh -s
+#   @reboot                                 ~/jarvis/jarvis.sh -b
 #   0       8       *       *       *       ~/jarvis/jarvis.sh -x "quelle est la météo?" # needs weather plugin
 #   0       7-21    *       *       *       ~/jarvis/jarvis.sh -x "quelle heure est-il?" # needs time plugin
 #   1       7-21    *       *       *       ~/jarvis/jarvis.sh -x "vérifie mes emails" # needs gmail plugin
