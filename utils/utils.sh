@@ -323,10 +323,12 @@ jv_check_updates () {
     local force=${2:-false} # false default value if $2 is empty
     cd "$repo_path"
     local repo_name="$(basename $(pwd))"
+    local is_jarvis="$([ "$repo_name" == "jarvis" ] && echo "true" || echo "false")"
+    local branch="$( $is_jarvis && echo "$jv_branch" || echo "master")"
     printf "Checking updates for $repo_name..."
 	read < <( git fetch origin -q & echo $! ) # suppress bash job control output
     jv_spinner $REPLY
-	case `git rev-list HEAD...origin/master --count || echo e` in
+	case $(git rev-list HEAD...origin/master --count || echo e) in
 		"e") jv_error "Error";;
 		"0") jv_success "Up-to-date";;
 		*)	 jv_warning "New version available"
@@ -338,7 +340,7 @@ jv_check_updates () {
                  #git reset --hard HEAD >/dev/null # don't override local changes (config.sh)
             	 
                  local jv_config_changed=false
-                 if [ "$repo_name" == "jarvis" ]; then
+                 if $is_jarvis; then
                      # inform jarvis is updated to ask for restart
                      jv_jarvis_updated=true
                  elif [ 1 -eq $(git diff --name-only ..origin/master config.sh | wc -l) ]; then

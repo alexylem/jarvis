@@ -51,6 +51,7 @@ jv_main_menu () {
                                          "Conversation mode ($conversation_mode)"
                                          "Language ($language)"
                                          "Check Updates on Startup ($check_updates)"
+                                         "Repository Branch ($jv_branch)"
                                          "Usage Statistics ($send_usage_stats)")
                                 case "`dialog_menu 'Configuration > General' options[@]`" in
                                     Username*) configure "username";;
@@ -61,6 +62,7 @@ jv_main_menu () {
                                     Conversation*) configure "conversation_mode";;
                                     Language*) configure "language";;
                                     Check*Updates*) configure "check_updates";;
+                                    Repository*Branch*) configure "jv_branch";;
                                     Usage*Statistics*) configure "send_usage_stats";;
                                     *) break;;
                                 esac
