@@ -404,7 +404,7 @@ jv_start_in_background () {
 Jarvis has been launched in background
 
 To view Jarvis output:
-tail -f jarvis.log
+./jarvis.sh and select "View output"
 To check if jarvis is running:
 pgrep -lf jarvis.sh
 To stop Jarvis:
@@ -512,7 +512,7 @@ if [ "$just_execute" == false ]; then
     if jv_is_started; then
         options=('Show Jarvis output' 'Stop Jarvis')
         case "$(dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@])" in
-            Show*) cat jarvis.log;;
+            Show*) tail -f jarvis.log;;
             Stop*) jv_kill_jarvis;;
         esac
         exit
