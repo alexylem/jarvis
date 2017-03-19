@@ -14,12 +14,21 @@ import collections
 import time
 import logging
 import glob
+import struct
  
 logger = logging.getLogger("recorder")
 logger.setLevel(logging.INFO)
 logging.basicConfig()
 
 RESOURCE_FILE = os.path.join(SB_DIR, "resources","common.res")
+
+""" Wav """
+WAV_FORMAT_PCM = 0x0001
+""" Fixed from snowboy recording """
+WAV_CHANNELS    = 1
+WAV_FRAMERATE   = 16000
+""" 16 bits """
+WAV_SAMPWIDTH   = 2
 
 class WavGet(object):
     """
@@ -53,6 +62,7 @@ class WavGet(object):
         """ match or not - it does not matter """
         self.detector.SetSensitivity("0.01".encode())
 
+        self.adata = []
         self.trigger_ticks = trigger_ticks
 
         self.ring_buffer = snowboydecoder.RingBuffer(
@@ -66,6 +76,23 @@ class WavGet(object):
             rate=self.detector.SampleRate(),
             frames_per_buffer=2048,
             stream_callback=audio_callback)
+
+    def _write(self, output_file):
+        # Write wav header and data
+        fh = open( output_file, 'wb' )
+        fh.write( b'RIFF' )
+        _data       = b''.join(self.adata)
+        _datalength = len(_data)
+        _nframes    = _datalength // (WAV_CHANNELS * WAV_SAMPWIDTH)
+        fh.write(struct.pack('<L4s4sLHHLLHH4s',
+            36 + _datalength, b'WAVE', b'fmt ', 16,
+            WAV_FORMAT_PCM, WAV_CHANNELS, WAV_FRAMERATE,
+            WAV_CHANNELS * WAV_FRAMERATE * WAV_SAMPWIDTH,
+            WAV_CHANNELS * WAV_SAMPWIDTH,
+            WAV_SAMPWIDTH * 8, b'data'))
+        fh.write(struct.pack('<L', _datalength))
+        fh.write(_data)
+        fh.close()
 
     def start(self,
               output_file,
@@ -90,24 +117,14 @@ class WavGet(object):
             track_mode = False
 
         tticks = None
-        fh = None
         if track_mode == False:
             if os.path.isfile(output_file): # check output file already exists
                 os.unlink(output_file) # delete
             tticks = self.trigger_ticks
-            fh = open( output_file + ".raw", 'wb' ) # initialize output file
 
-        """
-        to avoid 'truncate' system call.
-        also the return status
-        """
-        fh_writen = False
-
-        #cnt = 0
         silence_before = 0
         voice = 0
         silence_after = 0
-        data_onetick_before = None
 
         while True:
             if interrupt_check():
@@ -120,21 +137,17 @@ class WavGet(object):
                 continue
             
             ans = self.detector.RunDetection(data)
-            #cnt += 1
 
             """ track mode """
             if track_mode:
-                #fmt = "%6d " % (cnt)
                 if ans == -1:
                     logger.error("Error initializing streams or reading audio data")
                 elif ans == -2:
                     sys.stdout.write('_')
                     sys.stdout.flush()
-                    #logger.warning(fmt+"Silence")
                 elif ans >= 0:
                     sys.stdout.write('|')
                     sys.stdout.flush()
-                    #logger.warning(fmt+"Voice")
                 continue
 
             """ store file mode """
@@ -160,49 +173,30 @@ class WavGet(object):
                     voice += 1
 
             if voice > 0:
-                if fh_writen == False:
-                    """
-                    first voice activation - write also previous
-                    data block to get a perfect sentence
-                    """
-                    fh.write( data_onetick_before )
-                    fh_writen = True
+                self.adata.append( data );
 
-                fh.write(data)
-
-            elif fh_writen == True:
+            elif len(self.adata) <= 1:
                 """
-                manage truncate but not in use here
-                silence_before is never reset (yet)
+                Always keep track of one block before voice activation
+                to get a perfect sentence
                 """
-                fh.truncate(0)
-                fh_writen = False
-
-            data_onetick_before = data
+                if len(self.adata)<1:
+                    self.adata.append( data )
+                else:
+                    self.adata[0] = data
 
         if track_mode == False:
-            fh.close()
-
             logger.info("Ticks status: " +
                     `silence_before` + " " +
                     `voice` + " " +
-                    `silence_after` + " - return: " + `fh_writen`)
+                    `silence_after`)
             
-            #logger.warning("Error initializing streams or reading audio data")
             logger.debug("finished.")
 
-            if fh_writen == True:
-                """ convert to wave """
-                from subprocess import call
-                call([
-                    "sox","-r","16000","-c","1","-b","16","-e","signed-integer",
-                    "-t","raw",output_file + ".raw",
-                    "-t","wav",output_file])
+            """ write content in wav """
+            self._write( output_file )
 
-            os.unlink(output_file + ".raw")
-
-        return fh_writen
-
+        return
 
     def terminate(self):
         """
