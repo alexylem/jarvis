@@ -547,7 +547,7 @@ if [ "$just_execute" == false ]; then
         fi
         [ "$rec_hw" != "false" ] && microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || microphone="Default"
         echo -e "$_gray\n------------ Config ------------"
-        for parameter in jv_version jv_arch jv_os_name jv_os_version language play_hw rec_hw speaker microphone trigger_stt command_stt tts_engine; do
+        for parameter in jv_version jv_arch jv_os_name jv_os_version language play_hw rec_hw speaker microphone recorder trigger_stt command_stt tts_engine; do
             printf "%-20s %s \n" "$parameter" "${!parameter}"
         done
         echo -e "--------------------------------\n$_reset"
