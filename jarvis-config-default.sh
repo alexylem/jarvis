@@ -4,6 +4,7 @@ conversation_mode=true
 dictionary="stt_engines/pocketsphinx/jarvis-dictionary.dic"
 gain="0"
 google_speech_api_key=""
+jv_branch="master"
 phrase_failed="This command has returned an error"
 phrase_triggered=""
 phrase_welcome="Hello"

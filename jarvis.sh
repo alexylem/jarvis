@@ -110,6 +110,7 @@ configure () {
                    'dictionary'
                    'gain'
                    'google_speech_api_key'
+                   'jv_branch'
                    'language'
                    'language_model'
                    'trigger_mode'
@@ -164,6 +165,12 @@ configure () {
         dictionary)            eval "$1=\"$(dialog_input "PocketSphinx dictionary file" "${!1}")\"";;
         gain)                  eval "$1=\"$(dialog_input "Microphone gain\nCan be positive of negative integer, ex: -5, 0, 10...\nAdjust it by steps of 5, or less to finetune" "${!1}" true)\"";;
         google_speech_api_key) eval "$1=\"$(dialog_input "Google Speech API Key\nHow to get one: http://stackoverflow.com/a/26833337" "${!1}")\"";;
+        jv_branch)             options=("master" "beta")
+                               eval "$1=\"$(dialog_select "Repository branch to use for Jarvis updates\nRecommended: master" options[@] "${!1}")\""
+                               git checkout $jv_branch || {
+                                   jv_error "ERROR: an error has occured while checking out $jv_branch branch"
+                                   jv_press_enter_to_continue
+                               };;
         program_startup)       editor hooks/$1;;
         program_exit)          editor hooks/$1;;
         entering_cmd)          editor hooks/$1;;
@@ -404,7 +411,7 @@ jv_start_in_background () {
 Jarvis has been launched in background
 
 To view Jarvis output:
-tail -f jarvis.log
+./jarvis.sh and select "View output"
 To check if jarvis is running:
 pgrep -lf jarvis.sh
 To stop Jarvis:
@@ -512,7 +519,7 @@ if [ "$just_execute" == false ]; then
     if jv_is_started; then
         options=('Show Jarvis output' 'Stop Jarvis')
         case "$(dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@])" in
-            Show*) cat jarvis.log;;
+            Show*) tail -f jarvis.log;;
             Stop*) jv_kill_jarvis;;
         esac
         exit
@@ -547,7 +554,7 @@ if [ "$just_execute" == false ]; then
         fi
         [ "$rec_hw" != "false" ] && microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || microphone="Default"
         echo -e "$_gray\n------------ Config ------------"
-        for parameter in jv_version jv_arch jv_os_name jv_os_version language play_hw rec_hw speaker microphone trigger_stt command_stt tts_engine; do
+        for parameter in jv_branch jv_version jv_arch jv_os_name jv_os_version language play_hw rec_hw speaker microphone recorder trigger_stt command_stt tts_engine; do
             printf "%-20s %s \n" "$parameter" "${!parameter}"
         done
         echo -e "--------------------------------\n$_reset"
