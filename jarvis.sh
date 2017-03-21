@@ -263,6 +263,7 @@ configure () {
             ;;
         recorder)            options=("snowboy" "sox")
                              eval "$1=\"$(dialog_select "Method to record commands from microphone" options[@] "${!1}")\""
+                             source recorders/$recorder/main.sh
                              ;;
         save) for varname in "${variables[@]}"; do
                   #echo "DEBUG: saving ${!varname} into config/$varname"
