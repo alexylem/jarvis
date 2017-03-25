@@ -436,6 +436,25 @@ jv_yesno () {
     done
 }
 
+# Public: display a progress bar in the terminal
+# $1 - current step number
+# $2 - total number of steps
+# Usage
+#   (usually in a loop)
+#   jv_progressbar $current_step $total_steps
+# Output
+#   Progress : [########################################] 100%
+# Used in
+#   jarvis-face
+jv_progressbar () {
+	let _progress=(${1}*100/${2}*100)/100
+	let _done=(${_progress}*4)/10
+	let _left=40-$_done
+	_done=$(printf "%${_done}s")
+	_left=$(printf "%${_left}s")
+    printf "\r${_done// /█}$_gray${_left// /█}$_reset ${_progress}%%"
+}
+
 # Internal: Build Jarvis
 #
 # Returns nothing
