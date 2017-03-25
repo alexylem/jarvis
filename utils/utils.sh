@@ -447,8 +447,8 @@ jv_yesno () {
 # Used in
 #   jarvis-face
 jv_progressbar () {
-	let _progress=(${1}*100/${2}*100)/100
-	let _done=(${_progress}*4)/10
+    let _progress="(${1}*100/${2}*100)/100" # quotes to prevent globbing
+	let _done="(${_progress}*4)/10" # quotes to prevent globbing
 	let _left=40-$_done
 	_done=$(printf "%${_done}s")
 	_left=$(printf "%${_left}s")
