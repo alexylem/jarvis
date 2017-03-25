@@ -464,7 +464,8 @@ while getopts ":$flags" o; do
             exit $?;;
         s)	just_say=${OPTARG}
             jv_api=true;;
-        u)  jv_check_updates "./" true # force udpate
+        u)  configure "load" #498 
+            jv_check_updates "./" true # force udpate
             jv_update_config # apply config updates
             jv_plugins_check_updates true # force udpate
             touch config/last_update_check
