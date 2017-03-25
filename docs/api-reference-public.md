@@ -210,6 +210,17 @@ Usage
     if jv_yesno "question?"; then...
 
 
+`jv_progressbar()`
+------------------
+
+Public: display a progress bar in the terminal
+* $1 - current step number
+* $2 - total number of steps Usage    (usually in a loop)
+    jv_progressbar $current_step $total_steps
+ Output    Progress : [########################################] 100%
+ Used in    jarvis-face
+
+
 `jv_update()`
 -------------
 
