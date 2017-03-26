@@ -116,6 +116,26 @@ _snowboy_STT () {
     $verbose && jv_debug "DEBUG: modelid=$modelid"
     if [ "$modelid" -lt 0 ] || [ "$modelid" -gt 90 ]; then
         jv_error "ERROR: snowboy recognition failed"
+        if $verbose; then
+            jv_warning "HELP: check error message above, if:"
+            jv_warning "IOError: [Errno Invalid input device (no default output device)] -9996"
+            echo       "  1) check your mic in Settings / Audio / Mic"
+            echo       "  2) reboot your device"
+            echo       "  3) report at: https://github.com/alexylem/jarvis/issues/415"
+            jv_warning "IOError: [Errno Invalid sample rate] -9997"
+            echo       "  1) check your mic in Settings / Audio / Mic"
+            echo       "  2) try uninstalling pulseaudio"
+            echo       "  3) try fresh OS install"
+            echo       "  4) your mic does not support 16k sampling rate, change mic"
+            echo       "  5) report at: https://github.com/alexylem/jarvis/issues/311"
+            jv_warning "IOError: [Errno Unanticipated host error] -9999"
+            echo       "  1) your mic is in error state, unplug/replug it"
+            echo       "  2) report at https://github.com/alexylem/jarvis/issues/20"
+            jv_warning "Other"
+            echo       "  1) report at https://github.com/alexylem/jarvis/issues/new"
+        else
+            jv_warning "HELP: run in troubleshooting mode for more information"
+        fi
         jv_exit 1
     fi
     echo "${models[modelid]}" > $forder
@@ -224,9 +244,17 @@ EOF
     
     # check if there was an error
     if [ "${response_code:0:1}" != "2" ]; then
-        cat /tmp/model.pmdl
-        echo # carriage return
-        jv_error "ERROR: error occured while training the model"
+        local error="$(cat /tmp/model.pmdl)"
+        echo "$error"
+        case "$error" in
+            *credentials*) jv_error "ERROR: Missing/Invalid Snowboy token"
+                           jv_warning "HELP: Your token: $snowboy_token"
+                           jv_warning "HELP: Set it in menu Settings / Voice Reco / Snowboy Settings / Token"
+                           ;;
+            *)             jv_error "ERROR: error occured while training the model"
+                           jv_warning "HELP: check error above"
+                           ;;
+        esac
         exit 1
     fi
     
