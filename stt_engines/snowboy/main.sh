@@ -224,9 +224,17 @@ EOF
     
     # check if there was an error
     if [ "${response_code:0:1}" != "2" ]; then
-        cat /tmp/model.pmdl
-        echo # carriage return
-        jv_error "ERROR: error occured while training the model"
+        local error="$(cat /tmp/model.pmdl)"
+        echo "$error"
+        case "$error" in
+            *credentials*) jv_error "ERROR: Missing/Invalid Snowboy token"
+                           jv_warning "HELP: Your token: $snowboy_token"
+                           jv_warning "HELP: Set it in menu Settings / Voice Reco / Snowboy Settings / Token"
+                           ;;
+            *)             jv_error "ERROR: error occured while training the model"
+                           jv_warning "HELP: check error above"
+                           ;;
+        esac
         exit 1
     fi
     
