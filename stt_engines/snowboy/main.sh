@@ -130,9 +130,9 @@ _snowboy_STT () {
             echo       "  5) report at: https://github.com/alexylem/jarvis/issues/311"
             jv_warning "IOError: [Errno Unanticipated host error] -9999"
             echo       "  1) your mic is in error state, unplug/replug it"
-            echo       "  2) report at https://github.com/alexylem/jarvis/issues/20"
+            echo       "  2) report at: https://github.com/alexylem/jarvis/issues/20"
             jv_warning "Other"
-            echo       "  1) report at https://github.com/alexylem/jarvis/issues/new"
+            echo       "  1) report at: https://github.com/alexylem/jarvis/issues/new"
         else
             jv_warning "HELP: run in troubleshooting mode for more information"
         fi

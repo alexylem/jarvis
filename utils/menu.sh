@@ -112,8 +112,7 @@ jv_main_menu () {
                                          "Min noise duration to start ($min_noise_duration_to_start)"
                                          "Min noise perc to start ($min_noise_perc_to_start)"
                                          "Min silence duration to stop ($min_silence_duration_to_stop)"
-                                         "Min silence level to stop ($min_silence_level_to_stop)"
-                                         "Max noise duration to kill ($max_noise_duration_to_kill)")
+                                         "Min silence level to stop ($min_silence_level_to_stop)")
                                 case "`dialog_menu 'Configuration > Audio' options[@]`" in
                                     Speaker*)  configure "play_hw";;
                                     Mic*)      configure "rec_hw";;
@@ -147,7 +146,6 @@ EOM
                                     *perc*start*)     configure "min_noise_perc_to_start";;
                                     *duration*stop*)  configure "min_silence_duration_to_stop";;
                                     *level*stop*)     configure "min_silence_level_to_stop";;
-                                    *duration*kill*)  configure "max_noise_duration_to_kill";;
                                     *) break;;
                                 esac
                             done;;
