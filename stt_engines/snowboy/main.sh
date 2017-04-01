@@ -89,12 +89,12 @@ stt_sb_load # load models at startup
 _snowboy_STT () {
     [ -n "$1" ] && local timeout="utils/timeout.sh $1" || local timeout=""
 
-    local models=$snowboy_models
+    local models=("${snowboy_models[@]}")
     local smodels="$snowboy_smodels"
 
     # Limit model to trigger one
     if [ -n "$2" ]; then
-        models=$snowboy_trigger_models
+        models=("${snowboy_trigger_models[@]}")
         smodels="$snowboy_trigger_smodels"
     fi
 
@@ -130,9 +130,9 @@ _snowboy_STT () {
             echo       "  5) report at: https://github.com/alexylem/jarvis/issues/311"
             jv_warning "IOError: [Errno Unanticipated host error] -9999"
             echo       "  1) your mic is in error state, unplug/replug it"
-            echo       "  2) report at: https://github.com/alexylem/jarvis/issues/20"
+            echo       "  2) report at https://github.com/alexylem/jarvis/issues/20"
             jv_warning "Other"
-            echo       "  1) report at: https://github.com/alexylem/jarvis/issues/new"
+            echo       "  1) report at https://github.com/alexylem/jarvis/issues/new"
         else
             jv_warning "HELP: run in troubleshooting mode for more information"
         fi
