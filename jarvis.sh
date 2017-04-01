@@ -147,7 +147,8 @@ configure () {
                    'start_listening'
                    'stop_listening'
                    'start_speaking'
-                   'stop_speaking')
+                   'stop_speaking'
+                   'listening_timeout')
     case "$1" in
         bing_speech_api_key)   eval "$1=\"$(dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}" true)\"";;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
@@ -179,6 +180,7 @@ configure () {
         stop_listening)        editor hooks/$1;;
         start_speaking)        editor hooks/$1;;
         stop_speaking)         editor hooks/$1;;
+        listening_timeout)     editor hooks/$1;;
         language)              options=("de_DE (Deutsch)"
                                         "en_GB (English)"
                                         "es_ES (Español)"
@@ -747,6 +749,7 @@ while true; do
                     if [ $retcode -eq 124 ]; then # timeout
                         sleep 1 # BUG here despite timeout mic still busy can't rec again...
                         $verbose && jv_debug "DEBUG: timeout, end of conversation" || jv_debug '(timeout)'
+                        jv_hook "listening_timeout"
                         finish=true
                     else
                         jv_play sounds/error.wav
