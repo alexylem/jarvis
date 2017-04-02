@@ -46,3 +46,5 @@ hooks/start_speaking
 hooks/stop_speaking
 
 *.pyc
+
+hooks/listening_timeout

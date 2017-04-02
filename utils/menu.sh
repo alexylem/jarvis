@@ -81,22 +81,24 @@ jv_main_menu () {
                         "Hooks")
                         while true; do
                             options=("Program startup"
-                                     "Program exit"
-                                     "Entering command mode"
-                                     "Exiting command mode"
                                      "Start listening"
                                      "Stop listening"
+                                     "Listening timeout"
+                                     "Entering command mode"
                                      "Start speaking"
-                                     "Stop speaking")
+                                     "Stop speaking"
+                                     "Exiting command mode"
+                                     "Program exit")
                             case "`dialog_menu 'Configuration > Hooks' options[@]`" in
-                                Program*startup*) configure "program_startup";;
-                                Program*exit*) configure "program_exit";;
-                                Entering*) configure "entering_cmd";;
-                                Exiting*) configure "exiting_cmd";;
-                                Start*listening*) configure "start_listening";;
-                                Stop*listening*) configure "stop_listening";;
-                                Start*speaking*) configure "start_speaking";;
-                                Stop*speaking*) configure "stop_speaking";;
+                                Program*startup*)   configure "program_startup";;
+                                Program*exit*)      configure "program_exit";;
+                                Entering*)          configure "entering_cmd";;
+                                Exiting*)           configure "exiting_cmd";;
+                                Listening*timeout)  configure "listening_timeout";;
+                                Start*listening*)   configure "start_listening";;
+                                Stop*listening*)    configure "stop_listening";;
+                                Start*speaking*)    configure "start_speaking";;
+                                Stop*speaking*)     configure "stop_speaking";;
                                 *) break;;
                             esac
                         done;;
@@ -112,8 +114,7 @@ jv_main_menu () {
                                          "Min noise duration to start ($min_noise_duration_to_start)"
                                          "Min noise perc to start ($min_noise_perc_to_start)"
                                          "Min silence duration to stop ($min_silence_duration_to_stop)"
-                                         "Min silence level to stop ($min_silence_level_to_stop)"
-                                         "Max noise duration to kill ($max_noise_duration_to_kill)")
+                                         "Min silence level to stop ($min_silence_level_to_stop)")
                                 case "`dialog_menu 'Configuration > Audio' options[@]`" in
                                     Speaker*)  configure "play_hw";;
                                     Mic*)      configure "rec_hw";;
@@ -147,7 +148,6 @@ EOM
                                     *perc*start*)     configure "min_noise_perc_to_start";;
                                     *duration*stop*)  configure "min_silence_duration_to_stop";;
                                     *level*stop*)     configure "min_silence_level_to_stop";;
-                                    *duration*kill*)  configure "max_noise_duration_to_kill";;
                                     *) break;;
                                 esac
                             done;;
