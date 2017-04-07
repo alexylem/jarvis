@@ -6,6 +6,9 @@ import collections
 import time
 import os
 import logging
+import subprocess
+import threading
+import wave
 
 logging.basicConfig()
 logger = logging.getLogger("snowboy")
@@ -76,15 +79,40 @@ class JarvisHotwordDetector(object):
 
         self.ring_buffer = snowboydecoder.RingBuffer(
             self.detector.NumChannels() * self.detector.SampleRate() * 5)
-        self.audio = pyaudio.PyAudio()
-        self.stream_in = self.audio.open(
-            input=True, output=False,
-            format=self.audio.get_format_from_width(
-                self.detector.BitsPerSample() / 8),
-            channels=self.detector.NumChannels(),
-            rate=self.detector.SampleRate(),
-            frames_per_buffer=2048,
-            stream_callback=audio_callback)
+        
+        # My modifications
+
+    def record_proc(self):
+        CHUNK = 2048
+        RECORD_RATE = 16000
+        #cmd = 'arecord -q -r %d -f S16_LE' % RECORD_RATE
+        cmd = 'rec -q -r %d -c 1 -b 16 -e signed-integer --endian little -t wav -' % RECORD_RATE
+        process = subprocess.Popen(cmd.split(' '), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        wav = wave.open(process.stdout, 'rb')
+        while self.recording:
+            data = wav.readframes(CHUNK)
+            self.ring_buffer.extend(data)
+        process.terminate()  #end of modification
+
+    def init_recording(self):
+        """
+        Start a thread for spawning arecord process and reading its stdout
+        """
+        self.recording = True
+        self.record_thread = threading.Thread(target = self.record_proc)
+        self.record_thread.start()
+
+     #codes deleted
+    
+       # self.audio = pyaudio.PyAudio()
+       # self.stream_in = self.audio.open(
+        # input=True, output=False,
+         #   format=self.audio.get_format_from_width(
+          #      self.detector.BitsPerSample() / 8),
+        #    channels=self.detector.NumChannels(),
+         #   rate=self.detector.SampleRate(),
+         #   frames_per_buffer=2048,
+       #     stream_callback=audio_callback)
         logger.info ("Ticks: %s", self.trigger_ticks)
 
     def match_ticks(self,aticks):
@@ -138,7 +166,7 @@ class JarvisHotwordDetector(object):
         logger.info("Ticks status: " + `silence_before` + " " +
                 `voice_before` + " " +
                 `voice_after` + " " + `silence_after`)
-
+        
         """ Match? """
         if tticks[0]>0 and silence_before < tticks[0]:
             """ will never match """
@@ -178,6 +206,9 @@ class JarvisHotwordDetector(object):
         :param float sleep_time: how much time in second every loop waits.
         :return: None
         """
+        
+        self.init_recording()     #My modification
+        
         if interrupt_check():
             logger.debug("detect voice return")
             return
@@ -204,7 +235,7 @@ class JarvisHotwordDetector(object):
         if tticks[0] != -1 or tticks[1] != -1 or w_ticks_onsilence != False:
             w_ticks = True
         callback = None
-        
+
         while True:
             if interrupt_check():
                 logger.debug("detect voice break")
@@ -234,6 +265,7 @@ class JarvisHotwordDetector(object):
                 check_ticks = True
 
             elif ans > 0:
+                print "time detected", time.time()
                 message = "Keyword " + str(ans) + " detected at time: "
                 message += time.strftime("%Y-%m-%d %H:%M:%S",
                                          time.localtime(time.time()))
@@ -263,6 +295,12 @@ class JarvisHotwordDetector(object):
         Terminate audio stream. Users cannot call start() again to detect.
         :return: None
         """
-        self.stream_in.stop_stream()
-        self.stream_in.close()
-        self.audio.terminate()
+        #My modification
+        self.recording = False
+        self.record_thread.join()
+        
+        #old codes
+        
+        #self.stream_in.stop_stream()
+        #self.stream_in.close()
+        #self.audio.terminate()

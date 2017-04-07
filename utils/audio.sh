@@ -175,3 +175,36 @@ LISTEN () {
     $verbose && jv_play "$audiofile"
     return $returncode
 }
+
+# jv_bluetooth () {
+#     # if pulseaudio is not started
+#     pgrep pulseaudio
+#         # start pulseaudio daemon
+#         pulseaudio --start
+#     # if bluetooth device disabled
+#     rfkill list bluetooth | grep yes
+#         # enable bluetooth device
+#         sudo rfkill unblock bluetooth
+#     # start bluetooth manager
+#     (
+#         # power on bluetooth controller
+#         echo -e "power on\n"
+#         sleep 1
+#         # enable agent
+#         echo -e "agent on\n"
+#         sleep 1
+#         # set agent as the default one
+#         echo -e "default-agent\n"
+#         sleep 1
+#         # scan devices
+#         #echo -e "scan on\n"
+#         #sleep 10
+#         #echo -e "scan off\n"
+#         #sleep 1
+#         #echo -e "quit\n"
+#     ) | bluetoothctl
+#     # set your device to pairing mode
+#     # scan devices in pairing mode
+#     hcitool scan | grep :
+#     
+# }

@@ -1,23 +1,22 @@
-import maindecoder
+import maindecoder_sox as maindecoder
 import sys
 import signal
 
 # Demo code for listening two hotwords at the same time
 
-# hide alsa errors
-from ctypes import *
-ERROR_HANDLER_FUNC = CFUNCTYPE(None, c_char_p, c_int, c_char_p, c_int, c_char_p)
-def py_error_handler(filename, line, function, err, fmt):
-    pass
-c_error_handler = ERROR_HANDLER_FUNC(py_error_handler)
-try:
-    asound = cdll.LoadLibrary('libasound.so.2')
-    asound.snd_lib_error_set_handler(c_error_handler)
-except Exception as e:
-    pass
+# hide alsa errors # not anymore needed with sox?
+# from ctypes import *
+# ERROR_HANDLER_FUNC = CFUNCTYPE(None, c_char_p, c_int, c_char_p, c_int, c_char_p)
+# def py_error_handler(filename, line, function, err, fmt):
+#     pass
+# c_error_handler = ERROR_HANDLER_FUNC(py_error_handler)
+# try:
+#     asound = cdll.LoadLibrary('libasound.so.2')
+#     asound.snd_lib_error_set_handler(c_error_handler)
+# except Exception as e:
+#     pass
 
 interrupted = False
-
 
 def signal_handler(signal, frame):
     global interrupted
@@ -28,8 +27,8 @@ def interrupt_callback():
     return interrupted
 
 def detected_callback(modelid):
-    #global detector #makes it slower to react
-    #detector.terminate() #makes it slower to react
+    global detector
+    detector.terminate() #makes it 0.1 sec slower to react
     sys.exit(modelid+10) # main.sh substracts 10
 
 if len(sys.argv) < 3:
