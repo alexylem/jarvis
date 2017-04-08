@@ -265,7 +265,7 @@ class JarvisHotwordDetector(object):
                 check_ticks = True
 
             elif ans > 0:
-                print "time detected", time.time()
+                #print "time_detected", time.time()
                 message = "Keyword " + str(ans) + " detected at time: "
                 message += time.strftime("%Y-%m-%d %H:%M:%S",
                                          time.localtime(time.time()))

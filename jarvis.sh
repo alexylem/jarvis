@@ -36,7 +36,7 @@ show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW: Try snowboy recorder in Settings > Audio > Recorder"
+headline="NEW: Improve snowboy reaction with Settings > Voice Reco > Snowboy settings > Check ticks"
 
 # Move to Jarvis directory
 export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -130,6 +130,7 @@ configure () {
                    'send_usage_stats'
                    'separator'
                    'show_commands'
+                   'snowboy_checkticks'
                    'snowboy_sensitivity'
                    'snowboy_token'
                    'tmp_folder'
@@ -274,6 +275,7 @@ configure () {
         send_usage_stats)    eval "$1=\"$(dialog_yesno "Send anynomous usage statistics to help improving Jarvis" "${!1}")\"";;
         separator)           eval "$1=\"$(dialog_input "Separator for multiple commands at once\nex: 'then' or empty to disable" "${!1}")\"";;
         show_commands)       eval "$1=\"$(dialog_yesno "Show commands on startup and possible answers" "${!1}")\"";;
+        snowboy_checkticks)  eval "$1=\"$(dialog_yesno "Check ticks?\nReduce false positives but slower to react" "${!1}")\"";;
         snowboy_sensitivity) eval "$1=\"$(dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.4" "${!1}")\"";;
         snowboy_token)       eval "$1=\"$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai (in profile settings)" "${!1}" true)\"";;
         tmp_folder)          eval "$1=\"$(dialog_input "Cache folder" "${!1}")\"";;

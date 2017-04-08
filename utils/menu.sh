@@ -167,8 +167,10 @@ EOM
                                             options=("Show trained hotwords/commands"
                                                      "Token ($snowboy_token)"
                                                      "Train a hotword/command"
-                                                     "Sensitivity ($snowboy_sensitivity)")
+                                                     "Sensitivity ($snowboy_sensitivity)"
+                                                     "Check ticks ($snowboy_checkticks)")
                                             case "`dialog_menu 'Settings > Voice recognition > Snowboy' options[@]`" in
+                                                Check*)         configure "snowboy_checkticks";;
                                                 Show*)          IFS=','; dialog_msg "Models stored in stt_engines/snowboy/resources/:\n${snowboy_models[*]}";;
                                                 Sensitivity*)   configure "snowboy_sensitivity";;
                                                 Token*)         configure "snowboy_token";;
