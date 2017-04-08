@@ -186,7 +186,8 @@ configure () {
                                         "en_GB (English)"
                                         "es_ES (Español)"
                                         "fr_FR (Français)"
-                                        "it_IT (Italiano)")
+                                        "it_IT (Italiano)"
+                                        "pt_PT (Português)")
                                language="$(dialog_select "Language" options[@] "$language")"
                                language="${language% *}" # "fr_FR (Français)" => "fr_FR"
                                ;;

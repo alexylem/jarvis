@@ -19,7 +19,7 @@ google_TTS () { # TTS () {} Speaks text $1
     local audio_file="$jv_cache_folder/$(jv_sanitize "$1" _).mp3"
     if [ ! -f "$audio_file" ]; then
         $verbose && printf "$_gray" # output in verbose mode will be displayed in gray
-        wget $($verbose || echo -q) -U Mozilla -O $audio_file "http://translate.google.com/translate_tts?tl=${language:0:2}&client=tw-ob&ie=UTF-8&q=$(rawurlencode "$1")"
+        wget $($verbose || echo -q) -U Mozilla -O $audio_file "http://translate.google.com/translate_tts?tl=${language:0:2}&client=tw-ob&ie=UTF-8&q=$1"
         $verbose && printf "$_reset"
     fi
     mpg123 -q $audio_file
