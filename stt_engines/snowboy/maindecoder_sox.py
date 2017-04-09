@@ -6,6 +6,10 @@ import collections
 import time
 import os
 import logging
+import subprocess
+import threading
+import wave
+import signal
 
 logging.basicConfig()
 logger = logging.getLogger("snowboy")
@@ -46,16 +50,7 @@ class JarvisHotwordDetector(object):
             self.ring_buffer.extend(in_data)
             play_data = chr(0) * len(in_data)
             return play_data, pyaudio.paContinue
-
-        tm = type(decoder_model)
-        ts = type(sensitivity)
-        tt = type(trigger_ticks)
-        if tm is not list:
-            decoder_model = [decoder_model]
-        if ts is not list:
-            sensitivity = [sensitivity]
-        if tt is not list:
-            trigger_ticks = [-1,-1,-1,-1]
+        
         model_str = ",".join(decoder_model)
 
         self.detector = snowboydetect.SnowboyDetect(
@@ -63,28 +58,46 @@ class JarvisHotwordDetector(object):
         self.detector.SetAudioGain(audio_gain)
         self.num_hotwords = self.detector.NumHotwords()
         self.trigger_ticks = trigger_ticks
-
-        if len(decoder_model) > 1 and len(sensitivity) == 1:
-            sensitivity = sensitivity*self.num_hotwords
-        if len(sensitivity) != 0:
-            assert self.num_hotwords == len(sensitivity), \
-                "number of hotwords in decoder_model (%d) and sensitivity " \
-                "(%d) does not match" % (self.num_hotwords, len(sensitivity))
+        
         sensitivity_str = ",".join([str(t) for t in sensitivity])
-        if len(sensitivity) != 0:
-            self.detector.SetSensitivity(sensitivity_str.encode())
-
+        self.detector.SetSensitivity(sensitivity_str.encode())
         self.ring_buffer = snowboydecoder.RingBuffer(
-            self.detector.NumChannels() * self.detector.SampleRate() * 5)
-        self.audio = pyaudio.PyAudio()
-        self.stream_in = self.audio.open(
-            input=True, output=False,
-            format=self.audio.get_format_from_width(
-                self.detector.BitsPerSample() / 8),
-            channels=self.detector.NumChannels(),
-            rate=self.detector.SampleRate(),
-            frames_per_buffer=2048,
-            stream_callback=audio_callback)
+        self.detector.NumChannels() * self.detector.SampleRate() * 5)
+        
+        # My modifications
+
+    def record_proc(self):
+        CHUNK = 2048
+        RECORD_RATE = 16000
+        #cmd = 'arecord -q -r %d -f S16_LE' % RECORD_RATE
+        cmd = 'rec -q -r %d -c 1 -b 16 -e signed-integer --endian little -t wav -' % RECORD_RATE
+        process = subprocess.Popen(cmd.split(' '), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        wav = wave.open(process.stdout, 'rb')
+        while self.recording:
+            data = wav.readframes(CHUNK)
+            self.ring_buffer.extend(data)
+        #process.terminate() # keeps mic busy for some time
+        process.kill()
+        
+    def init_recording(self):
+        """
+        Start a thread for spawning arecord process and reading its stdout
+        """
+        self.recording = True
+        self.record_thread = threading.Thread(target = self.record_proc)
+        self.record_thread.start()
+
+     #codes deleted
+    
+       # self.audio = pyaudio.PyAudio()
+       # self.stream_in = self.audio.open(
+        # input=True, output=False,
+         #   format=self.audio.get_format_from_width(
+          #      self.detector.BitsPerSample() / 8),
+        #    channels=self.detector.NumChannels(),
+         #   rate=self.detector.SampleRate(),
+         #   frames_per_buffer=2048,
+       #     stream_callback=audio_callback)
         logger.info ("Ticks: %s", self.trigger_ticks)
 
     def match_ticks(self,aticks):
@@ -95,68 +108,68 @@ class JarvisHotwordDetector(object):
         voice_after = 0
         voice_before = 0
         kw_passed = False
-        """ Pattern to match is: Silence - Voice - Detection - Voice* - Silence """
+        # Pattern to match is: Silence - Voice - Detection - Voice* - Silence
         for _ans in reversed(aticks):
             if kw_passed == True:
-                """ Before the keyword """
+                # Before the keyword
                 if _ans == -2:
                     if voice_before == 0:
-                        """ fail - no voice before detection?! """
+                        # fail - no voice before detection?!
                         logger.info("No match - no voice before hotword")
                         return -1
 
                     silence_before += 1
                     if silence_before >= tticks[0]:
-                        """ break - complete """
+                        # break - complete
                         break
 
                 elif _ans == 0:
-                    """ voice """
+                    # voice
                     if silence_before>0:
                         break
                     voice_before += 1
 
             else:
-                """ After the keyword """
+                # After the keyword
                 if _ans > 0:
-                    """ found the keyword - switch to before keyword """
+                    # found the keyword - switch to before keyword
                     kw_passed = True
                     continue
                 if _ans == -2:
-                    """ silence """
+                    # silence
                     if voice_after == 0:
-                        """ silence after detection """
+                        # silence after detection
                         silence_after += 1
                     else:
-                        """ fail - voice between silence """
+                        # fail - voice between silence
                         logger.info("No match - after hotword, mix of silence and voice")
                         return -1
                 elif _ans == 0:
-                    """ voice """
+                    # voice
                     voice_after += 1
 
         logger.info("Ticks status: " + `silence_before` + " " +
                 `voice_before` + " " +
                 `voice_after` + " " + `silence_after`)
-
-        """ Match? """
+        
+        # Match?
         if tticks[0]>0 and silence_before < tticks[0]:
-            """ will never match """
+            # will never match
             logger.warning( "No match silence_before" )
             return -1
         if tticks[1]>0 and voice_before > tticks[1]:
-            """ will never match """
+            # will never match
             logger.warning( "No match voice_before" )
             return -1
         if tticks[2]>0 and voice_after > tticks[2]:
-            """ will never match """
+            # will never match
             logger.warning( "No match voice_after" )
             return -1
         if tticks[3]>0 and silence_after < tticks[3]:
-            """ can still match on next tick """
+            # can still match on next tick
             logger.warning( "No match silence_after - wait next tick" )
             return 0
-        """ A match ! """
+        # A match !
         return 1
 
     def start(self, detected_callback=snowboydecoder.play_audio_file,
@@ -178,10 +191,13 @@ class JarvisHotwordDetector(object):
         :param float sleep_time: how much time in second every loop waits.
         :return: None
         """
+        
+        self.init_recording()     #My modification
+        
         if interrupt_check():
             logger.debug("detect voice return")
             return
-
+        
         tc = type(detected_callback)
         if tc is not list:
             detected_callback = [detected_callback]
@@ -204,10 +220,10 @@ class JarvisHotwordDetector(object):
         if tticks[0] != -1 or tticks[1] != -1 or w_ticks_onsilence != False:
             w_ticks = True
         callback = None
-        
+
         while True:
             if interrupt_check():
-                logger.debug("detect voice break")
+                logger.debug("detect break")
                 break
 
             data = self.ring_buffer.get()
@@ -218,7 +234,7 @@ class JarvisHotwordDetector(object):
             ans = self.detector.RunDetection(data)
             check_ticks = False
 
-            """ with ticks: append and keep it under 100 ticks """
+            # with ticks: append and keep it under 100 ticks
             if w_ticks:
                 aticks.append( ans )
                 if len(aticks)>100:
@@ -228,12 +244,13 @@ class JarvisHotwordDetector(object):
                 logger.warning("Error initializing streams or reading audio data")
 
             elif ans == -2:
-                """ silence can trigger the callback if w_ticks and matches """
+                # silence can trigger the callback if w_ticks and matches
                 if w_ticks_onsilence == False or callback is None:
                     continue
                 check_ticks = True
 
             elif ans > 0:
+                #print "time_detected", time.time()
                 message = "Keyword " + str(ans) + " detected at time: "
                 message += time.strftime("%Y-%m-%d %H:%M:%S",
                                          time.localtime(time.time()))
@@ -248,13 +265,13 @@ class JarvisHotwordDetector(object):
             if check_ticks:
                 ret = self.match_ticks( aticks )
                 if ret == -1:
-                    """ Not a match """
+                    # Not a match
                     callback = None
                 elif ret == 1:
                     #logger.warning("Callback run");
                     callback()
                     callback = None
-                """ ret == 0 : Not a match yet """
+                # ret == 0 : Not a match yet
 
         logger.debug("finished.")
 
@@ -263,6 +280,12 @@ class JarvisHotwordDetector(object):
         Terminate audio stream. Users cannot call start() again to detect.
         :return: None
         """
-        self.stream_in.stop_stream()
-        self.stream_in.close()
-        self.audio.terminate()
+        #My modification
+        self.recording = False
+        self.record_thread.join()
+        
+        #old codes
+        
+        #self.stream_in.stop_stream()
+        #self.stream_in.close()
+        #self.audio.terminate()

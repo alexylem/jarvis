@@ -106,7 +106,12 @@ _snowboy_STT () {
     fi;
     
     printf $_gray
-    eval $timeout python stt_engines/snowboy/main.py $snowboy_sensitivity $smodels $quiet #TODO on mac: WARNING:  140: This application, or a library it uses, is using the deprecated Carbon Component Manager for hosting Audio Units. Support for this will be removed in a future release. Also, this makes the host incompatible with version 3 audio units. Please transition to the API's in AudioComponent.h.
+    eval $timeout python stt_engines/snowboy/main.py \
+        --models $smodels \
+        --sensitivity $snowboy_sensitivity \
+        --gain $gain \
+        $( $snowboy_checkticks && echo "--tick" ) \
+        $quiet #TODO on mac: WARNING:  140: This application, or a library it uses, is using the deprecated Carbon Component Manager for hosting Audio Units. Support for this will be removed in a future release. Also, this makes the host incompatible with version 3 audio units. Please transition to the API's in AudioComponent.h.
     local retcode=$?
     printf $_reset
     [ $retcode -eq 124 ] && return 124 # timeout

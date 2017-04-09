@@ -22,6 +22,7 @@ recorder="sox"
 send_usage_stats=true
 separator=""
 show_commands=true
+snowboy_checkticks=true
 snowboy_sensitivity="0.4"
 tmp_folder="/tmp"
 trigger=""
