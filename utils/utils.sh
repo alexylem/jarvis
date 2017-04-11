@@ -105,7 +105,7 @@ say () {
             jv_success "HELP: Start Jarvis using ./jarvis.sh -b"
         fi
     else # if using Jarvis, speak synchronously
-        jv_hook "start_speaking" "$1"
+        jv_hook "start_speaking" "$1" #533
         $tts_engine'_TTS' "$1"
         jv_hook "stop_speaking"
     fi
