@@ -240,6 +240,8 @@ Internal: Kill Jarvis if running in background
 -----------
 
 Internal: trigger hooks
+* $1 - hook name to trigger
+* $@ - other arguments to pass to hook
 
 
 `jv_exit()`

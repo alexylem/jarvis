@@ -105,7 +105,7 @@ say () {
             jv_success "HELP: Start Jarvis using ./jarvis.sh -b"
         fi
     else # if using Jarvis, speak synchronously
-        jv_hook "start_speaking"
+        jv_hook "start_speaking" "$1" #533
         $tts_engine'_TTS' "$1"
         jv_hook "stop_speaking"
     fi
@@ -278,11 +278,15 @@ jv_kill_jarvis () {
 }
 
 # Internal: trigger hooks
+# $1 - hook name to trigger
+# $@ - other arguments to pass to hook
 jv_hook () {
     $jv_api && return # don't trigger hooks from API
-    source hooks/$1 $2 2>/dev/null # user hook
+    local hook="$1"
+    shift
+    source hooks/$hook "$@" 2>/dev/null # user hook
     shopt -s nullglob
-    for f in plugins/*/hooks/$1; do source $f; done # plugins hooks
+    for f in plugins/*/hooks/$hook; do source $f "$@"; done # plugins hooks
     shopt -u nullglob
 }
 

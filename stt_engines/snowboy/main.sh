@@ -206,11 +206,11 @@ stt_sb_train () {
     
     # record 3 audio samples of the hotword
     dialog_msg "We will record now 3 audio samples of '$hotword'\nSample #1\nPres [Enter], say '$hotword' then hit Ctrl+C"
-    rec -r 16000 -c 1 -b 16 -e signed-integer /tmp/1.wav
+    rec -r 16000 -c 1 -b 16 -e signed-integer gain $gain /tmp/1.wav
     dialog_msg "Sample #2\nPres [Enter], say '$hotword' then hit Ctrl+C"
-    rec -r 16000 -c 1 -b 16 -e signed-integer /tmp/2.wav
+    rec -r 16000 -c 1 -b 16 -e signed-integer gain $gain /tmp/2.wav
     dialog_msg "Sample #3\nPres [Enter], say '$hotword' then hit Ctrl+C"
-    rec -r 16000 -c 1 -b 16 -e signed-integer /tmp/3.wav
+    rec -r 16000 -c 1 -b 16 -e signed-integer gain $gain /tmp/3.wav
     
     # get microphone information #103
     #[ "$rec_hw" != "false" ] && local microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || local microphone="Default"

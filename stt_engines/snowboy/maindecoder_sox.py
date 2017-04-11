@@ -55,7 +55,8 @@ class JarvisHotwordDetector(object):
 
         self.detector = snowboydetect.SnowboyDetect(
             resource_filename=resource.encode(), model_str=model_str.encode())
-        self.detector.SetAudioGain(audio_gain)
+        self.audio_gain = int (audio_gain)
+        #self.detector.SetAudioGain( self.audio_gain ) #537
         self.num_hotwords = self.detector.NumHotwords()
         self.trigger_ticks = trigger_ticks
         
@@ -70,7 +71,7 @@ class JarvisHotwordDetector(object):
         CHUNK = 2048
         RECORD_RATE = 16000
         #cmd = 'arecord -q -r %d -f S16_LE' % RECORD_RATE
-        cmd = 'rec -q -r %d -c 1 -b 16 -e signed-integer --endian little -t wav -' % RECORD_RATE
+        cmd = 'rec -q -r %d -c 1 -b 16 -e signed-integer --endian little -t wav - gain %d' % (RECORD_RATE, self.audio_gain) #537
         process = subprocess.Popen(cmd.split(' '), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         wav = wave.open(process.stdout, 'rb')
         while self.recording:
