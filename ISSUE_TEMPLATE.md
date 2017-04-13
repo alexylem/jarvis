@@ -2,8 +2,10 @@
 >
 ### Description
 
-PLEASE SEARCH BEFORE existing tickets and in the docs
+PLEASE SEARCH BEFORE existing tickets and in the docs.
+
 NB: For issues with plugins, please create in the corresponding repository
+
 
 ### Result
 `<Paste here>` content of the terminal after using Jarvis in troubleshooting mode.
@@ -17,13 +19,14 @@ OR
 Attach a session recording using [ASCIINEMA](https://asciinema.org/)
 To use it:
 ```shell
-```sudo apt-get install -y asciinema && asciinema rec # start session recording
-```./jarvish.sh -nv # start jarvis directly in troubleshooting mode
-```Ctrl+D # stop recording
-```y # yes to upload and get URL to paste here
+sudo apt-get install -y asciinema && asciinema rec # start session recording
+./jarvish.sh -nv # start jarvis directly in troubleshooting mode
+Ctrl+D # stop recording
+y # yes to upload and get URL to paste here
 ```
 
 ---
+
 
 ## ![French][French] Français
 ### Description
@@ -41,7 +44,7 @@ Pour le lancer :
 
 OU
 
-Fournir un lien vers une vidéo de votre terminal enregistrée avec [ASCIINEMA](https://asciinema.org/)
+Fournir un lien vers une vidéo de votre terminal enregistrée avec [ASCIINEMA](https://asciinema.org/).
 Pour l'installer et lancer un enregistrement :
 ```shell
 sudo apt-get install -y asciinema && asciinema rec # Démarre l'enregistrement
