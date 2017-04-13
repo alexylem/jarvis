@@ -16,7 +16,7 @@ To use it:
 
 OR
 
-Attach a session recording using [ASCIINEMA](https://asciinema.org/)
+Attach a session recording using [ASCIINEMA](https://asciinema.org/).
 To use it:
 ```shell
 sudo apt-get install -y asciinema && asciinema rec # start session recording
@@ -35,14 +35,18 @@ MERCI DE COMMENCER PAR RECHERCHER dans les tickets existants ainsi que la docume
 
 NB : Pour les incidents et demandes concernant les plugins, merci d'ouvrir un ticket sur son propre dépôt.
 
+
 ### Résultat
-`<Coller ici> le résultat du terminal lors de l'utilisation de Jarvis en mode troubleshooting.
+`<Coller ici>` le résultat du terminal lors de l'utilisation de Jarvis en mode troubleshooting.
 Pour le lancer :
 ```shell
 ./jarvish.sh -nv
 ```
 
+
 OU
+
+
 
 Fournir un lien vers une vidéo de votre terminal enregistrée avec [ASCIINEMA](https://asciinema.org/).
 Pour l'installer et lancer un enregistrement :
