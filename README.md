@@ -54,7 +54,7 @@ Compatible with any Linux distribution that has installed the tools needed. The 
 ### Supported Languages
 
 ![English][English] English <br/>
-![French][French] French <br/>
+![French][French] Français <br/>
 
 ---
 
