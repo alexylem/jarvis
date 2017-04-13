@@ -2,7 +2,7 @@
 >
 ### Description
 
-PLEASE SEARCH BEFORE existing tickets and in the docs.
+PLEASE SEARCH BEFORE [existing tickets](https://github.com/alexylem/jarvis/issues?utf8=%E2%9C%93&q=is%3Aissue) and in the [docs](http://domotiquefacile.fr/jarvis/).
 
 NB: For issues with plugins, please create in the corresponding repository
 
@@ -31,7 +31,7 @@ y # yes to upload and get URL to paste here
 ## ![French][French] Français
 ### Description
 
-MERCI DE COMMENCER PAR RECHERCHER dans les tickets existants ainsi que la documentation sur [http://domotiquefacile.fr/jarvis/](http://domotiquefacile.fr/jarvis/)
+MERCI DE COMMENCER PAR RECHERCHER dans les [tickets existants](https://github.com/alexylem/jarvis/issues?utf8=%E2%9C%93&q=is%3Aissue) ainsi que la documentation sur [http://domotiquefacile.fr/jarvis/](http://domotiquefacile.fr/jarvis/)
 
 NB : Pour les incidents et demandes concernant les plugins, merci d'ouvrir un ticket sur son propre dépôt.
 
@@ -54,7 +54,7 @@ Pour l'installer et lancer un enregistrement :
 sudo apt-get install -y asciinema && asciinema rec # Démarre l'enregistrement
 ./jarvish.sh -nv # Exécute Jarvis directement en mode troubleshooting
 Ctrl+D # Arrête l'enregistrement
-y # 'yes' ('oui') pour envoyer l'enregistrement sur la plateforme ASCIINEMA et obtenir son adresse d'accès, à <coller ici>
+y # 'yes' ('oui') pour envoyer l'enregistrement sur la plateforme ASCIINEMA et obtenir son adresse d'accès
 ```
 
 
