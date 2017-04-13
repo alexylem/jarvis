@@ -105,5 +105,5 @@ Use this script on your own networks and equipment.<br/>
 [Contributing File]: CONTRIBUTING.md
 [License File]: LICENSE.md
 <!-- Badges URLs -->
-[Version-shield]: https://img.shields.io/badge/version-17.04.08-blue.svg?style=flat-square&colorA=273133&colorB=0093ee "Latest version"
+[Version-shield]: https://img.shields.io/badge/version-17.04.12-blue.svg?style=flat-square&colorA=273133&colorB=0093ee "Latest version"
 [License-shield]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&colorA=273133&colorB=bd0000 "MIT"
