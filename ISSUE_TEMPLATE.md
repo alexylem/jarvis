@@ -13,7 +13,7 @@ To use it:
 
 OR
 
-Attach a session recording using https://asciinema.org/
+Attach a session recording using [ASCIINEMA](https://asciinema.org/)
 To use it:
 ```sudo apt-get install -y asciinema && asciinema rec # start session recording
 ```./jarvish.sh -nv # start jarvis directly in troubleshooting mode
@@ -26,7 +26,8 @@ To use it:
 ## ![French][French] Français
 ### Description
 
-MERCI DE COMMENCER PAR RECHERCHER dans les tickets existants ainsi que la documentation sur http://domotiquefacile.fr/jarvis/
+MERCI DE COMMENCER PAR RECHERCHER dans les tickets existants ainsi que la documentation sur [http://domotiquefacile.fr/jarvis/](http://domotiquefacile.fr/jarvis/)
+
 NB : Pour les incidents et demandes concernant les plugins, merci d'ouvrir un ticket sur son propre dépôt.
 
 ### Résultat
