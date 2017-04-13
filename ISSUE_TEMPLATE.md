@@ -6,10 +6,10 @@ PLEASE SEARCH BEFORE existing tickets and in the docs
 NB: For issues with plugins, please create in the corresponding repository
 
 ### Result
-```shell
 <Paste here> content of the terminal after using Jarvis in troubleshooting mode
 To use it:
 ```./jarvish.sh -nv # Start Jarvis directly in troubleshooting mode
+```
 
 OR
 
@@ -31,10 +31,10 @@ MERCI DE COMMENCER PAR RECHERCHER dans les tickets existants ainsi que la docume
 NB : Pour les incidents et demandes concernant les plugins, merci d'ouvrir un ticket sur son propre dépôt.
 
 ### Résultat
-```shell
 <Coller ici> le résultat du terminal lors de l'utilisation de Jarvis en mode troubleshooting.
 Pour le lancer :
 ```./jarvish.sh -nv
+```
 
 OU
 
