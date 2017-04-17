@@ -227,6 +227,13 @@ Public: display a progress bar in the terminal
 Public: update package/formula list
 
 
+`jv_is_installed()`
+-------------------
+
+Public: indicates if a package is installed
+* $1 - package to verify
+
+
 `jv_install()`
 --------------
 

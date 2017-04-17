@@ -333,10 +333,23 @@ Returns nothing
 Internal: apply needed local config modifications following updates of Jarvis
 
 
+`result`
+--------
+
+don't put local or else return code always O
+
+
 `jv_update()`
 -------------
 
 Public: update package/formula list
+
+
+`jv_is_installed()`
+-------------------
+
+Public: indicates if a package is installed
+* $1 - package to verify
 
 
 `jv_install()`
