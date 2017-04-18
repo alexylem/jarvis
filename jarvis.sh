@@ -193,7 +193,7 @@ configure () {
                                ;;
         language_model)        eval "$1=\"$(dialog_input "PocketSphinx language model file" "${!1}")\"";;
         load)
-            source jarvis-config-default.sh
+            source defaults/jarvis-config-default.sh
             [ -f jarvis-config.sh ] && source jarvis-config.sh # backward compatibility
             for hook in "${hooks[@]}"; do
                 if [ ! -f "hooks/$hook" ]; then
@@ -349,8 +349,8 @@ wizard () {
     jv_update_config
     
     # initiate user commands & events if don't exist yet
-    [ -f jarvis-commands ] || cp jarvis-commands-default jarvis-commands
-    [ -f jarvis-events ] || cp jarvis-events-default jarvis-events
+    [ -f jarvis-commands ] || cp defaults/jarvis-commands-default jarvis-commands
+    [ -f jarvis-events ] || cp defaults/jarvis-events-default jarvis-events
     
     dialog_msg "Hello, my name is JARVIS, nice to meet you"
     configure "language"
@@ -567,6 +567,10 @@ if [ "$just_execute" == false ]; then
         echo -e "--------------------------------\n$_reset"
     fi
 fi
+
+# Include user functions
+[ -f my-functions.sh ] || cp defaults/my-functions-default.sh my-functions.sh
+source my-functions.sh #470
 
 # Include installed plugins
 shopt -s nullglob

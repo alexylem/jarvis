@@ -41,7 +41,7 @@ dialog_select () { # usage dialog_select "question" list[@] "default"
     #echo "items=${items[@]} (${#items[@]})"
     # don't put local or else return code always O
     result="$(whiptail --radiolist "$1\n(Press space to Select, Enter to validate)" 20 76 $nb "${items[@]}" 3>&1 1>&2 2>&3)"
-    (( $? )) && echo "$3" || echo "$result"
+    (( $? )) && echo "$3" || echo "$result" #549
 }
 
 dialog_menu () { # usage dialog_menu "question" list[@]
