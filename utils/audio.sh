@@ -172,7 +172,7 @@ LISTEN () {
         LISTEN_TRIGGER
         returncode=$?
     fi
-    if $verbose && [ $returncode -eq O ]; then #508
+    if $verbose && [ $returncode -eq 0 ]; then #508
         jv_play "$audiofile"
     fi
     return $returncode
