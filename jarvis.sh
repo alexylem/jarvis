@@ -587,7 +587,7 @@ jv_get_commands () {
 }
 
 # run startup hooks after plugin load
-jv_hook "program_startup"
+$jv_api || jv_hook "program_startup" # don't trigger program_* from api calls
 
 # Public: handle an order and execute corresponding command
 # 

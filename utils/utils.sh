@@ -91,6 +91,7 @@ jv_add_timestamps () {
 #   Jarvis: hello world
 say () {
     #set -- "${1:-$(</dev/stdin)}" "${@:2}" # read commands if $1 is empty... #195
+    jv_hook "start_speaking" "$1" #533
     if $jv_json; then
         jv_print_json "$trigger" "$1"
     else
@@ -105,10 +106,9 @@ say () {
             jv_success "HELP: Start Jarvis using ./jarvis.sh -b"
         fi
     else # if using Jarvis, speak synchronously
-        jv_hook "start_speaking" "$1" #533
         $tts_engine'_TTS' "$1"
-        jv_hook "stop_speaking"
     fi
+    jv_hook "stop_speaking"
 }
 
 # Public: Call HTTP requests
@@ -281,7 +281,7 @@ jv_kill_jarvis () {
 # $1 - hook name to trigger
 # $@ - other arguments to pass to hook
 jv_hook () {
-    $jv_api && return # don't trigger hooks from API
+    #$jv_api && return # don't trigger hooks from API #jarvis-api/issues/11
     local hook="$1"
     shift
     source hooks/$hook "$@" 2>/dev/null # user hook
@@ -303,8 +303,8 @@ jv_exit () {
     # reset font color (sometimes needed)
     $jv_api || echo -e $_reset
     
-    # Trigger program exit hook
-    jv_hook "program_exit" $return_code
+    # Trigger program exit hook if not from api call
+    $jv_api || jv_hook "program_exit" $return_code
     
     # termine child processes (ex: HTTP Server from Jarvis API Plugin)
     local jv_child_pids="$(jobs -p)"
