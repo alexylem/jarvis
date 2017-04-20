@@ -86,6 +86,7 @@ jv_is_installed () {
 # args: list of packages to install
 jv_install () {
     sudo apt-get install -y $@
+    sudo apt-get clean
 }
 
 # Public: remove packages, used for uninstalls

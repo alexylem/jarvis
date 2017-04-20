@@ -72,6 +72,12 @@ Internal: indicates if there are nested commands
 Public: indicates if called using API else normal usage
 
 
+`jv_ip`
+-------
+
+Public: ip address of Jarvis
+
+
 `jv_repeat_last_command()`
 --------------------------
 

@@ -25,7 +25,7 @@ stt_sb_install () {
     elif [ "$platform" = "osx" ]; then
         sb_supported_os=true
         binaries="osx-x86_64-1.1.0"
-        jv_install portaudio
+        jv_install portaudio #551
     fi
     if [ "$sb_supported_os" == false ]; then
         dialog_msg <<EOM

@@ -66,6 +66,12 @@ Public: user's OS version (8, 16.02, ...)
 Public: indicates if called using API else normal usage
 
 
+`jv_ip`
+-------
+
+Public: ip address of Jarvis
+
+
 `jv_repeat_last_command()`
 --------------------------
 
