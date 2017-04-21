@@ -78,6 +78,12 @@ Public: indicates if called using API else normal usage
 Public: ip address of Jarvis
 
 
+`jv_is_paused`
+--------------
+
+Internal: indicates if Jarvis is paused
+
+
 `jv_repeat_last_command()`
 --------------------------
 

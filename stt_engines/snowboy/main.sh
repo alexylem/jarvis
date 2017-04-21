@@ -106,15 +106,21 @@ _snowboy_STT () {
     fi;
     
     printf $_gray
-    eval $timeout python stt_engines/snowboy/main.py \
+    eval "$timeout python stt_engines/snowboy/main.py \
         --models $smodels \
         --sensitivity $snowboy_sensitivity \
         --gain $gain \
         $( $snowboy_checkticks && echo "--tick" ) \
-        $quiet #TODO on mac: WARNING:  140: This application, or a library it uses, is using the deprecated Carbon Component Manager for hosting Audio Units. Support for this will be removed in a future release. Also, this makes the host incompatible with version 3 audio units. Please transition to the API's in AudioComponent.h.
+        $quiet &" # http://stackoverflow.com/questions/4339756/inside-a-bash-script-how-to-get-pid-from-a-program-executed-when-using-the-eval
+    local pid=$!
+    wait $pid # to allow signal trap
     local retcode=$?
     printf $_reset
-    [ $retcode -eq 124 ] && return 124 # timeout
+    case $retcode in
+        124) return 124;; # timeout
+        158) kill $pid
+             return 158;; # paused
+    esac
     
     # 0-10 fail  -   11 - 101 ok  - 102-255 fail
     modelid=$(($retcode-11))
@@ -153,7 +159,8 @@ _snowboy_STT () {
 snowboy_STT () {
     if $bypass; then
         _snowboy_STT 10
-        [ $? -eq 124 ] && return 124 # timeout
+        local retcode=$?
+        (( $retcode )) && return $retcode
     else
         # check if model already exists for trigger
         # exit if model already exists for trigger
@@ -166,8 +173,10 @@ snowboy_STT () {
             jv_exit 1
         fi
         _snowboy_STT "" "trigger"
-        order="$(cat $forder)"
+        local retcode=$?
+        (( $retcode )) && return $retcode
         
+        order="$(cat $forder)"
         shopt -s nocasematch
         if [[ "$order" != "$trigger_sanitized" ]]; then # case insensitive comparison
             if [ $command_stt == 'snowboy' ]; then

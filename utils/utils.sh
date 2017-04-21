@@ -42,6 +42,9 @@ jv_api=false
 # Public: ip address of Jarvis
 jv_ip="$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (ad[d]?r:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
 
+# Internal: indicates if Jarvis is paused
+jv_is_paused=false
+
 # Public: Re-run last executed command. Use to create an order to repeat.
 #
 # Usage:
@@ -291,6 +294,16 @@ jv_hook () {
     shopt -s nullglob
     for f in plugins/*/hooks/$hook; do source $f "$@"; done # plugins hooks
     shopt -u nullglob
+}
+
+jv_pause_resume () {
+    if $jv_is_paused; then
+        jv_is_paused=false
+        jv_debug "resuming..."
+    else
+        jv_is_paused=true
+        jv_debug "pausing..."
+    fi
 }
 
 # Public: Exit properly jarvis

@@ -447,11 +447,11 @@ while getopts ":$flags" o; do
             jv_start_in_background
             exit;;
         c)  conversation_mode_override=${OPTARG};;
+        h)  show_help
+            exit;;
         i)  check_dependencies
             configure "load"
             wizard
-            exit;;
-        h)  show_help
             exit;;
         j)  jv_json=true
             printf "[";;
@@ -524,10 +524,13 @@ fi
 if [ "$just_execute" == false ]; then
     # Check if Jarvis is already running in background
     if jv_is_started; then
-        options=('Show Jarvis output' 'Stop Jarvis')
+        options=('Show Jarvis output'
+                 'Pause / Resume'
+                 'Stop Jarvis')
         case "$(dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@])" in
-            Show*) tail -f jarvis.log;;
-            Stop*) jv_kill_jarvis;;
+            Show*)   tail -f jarvis.log;;
+            Pause*)  kill -SIGUSR1 $(cat $lockfile);;
+            Stop*)   jv_kill_jarvis;;
         esac
         exit
     fi
@@ -674,6 +677,7 @@ handle_orders() {
 if [ "$just_execute" = false ]; then
     # trap Ctrl+C or kill
     trap "jv_exit" INT TERM
+    trap "jv_pause_resume" SIGUSR1
     
     # save pid in lockfile for proper kill
     echo $$ > $lockfile
@@ -738,6 +742,7 @@ while true; do
                     eval ${trigger_stt}_STT
                 fi
                 retcode=$?
+                #jv_debug "retcode=$retcode"
                 (( $retcode )) && error=true || error=false
                 
                 # if there was no error doing speech to text
@@ -749,6 +754,13 @@ while true; do
                         printf '?'
                         error=true
                     fi
+                fi
+                
+                if $jv_is_paused; then
+                    echo "paused"
+                    $verbose && jv_debug "to resume, run: ./jarvis.sh and select Resume"
+                    wait # until signal
+                    continue 2
                 fi
                 
     			if $error; then
