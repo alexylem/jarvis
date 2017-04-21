@@ -45,6 +45,9 @@ jv_ip="$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (ad[d]?r:)?(([0-9]*\.){3}[0-
 # Internal: indicates if Jarvis is paused
 jv_is_paused=false
 
+# Internal: signal number of SIGUSR1
+jv_sig_pause=$(kill -l SIGUSR1)
+
 # Public: Re-run last executed command. Use to create an order to repeat.
 #
 # Usage:

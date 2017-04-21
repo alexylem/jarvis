@@ -116,10 +116,11 @@ _snowboy_STT () {
     wait $pid # to allow signal trap
     local retcode=$?
     printf $_reset
+    local pause_retcode=$((128+$jv_sig_pause))
     case $retcode in
-        124) return 124;; # timeout
-        158) kill $pid
-             return 158;; # paused
+        124)            return 124;; # timeout
+        $pause_retcode) kill $pid # paused by user, kill snowboy
+                        return $pause_retcode;;
     esac
     
     # 0-10 fail  -   11 - 101 ok  - 102-255 fail

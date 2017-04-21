@@ -529,7 +529,7 @@ if [ "$just_execute" == false ]; then
                  'Stop Jarvis')
         case "$(dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@])" in
             Show*)   tail -f jarvis.log;;
-            Pause*)  kill -SIGUSR1 $(cat $lockfile);;
+            Pause*)  kill -$jv_sig_pause $(cat $lockfile);;
             Stop*)   jv_kill_jarvis;;
         esac
         exit
@@ -677,7 +677,7 @@ handle_orders() {
 if [ "$just_execute" = false ]; then
     # trap Ctrl+C or kill
     trap "jv_exit" INT TERM
-    trap "jv_pause_resume" SIGUSR1
+    trap "jv_pause_resume" $jv_sig_pause
     
     # save pid in lockfile for proper kill
     echo $$ > $lockfile
