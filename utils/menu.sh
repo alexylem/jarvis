@@ -273,7 +273,7 @@ EOM
                 ;;
             "Search for updates")
                 jv_check_updates
-                jv_update_config # apply config updates
+                source utils/update.sh # source new updated file from git
                 jv_plugins_check_updates
                 ;;
             *) exit;;

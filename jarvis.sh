@@ -76,6 +76,20 @@ audiofile="$jv_cache_folder/jarvis-record.wav"
 forder="$jv_cache_folder/jarvis-order"
 jv_say_queue="$jv_cache_folder/jarvis-say"
 rm -f $audiofile # sometimes, when error, previous recording is played
+if [ ! -d "plugins_installed" ]; then
+    if [ -d "plugins" ]; then # retrocompatibility
+        mv plugins plugins_installed 2>/dev/null
+    else
+        mkdir "plugins_installed"
+    fi
+fi
+if [ ! -d "plugins_enabled" ]; then
+    mkdir plugins_enabled
+    plugins=$(ls plugins_installed)
+    for plugin in $plugins; do
+        jv_plugin_enable "$plugin"
+    done
+fi
 
 # Only for retrocompatibility
 #update_commands () {
@@ -344,12 +358,10 @@ check_dependencies () {
 
 wizard () {
     jv_check_updates
-    jv_update_config
+    source utils/update.sh # init config/version
     
     # initiate directories
     mkdir -p config
-    mkdir -p plugins_installed
-    mkdir -p plugins_enabled
     
     # initiate user commands & events if don't exist yet
     [ -f jarvis-commands ] || cp defaults/jarvis-commands-default jarvis-commands
@@ -474,7 +486,7 @@ while getopts ":$flags" o; do
             jv_api=true;;
         u)  configure "load" #498 
             jv_check_updates "./" true # force udpate
-            jv_update_config # apply config updates
+            source utils/update.sh # apply config updates
             jv_plugins_check_updates true # force udpate
             touch config/last_update_check
             exit;;
@@ -543,7 +555,7 @@ if [ "$just_execute" == false ]; then
         if [ "$(find config/last_update_check -mtime -$check_updates 2>/dev/null | wc -l)" -eq 0 ]; then
             jv_jarvis_updated=false
             jv_check_updates
-            jv_update_config # apply config upates
+            source utils/update.sh # apply config upates
             jv_plugins_check_updates
             touch config/last_update_check
             if $jv_jarvis_updated; then
