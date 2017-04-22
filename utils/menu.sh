@@ -343,7 +343,7 @@ menu_store () {
     
     while true; do
         shopt -s nullglob
-        nb_installed=(plugins/*/)
+        nb_installed=(plugins_installed/*/)
         shopt -u nullglob
         
         options=("Installed (${#nb_installed[@]})"
@@ -356,39 +356,48 @@ menu_store () {
                  "Publish your Plugin")
         case "`dialog_menu 'Plugins' options[@]`" in
             Installed*) if [ "${#nb_installed[@]}" -gt 0 ]; then
-                            cd plugins/
+                            #cd plugins_installed/
                             while true; do
-                                shopt -s nullglob
-                                options=(*)
-                                shopt -u nullglob
+                                #shopt -s nullglob
+                                #options=(*)
+                                #shopt -u nullglob
+                                options=($(ls plugins_installed))
                                 local plugin="`dialog_menu 'Installed' options[@]`"
                                 if [ -n "$plugin" ] && [ "$plugin" != "false" ]; then
-                                    cd "$plugin"
+                                    cd "plugins_installed/$plugin"
                                     local plugin_git_url="$(git config --get remote.origin.url)"
+                                    cd ../../
                                     local plugin_url="${plugin_git_url%.*}"
-                                    cd ../
-                                    options=("Info"
-                                             "Configure"
-                                             "Update"
-                                             "Rate"
-                                             "Report an issue"
-                                             "Reinstall"
-                                             "Uninstall")
                                     while true; do
+                                        jv_plugin_is_enabled $plugin && local enable_disable="Disable" || local enable_disable="Enable"
+                                        options=("Info"
+                                                 "Configure"
+                                                 "$enable_disable"
+                                                 "Update"
+                                                 "Rate"
+                                                 "Report an issue"
+                                                 "Reinstall"
+                                                 "Uninstall")
                                         case "`dialog_menu \"$plugin\" options[@]`" in
                                             Info)
                                                 store_display_readme "$plugin_url"
                                                 ;;
                                             Configure)
-                                                editor "$plugin/config.sh"
+                                                editor "plugins_installed/$plugin/config.sh"
+                                                ;;
+                                            Disable)
+                                                jv_plugin_disable "$plugin"
+                                                ;;
+                                            Enable)
+                                                jv_plugin_enable "$plugin"
                                                 ;;
                                             Update)
                                                 echo "Checking for updates..."
-                                                cd "$plugin"
+                                                cd "plugins_installed/$plugin"
                                                 git pull &
                                                 jv_spinner $!
                                                 jv_press_enter_to_continue
-                                                cd ../
+                                                cd ../../
                                                 ;;
                                             Rate)
                                                 dialog_msg "$(store_get_field_by_repo "$plugin_url" "url")#comment-form"
@@ -397,7 +406,7 @@ menu_store () {
                                                 dialog_msg "$plugin_url/issues/new"
                                                 ;;
                                             Reinstall)
-                                                source "$plugin/install.sh"
+                                                source "plugins_installed/$plugin/install.sh"
                                                 dialog_msg "Installation Complete"
                                                 ;;
                                             Uninstall)
@@ -414,7 +423,7 @@ menu_store () {
                                     break
                                 fi
                             done
-                            cd ../
+                            #cd ../
                         fi
                         ;;
             Matching*)  dialog_msg <<EOM
@@ -422,7 +431,7 @@ This is to edit the order in which the plugin commands are evaluated
 Put at the bottom plugins with generic patterns, such as Jeedom or API
 EOM
                         editor plugins_order.txt
-                        jv_plugins_order_rebuild
+                        jv_plugins_order_rebuild # in case of user mistake
                         ;;
             Search*)    local search_terms="$(dialog_input "Search in Plugins (keywords seperate with space)" "$search_terms")"
                         menu_store_browse "" "$search_terms"
@@ -430,7 +439,7 @@ EOM
             Browse*)    menu_store_browse;;
             New*)       menu_store_browse "date";;
             Top*)       menu_store_browse "rating";;
-            Install*)   local plugin_url="$(dialog_input "Repo URL, ex: https://github.com/alexylem/time")"
+            Install*)   local plugin_url="$(dialog_input "Repo URL, ex: https://github.com/alexylem/jarvis-time")"
                         [ -z "$plugin_url" ] && continue
                         store_install_plugin "$plugin_url"
                         ;;

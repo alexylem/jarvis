@@ -51,7 +51,7 @@ store_display_readme () { # $1:plugin_url
 
 store_install_plugin () { # $1:plugin_url
     local plugin_name="${1##*/}" #extract repo_name from url
-    cd plugins
+    cd plugins_installed
     git clone "$1.git" #https://github.com/alexylem/jarvis.git
     if [[ $? -eq 0 ]]; then
         cd "$plugin_name"
@@ -67,13 +67,28 @@ store_install_plugin () { # $1:plugin_url
         jv_press_enter_to_continue
     fi
     cd ../
-    jv_plugins_order_rebuild # has to be after cd ../
+    jv_plugin_enable "$plugin_name"
+    # jv_plugins_order_rebuild # in jv_plugin_enable
+}
+
+jv_plugin_is_enabled () {
+    [ -d plugins_enabled/$1 ]
+}
+
+jv_plugin_enable () {
+    ln -s "$jv_dir/plugins_installed/$1" "plugins_enabled/$1"
+    jv_plugins_order_rebuild
+}
+
+jv_plugin_disable () {
+    rm "plugins_enabled/$1"
+    jv_plugins_order_rebuild
 }
 
 store_plugin_uninstall () { # $1:plugin_name
-    source $1/uninstall.sh # access to jarvis variables
-    rm -rf "$1"
-    cd ../
-    jv_plugins_order_rebuild
-    cd plugins/
+    jv_plugin_is_enabled "$1" && jv_plugin_disable "$1"
+    source "plugins_installed/$1/uninstall.sh" # access to jarvis variables
+    rm -rf "plugins_installed/$1"
+    #jv_plugins_order_rebuild # in jv_plugin_disable
+    #cd plugins_installed/
 }

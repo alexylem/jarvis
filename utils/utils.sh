@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Public: version of Jarvis
-jv_version=$(cat version.txt)
+jv_version="$(cat config/version 2>/dev/null)"
 
-# Public: directory where Jarvis is installed
+# Public: directory where Jarvis is installed without trailing slash
 jv_dir="$jv_dir"
 
 # Public: the name of the user
@@ -70,13 +70,21 @@ jv_print_json () {
     jv_json_separator=","
 }
 
+# Internal: get list of user defined and plugins commands
+jv_get_commands () {
+    grep -v "^#" jarvis-commands
+    while read; do
+        cat plugins_enabled/$REPLY/${language:0:2}/commands 2>/dev/null
+    done <plugins_order.txt
+}
+
 # Public: display available commands grouped by plugin name
 jv_display_commands () {
     jv_info "User defined commands:"
     jv_debug "$(grep -v "^#" jarvis-commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
     while read plugin_name; do
         jv_info "Commands from plugin $plugin_name:"
-        jv_debug "$(cat plugins/$plugin_name/${language:0:2}/commands 2>/dev/null | cut -d '=' -f 1 | pr -3 -l1 -t)"
+        jv_debug "$(cat plugins_enabled/$plugin_name/${language:0:2}/commands 2>/dev/null | cut -d '=' -f 1 | pr -3 -l1 -t)"
     done <plugins_order.txt
 }
 
@@ -295,7 +303,7 @@ jv_hook () {
     shift
     source hooks/$hook "$@" 2>/dev/null # user hook
     shopt -s nullglob
-    for f in plugins/*/hooks/$hook; do source $f "$@"; done # plugins hooks
+    for f in plugins_enabled/*/hooks/$hook; do source $f "$@"; done # plugins hooks
     shopt -u nullglob
 }
 
@@ -400,7 +408,7 @@ jv_check_updates () {
 # Internal: runs jv_check_updates for all plugins
 # $1 - don't ask confirmation, default false
 jv_plugins_check_updates () {
-    cd plugins/
+    cd plugins_installed/
     shopt -s nullglob
     for plugin_dir in *; do
         jv_check_updates "$plugin_dir" "$1"            
@@ -412,9 +420,9 @@ jv_plugins_check_updates () {
 # Internal: Rebuild plugins_order.txt following added/removed plugins
 jv_plugins_order_rebuild () {
     # Append new plugins to plugins_order
-    cat plugins_order.txt <( ls plugins ) 2>/dev/null | awk '!x[$0]++' > /tmp/plugins_order.tmp
+    cat plugins_order.txt <( ls plugins_enabled ) 2>/dev/null | awk '!x[$0]++' > /tmp/plugins_order.tmp
     # Remove uninstalled plugins from plugins_order
-    grep -xf <( ls plugins ) /tmp/plugins_order.tmp > plugins_order.txt
+    grep -xf <( ls plugins_enabled ) /tmp/plugins_order.tmp > plugins_order.txt
 }
 
 # Internal: send hit to Google Analytics on /jarvis.sh

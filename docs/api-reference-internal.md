@@ -7,7 +7,7 @@ Public: version of Jarvis
 `jv_dir`
 --------
 
-Public: directory where Jarvis is installed
+Public: directory where Jarvis is installed without trailing slash
 
 
 `username`
@@ -84,6 +84,12 @@ Public: ip address of Jarvis
 Internal: indicates if Jarvis is paused
 
 
+`jv_sig_pause`
+--------------
+
+Internal: signal number of SIGUSR1
+
+
 `jv_repeat_last_command()`
 --------------------------
 
@@ -100,6 +106,12 @@ Usage:
 Internal: Print JSON key value pair
 * $1 - key
 * $2 - value
+
+
+`jv_get_commands()`
+-------------------
+
+Internal: get list of user defined and plugins commands
 
 
 `jv_display_commands()`
@@ -343,6 +355,12 @@ Returns nothing
 --------------------
 
 Internal: apply needed local config modifications following updates of Jarvis
+
+
+`jv_version`
+------------
+
+update complete, update local version
 
 
 `result`

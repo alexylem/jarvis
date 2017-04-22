@@ -24,7 +24,7 @@ show_help () { cat <<EOF
     -l  directly listen for one command (ex: launch from physical button)
     -m  mute mode (overrides settings)
     -n  directly start jarvis without menu
-    -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/time
+    -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/jarvis-time
     -q  quit jarvis if running in background
     -r  uninstall jarvis and its dependencies
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
@@ -36,7 +36,7 @@ show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW: Improve snowboy reaction with Settings > Voice Reco > Snowboy settings > Check ticks"
+headline="NEW: You can now Enable/Disabled installed plugins"
 
 # Move to Jarvis directory
 export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -71,8 +71,6 @@ esac
 source utils/dialog_$platform.sh
 
 # Initiate files & directories
-mkdir -p config
-mkdir -p plugins
 lockfile="$jv_cache_folder/jarvis.lock"
 audiofile="$jv_cache_folder/jarvis-record.wav"
 forder="$jv_cache_folder/jarvis-order"
@@ -348,6 +346,11 @@ wizard () {
     jv_check_updates
     jv_update_config
     
+    # initiate directories
+    mkdir -p config
+    mkdir -p plugins_installed
+    mkdir -p plugins_enabled
+    
     # initiate user commands & events if don't exist yet
     [ -f jarvis-commands ] || cp defaults/jarvis-commands-default jarvis-commands
     [ -f jarvis-events ] || cp defaults/jarvis-events-default jarvis-events
@@ -577,17 +580,11 @@ source my-functions.sh #470
 
 # Include installed plugins
 shopt -s nullglob
-for f in plugins/*/config.sh; do source $f; done # plugin configuration
-for f in plugins/*/functions.sh; do source $f; done # plugin functions
-for f in plugins/*/${language:0:2}/functions.sh; do source $f; done # plugin language specific functions
+for f in plugins_enabled/*/config.sh; do source $f; done # plugin configuration
+for f in plugins_enabled/*/functions.sh; do source $f; done # plugin functions
+for f in plugins_enabled/*/${language:0:2}/functions.sh; do source $f; done # plugin language specific functions
 shopt -u nullglob
-jv_plugins_order_rebuild
-jv_get_commands () {
-    grep -v "^#" jarvis-commands
-    while read; do
-        cat plugins/$REPLY/${language:0:2}/commands 2>/dev/null
-    done <plugins_order.txt
-}
+jv_plugins_order_rebuild # why here? in case plugin is manually added/delete?
 
 # run startup hooks after plugin load
 $jv_api || jv_hook "program_startup" # don't trigger program_* from api calls

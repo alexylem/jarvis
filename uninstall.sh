@@ -9,7 +9,7 @@ jv_yesno "Are you sure you want to uninstall Jarvis and all its dependancies?" |
 shopt -s nullglob
 
 jv_warning "Uninstalling plugins"
-cd plugins
+cd plugins_installed
 for plugin in *; do
     echo "uninstalling $plugin..."
     store_plugin_uninstall $plugin
