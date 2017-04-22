@@ -7,7 +7,7 @@ Public: version of Jarvis
 `jv_dir`
 --------
 
-Public: directory where Jarvis is installed
+Public: directory where Jarvis is installed without trailing slash
 
 
 `username`
@@ -64,6 +64,12 @@ Public: user's OS version (8, 16.02, ...)
 --------
 
 Public: indicates if called using API else normal usage
+
+
+`jv_ip`
+-------
+
+Public: ip address of Jarvis
 
 
 `jv_repeat_last_command()`
@@ -225,6 +231,13 @@ Public: display a progress bar in the terminal
 -------------
 
 Public: update package/formula list
+
+
+`jv_is_installed()`
+-------------------
+
+Public: indicates if a package is installed
+* $1 - package to verify
 
 
 `jv_install()`

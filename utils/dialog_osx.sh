@@ -87,10 +87,16 @@ jv_install () {
     fi
     local to_install=""
     for formula in "$@"; do
-        brew ls --versions "$formula" >/dev/null || to_install+=" $formula"
+        jv_is_installed "$formula" || to_install+=" $formula"
     done
     [ -z "$to_install" ] && return # nothing to install
     brew install $@
+}
+
+# Public: indicates if a package is installed
+# $1 - package to verify
+jv_is_installed () {
+    brew ls --versions "$1" >/dev/null
 }
 
 # Public: remove packages, used for uninstalls
@@ -100,7 +106,7 @@ jv_remove () {
     # assuming brew is installed
     local to_remove=""
     for formula in "$@"; do
-        brew ls --versions "$formula" >/dev/null && to_remove+=" $formula"
+        jv_is_installed "$formula" && to_remove+=" $formula"
     done
     [ -z "$to_remove" ] && return # nothing installed to remove
     echo "The following packages will be REMOVED:"

@@ -40,8 +40,8 @@ dialog_select () { # usage dialog_select "question" list[@] "default"
     done
     #echo "items=${items[@]} (${#items[@]})"
     # don't put local or else return code always O
-    whiptail --radiolist "$1\n(Press space to Select, Enter to validate)" 20 76 $nb "${items[@]}" 3>&1 1>&2 2>&3
-    #(( $? )) && echo "$3" || echo "$result"  
+    result="$(whiptail --radiolist "$1\n(Press space to Select, Enter to validate)" 20 76 $nb "${items[@]}" 3>&1 1>&2 2>&3)"
+    (( $? )) && echo "$3" || echo "$result" #549
 }
 
 dialog_menu () { # usage dialog_menu "question" list[@]
@@ -75,11 +75,18 @@ jv_update () {
     sudo apt-get update -y #421
 }
 
+# Public: indicates if a package is installed
+# $1 - package to verify
+jv_is_installed () {
+    dpkg -l "$1" >/dev/null 2>&1
+}
+
 # Public: install packages, used for dependencies
 #
 # args: list of packages to install
 jv_install () {
     sudo apt-get install -y $@
+    sudo apt-get clean
 }
 
 # Public: remove packages, used for uninstalls

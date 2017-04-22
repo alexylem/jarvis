@@ -24,7 +24,7 @@ show_help () { cat <<EOF
     -l  directly listen for one command (ex: launch from physical button)
     -m  mute mode (overrides settings)
     -n  directly start jarvis without menu
-    -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/time
+    -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/jarvis-time
     -q  quit jarvis if running in background
     -r  uninstall jarvis and its dependencies
     -s  just say something and exit, ex: ${0##*/} -s "hello world"
@@ -36,7 +36,7 @@ show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW: Improve snowboy reaction with Settings > Voice Reco > Snowboy settings > Check ticks"
+headline="NEW: You can now Enable/Disabled installed plugins"
 
 # Move to Jarvis directory
 export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -71,13 +71,25 @@ esac
 source utils/dialog_$platform.sh
 
 # Initiate files & directories
-mkdir -p config
-mkdir -p plugins
 lockfile="$jv_cache_folder/jarvis.lock"
 audiofile="$jv_cache_folder/jarvis-record.wav"
 forder="$jv_cache_folder/jarvis-order"
 jv_say_queue="$jv_cache_folder/jarvis-say"
 rm -f $audiofile # sometimes, when error, previous recording is played
+if [ ! -d "plugins_installed" ]; then
+    if [ -d "plugins" ]; then # retrocompatibility
+        mv plugins plugins_installed 2>/dev/null
+    else
+        mkdir "plugins_installed"
+    fi
+fi
+if [ ! -d "plugins_enabled" ]; then
+    mkdir plugins_enabled
+    plugins=$(ls plugins_installed)
+    for plugin in $plugins; do
+        jv_plugin_enable "$plugin"
+    done
+fi
 
 # Only for retrocompatibility
 #update_commands () {
@@ -193,7 +205,7 @@ configure () {
                                ;;
         language_model)        eval "$1=\"$(dialog_input "PocketSphinx language model file" "${!1}")\"";;
         load)
-            source jarvis-config-default.sh
+            source defaults/jarvis-config-default.sh
             [ -f jarvis-config.sh ] && source jarvis-config.sh # backward compatibility
             for hook in "${hooks[@]}"; do
                 if [ ! -f "hooks/$hook" ]; then
@@ -346,11 +358,14 @@ check_dependencies () {
 
 wizard () {
     jv_check_updates
-    jv_update_config
+    source utils/update.sh # init config/version
+    
+    # initiate directories
+    mkdir -p config
     
     # initiate user commands & events if don't exist yet
-    [ -f jarvis-commands ] || cp jarvis-commands-default jarvis-commands
-    [ -f jarvis-events ] || cp jarvis-events-default jarvis-events
+    [ -f jarvis-commands ] || cp defaults/jarvis-commands-default jarvis-commands
+    [ -f jarvis-events ] || cp defaults/jarvis-events-default jarvis-events
     
     dialog_msg "Hello, my name is JARVIS, nice to meet you"
     configure "language"
@@ -447,11 +462,11 @@ while getopts ":$flags" o; do
             jv_start_in_background
             exit;;
         c)  conversation_mode_override=${OPTARG};;
+        h)  show_help
+            exit;;
         i)  check_dependencies
             configure "load"
             wizard
-            exit;;
-        h)  show_help
             exit;;
         j)  jv_json=true
             printf "[";;
@@ -471,7 +486,7 @@ while getopts ":$flags" o; do
             jv_api=true;;
         u)  configure "load" #498 
             jv_check_updates "./" true # force udpate
-            jv_update_config # apply config updates
+            source utils/update.sh # apply config updates
             jv_plugins_check_updates true # force udpate
             touch config/last_update_check
             exit;;
@@ -524,10 +539,13 @@ fi
 if [ "$just_execute" == false ]; then
     # Check if Jarvis is already running in background
     if jv_is_started; then
-        options=('Show Jarvis output' 'Stop Jarvis')
+        options=('Show Jarvis output'
+                 'Pause / Resume'
+                 'Stop Jarvis')
         case "$(dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@])" in
-            Show*) tail -f jarvis.log;;
-            Stop*) jv_kill_jarvis;;
+            Show*)   tail -f jarvis.log;;
+            Pause*)  kill -$jv_sig_pause $(cat $lockfile);;
+            Stop*)   jv_kill_jarvis;;
         esac
         exit
     fi
@@ -537,7 +555,7 @@ if [ "$just_execute" == false ]; then
         if [ "$(find config/last_update_check -mtime -$check_updates 2>/dev/null | wc -l)" -eq 0 ]; then
             jv_jarvis_updated=false
             jv_check_updates
-            jv_update_config # apply config upates
+            source utils/update.sh # apply config upates
             jv_plugins_check_updates
             touch config/last_update_check
             if $jv_jarvis_updated; then
@@ -568,22 +586,20 @@ if [ "$just_execute" == false ]; then
     fi
 fi
 
+# Include user functions
+[ -f my-functions.sh ] || cp defaults/my-functions-default.sh my-functions.sh
+source my-functions.sh #470
+
 # Include installed plugins
 shopt -s nullglob
-for f in plugins/*/config.sh; do source $f; done # plugin configuration
-for f in plugins/*/functions.sh; do source $f; done # plugin functions
-for f in plugins/*/${language:0:2}/functions.sh; do source $f; done # plugin language specific functions
+for f in plugins_enabled/*/config.sh; do source $f; done # plugin configuration
+for f in plugins_enabled/*/functions.sh; do source $f; done # plugin functions
+for f in plugins_enabled/*/${language:0:2}/functions.sh; do source $f; done # plugin language specific functions
 shopt -u nullglob
-jv_plugins_order_rebuild
-jv_get_commands () {
-    grep -v "^#" jarvis-commands
-    while read; do
-        cat plugins/$REPLY/${language:0:2}/commands 2>/dev/null
-    done <plugins_order.txt
-}
+jv_plugins_order_rebuild # why here? in case plugin is manually added/delete?
 
 # run startup hooks after plugin load
-jv_hook "program_startup"
+$jv_api || jv_hook "program_startup" # don't trigger program_* from api calls
 
 # Public: handle an order and execute corresponding command
 # 
@@ -670,6 +686,7 @@ handle_orders() {
 if [ "$just_execute" = false ]; then
     # trap Ctrl+C or kill
     trap "jv_exit" INT TERM
+    trap "jv_pause_resume" $jv_sig_pause
     
     # save pid in lockfile for proper kill
     echo $$ > $lockfile
@@ -734,6 +751,7 @@ while true; do
                     eval ${trigger_stt}_STT
                 fi
                 retcode=$?
+                #jv_debug "retcode=$retcode"
                 (( $retcode )) && error=true || error=false
                 
                 # if there was no error doing speech to text
@@ -745,6 +763,13 @@ while true; do
                         printf '?'
                         error=true
                     fi
+                fi
+                
+                if $jv_is_paused; then
+                    echo "paused"
+                    $verbose && jv_debug "to resume, run: ./jarvis.sh and select Resume"
+                    wait # until signal
+                    continue 2
                 fi
                 
     			if $error; then

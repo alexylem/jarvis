@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Public: version of Jarvis
-jv_version=$(cat version.txt)
+jv_version="$(cat config/version 2>/dev/null)"
 
-# Public: directory where Jarvis is installed
+# Public: directory where Jarvis is installed without trailing slash
 jv_dir="$jv_dir"
 
 # Public: the name of the user
@@ -39,6 +39,15 @@ jv_possible_answers=false
 # Public: indicates if called using API else normal usage
 jv_api=false
 
+# Public: ip address of Jarvis
+jv_ip="$(/sbin/ifconfig | sed -En 's/127.0.0.1//;s/.*inet (ad[d]?r:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
+
+# Internal: indicates if Jarvis is paused
+jv_is_paused=false
+
+# Internal: signal number of SIGUSR1
+jv_sig_pause=$(kill -l SIGUSR1)
+
 # Public: Re-run last executed command. Use to create an order to repeat.
 #
 # Usage:
@@ -61,13 +70,21 @@ jv_print_json () {
     jv_json_separator=","
 }
 
+# Internal: get list of user defined and plugins commands
+jv_get_commands () {
+    grep -v "^#" jarvis-commands
+    while read; do
+        cat plugins_enabled/$REPLY/${language:0:2}/commands 2>/dev/null
+    done <plugins_order.txt
+}
+
 # Public: display available commands grouped by plugin name
 jv_display_commands () {
     jv_info "User defined commands:"
     jv_debug "$(grep -v "^#" jarvis-commands | cut -d '=' -f 1 | pr -3 -l1 -t)"
     while read plugin_name; do
         jv_info "Commands from plugin $plugin_name:"
-        jv_debug "$(cat plugins/$plugin_name/${language:0:2}/commands 2>/dev/null | cut -d '=' -f 1 | pr -3 -l1 -t)"
+        jv_debug "$(cat plugins_enabled/$plugin_name/${language:0:2}/commands 2>/dev/null | cut -d '=' -f 1 | pr -3 -l1 -t)"
     done <plugins_order.txt
 }
 
@@ -91,6 +108,7 @@ jv_add_timestamps () {
 #   Jarvis: hello world
 say () {
     #set -- "${1:-$(</dev/stdin)}" "${@:2}" # read commands if $1 is empty... #195
+    jv_hook "start_speaking" "$1" #533
     if $jv_json; then
         jv_print_json "$trigger" "$1"
     else
@@ -105,10 +123,9 @@ say () {
             jv_success "HELP: Start Jarvis using ./jarvis.sh -b"
         fi
     else # if using Jarvis, speak synchronously
-        jv_hook "start_speaking" "$1" #533
         $tts_engine'_TTS' "$1"
-        jv_hook "stop_speaking"
     fi
+    jv_hook "stop_speaking"
 }
 
 # Public: Call HTTP requests
@@ -281,13 +298,23 @@ jv_kill_jarvis () {
 # $1 - hook name to trigger
 # $@ - other arguments to pass to hook
 jv_hook () {
-    $jv_api && return # don't trigger hooks from API
+    #$jv_api && return # don't trigger hooks from API #jarvis-api/issues/11
     local hook="$1"
     shift
     source hooks/$hook "$@" 2>/dev/null # user hook
     shopt -s nullglob
-    for f in plugins/*/hooks/$hook; do source $f "$@"; done # plugins hooks
+    for f in plugins_enabled/*/hooks/$hook; do source $f "$@"; done # plugins hooks
     shopt -u nullglob
+}
+
+jv_pause_resume () {
+    if $jv_is_paused; then
+        jv_is_paused=false
+        jv_debug "resuming..."
+    else
+        jv_is_paused=true
+        jv_debug "pausing..."
+    fi
 }
 
 # Public: Exit properly jarvis
@@ -303,8 +330,8 @@ jv_exit () {
     # reset font color (sometimes needed)
     $jv_api || echo -e $_reset
     
-    # Trigger program exit hook
-    jv_hook "program_exit" $return_code
+    # Trigger program exit hook if not from api call
+    $jv_api || jv_hook "program_exit" $return_code
     
     # termine child processes (ex: HTTP Server from Jarvis API Plugin)
     local jv_child_pids="$(jobs -p)"
@@ -381,7 +408,7 @@ jv_check_updates () {
 # Internal: runs jv_check_updates for all plugins
 # $1 - don't ask confirmation, default false
 jv_plugins_check_updates () {
-    cd plugins/
+    cd plugins_installed/
     shopt -s nullglob
     for plugin_dir in *; do
         jv_check_updates "$plugin_dir" "$1"            
@@ -393,9 +420,9 @@ jv_plugins_check_updates () {
 # Internal: Rebuild plugins_order.txt following added/removed plugins
 jv_plugins_order_rebuild () {
     # Append new plugins to plugins_order
-    cat plugins_order.txt <( ls plugins ) 2>/dev/null | awk '!x[$0]++' > /tmp/plugins_order.tmp
+    cat plugins_order.txt <( ls plugins_enabled ) 2>/dev/null | awk '!x[$0]++' > /tmp/plugins_order.tmp
     # Remove uninstalled plugins from plugins_order
-    grep -xf <( ls plugins ) /tmp/plugins_order.tmp > plugins_order.txt
+    grep -xf <( ls plugins_enabled ) /tmp/plugins_order.tmp > plugins_order.txt
 }
 
 # Internal: send hit to Google Analytics on /jarvis.sh
