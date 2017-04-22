@@ -40,7 +40,7 @@ jv_possible_answers=false
 jv_api=false
 
 # Public: ip address of Jarvis
-jv_ip="$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (ad[d]?r:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
+jv_ip="$(/sbin/ifconfig | sed -En 's/127.0.0.1//;s/.*inet (ad[d]?r:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
 
 # Internal: indicates if Jarvis is paused
 jv_is_paused=false
