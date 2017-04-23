@@ -281,33 +281,12 @@ EOM
     done
 }
 
-menu_store_browse () { # $1 (optional) sorting, $2 (optionnal) space separated search terms
-    
-    local plugins=()
-    local category=""
-    
-    if [ -n "$2" ]; then
-        # Retrieve list of plugins for these search terms
-        while read plugin; do
-            plugins+=("$plugin")
-        done <<< "$(store_search_plugins "$2")"
-        category="Results"
-    else
-        # Select Category    
-        category="`dialog_menu 'Categories' categories[@]`"
-        if [ -z "$category" ] || [ "$category" == "false" ]; then
-            return
-        fi
-        
-        # Retrieve list of plugins for this Category
-        while read plugin; do
-            plugins+=("$plugin")
-        done <<< "$(store_list_plugins "$category" "$1")"
-    fi
-    
+# Internal: display dialog of $plugins
+# $1 - dialog title
+menu_store_browse () { # $1 (optional) sorting, $2 (optionnal) space separated search terms    
     while true; do        
         # Select plugin
-        local plugin_title="`dialog_menu \"$category\" plugins[@]`"
+        local plugin_title="`dialog_menu \"$1\" plugins[@]`"
         
         [ -z "$plugin_title" ] && break
         if [ -z "$plugin_title" ] || [ "$plugin_title" == "false" ]; then
@@ -336,12 +315,10 @@ menu_store_browse () { # $1 (optional) sorting, $2 (optionnal) space separated s
 
 menu_store () {
     store_init
-    categories=("All")
-    while read line; do
-        categories+=("$line")
-    done <<< "$(store_get_categories)"
+    local categories=($(store_get_categories))
     
     while true; do
+        local plugins=()
         shopt -s nullglob
         nb_installed=(plugins_installed/*/)
         shopt -u nullglob
@@ -350,19 +327,22 @@ menu_store () {
                  "Matching Order"
                  "Search"
                  "Browse ($(store_get_nb_plugins))" # total
+                 "Recommended Plugins"
                  "New Plugins" #TODO X new since last visit
                  "Top Plugins" #TODO top X
+                 "Update (retrieve new list of plugins)"
                  "Install from URL" #TODO also as jarvis option argument
                  "Publish your Plugin")
         case "`dialog_menu 'Plugins' options[@]`" in
             Installed*) if [ "${#nb_installed[@]}" -gt 0 ]; then
                             #cd plugins_installed/
                             while true; do
-                                #shopt -s nullglob
-                                #options=(*)
-                                #shopt -u nullglob
-                                options=($(ls plugins_installed))
-                                local plugin="`dialog_menu 'Installed' options[@]`"
+                                options=()
+                                for plugin in $(ls plugins_installed); do
+                                    options+=("$plugin$(jv_plugin_is_enabled "$plugin" || echo " (disabled)")")
+                                done
+                                local plugin="$(dialog_menu "Installed" options[@])"
+                                plugin="${plugin% *}" # remove (disabled)
                                 if [ -n "$plugin" ] && [ "$plugin" != "false" ]; then
                                     cd "plugins_installed/$plugin"
                                     local plugin_git_url="$(git config --get remote.origin.url)"
@@ -387,6 +367,7 @@ menu_store () {
                                                 ;;
                                             Disable)
                                                 jv_plugin_disable "$plugin"
+                                                break # back to list of plugins
                                                 ;;
                                             Enable)
                                                 jv_plugin_enable "$plugin"
@@ -413,7 +394,7 @@ menu_store () {
                                                 if dialog_yesno "Are you sure?" true >/dev/null; then
                                                     store_plugin_uninstall "$plugin"
                                                     dialog_msg "Uninstallation Complete"
-                                                    break 2
+                                                    break # back to list of plugins
                                                 fi
                                                 ;;
                                             *)  break;;
@@ -434,11 +415,35 @@ EOM
                         jv_plugins_order_rebuild # in case of user mistake
                         ;;
             Search*)    local search_terms="$(dialog_input "Search in Plugins (keywords seperate with space)" "$search_terms")"
-                        menu_store_browse "" "$search_terms"
+                        while read plugin; do
+                            plugins+=("$plugin")
+                        done <<< "$(jv_store_search_plugins "$search_terms")"
+                        menu_store_browse "Search results"
                         ;;
-            Browse*)    menu_store_browse;;
-            New*)       menu_store_browse "date";;
-            Top*)       menu_store_browse "rating";;
+            Browse*)    category="$(dialog_menu 'Categories' categories[@])"
+                        [ "$category" = false ] && continue # user pressed cancel
+                        while read plugin; do
+                            plugins+=("$plugin")
+                        done <<< "$(jv_store_list_plugins_category "$category")"
+                        menu_store_browse "$category"
+                        ;;
+            Recommended*)
+                        while read plugin; do
+                            plugins+=("$plugin")
+                        done <<< "$(jv_store_list_plugins_recommended)"
+                        menu_store_browse "Recommended Plugins"
+                        ;;
+            New*)       while read plugin; do
+                            plugins+=("$plugin")
+                        done <<< "$(jv_store_list_plugins_top "date" 15)"
+                        menu_store_browse "New Plugins"
+                        ;;
+            Top*)       while read plugin; do
+                            plugins+=("$plugin")
+                        done <<< "$(jv_store_list_plugins_top "rating" 15)"
+                        menu_store_browse "Popular Plugins"
+                        ;;
+            Update*)    jv_store_update;;
             Install*)   local plugin_url="$(dialog_input "Repo URL, ex: https://github.com/alexylem/jarvis-time")"
                         [ -z "$plugin_url" ] && continue
                         store_install_plugin "$plugin_url"

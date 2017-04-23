@@ -1,44 +1,68 @@
 store_init () {
-    printf "Refreshing plugins database..."
-    export store_json="$(curl -s http://domotiquefacile.fr/jarvis/all.json)"
+    if [ -f "$jv_store_file" ]; then
+        echo "Using cache, update to get new plugins"
+    else
+        jv_store_update
+    fi
+    #export store_json="$(curl -s http://domotiquefacile.fr/jarvis/all.json)" # why export?
     #export store_json_lower="$(echo "$store_json" | tr '[:upper:]' '[:lower:]')"
+}
+
+jv_store_update () {
+    printf "Retrieving plugins database..."
+    curl -s "http://domotiquefacile.fr/jarvis/all.json" > "$jv_store_file"
     jv_success "Done"
 }
 
 store_get_nb_plugins () {
-    echo "$store_json" | jq '.nodes | length'
+    cat "$jv_store_file" | jq '.nodes | length'
 }
 
 store_get_categories () {
-    echo "$store_json" | jq -r '.nodes | unique_by(.node.category) | sort_by(.node.category) | .[].node.category'
+    #echo "$store_json" | jq -r '.nodes | unique_by(.node.category) | sort_by(.node.category) | .[].node.category'
+    echo "All
+GUI
+Home Automation
+Information
+Media
+Productivity
+Social
+System"
 }
 
-store_list_plugins () { # $1:category, $2:(optional)order_by
+# Internal: list $2 top plugins sorted by $1
+jv_store_list_plugins_top () {
+    cat "$jv_store_file" | jq --raw-output ".nodes | sort_by(.node.\"$1\") | reverse | limit($2;.[]) | .node.title"
+}
+
+# Internal: list plugins in category $1 (can be "All")
+jv_store_list_plugins_category () {
     # build jq filter based on category selected
     local filter=".nodes"
     if [ "$1" != "All" ]; then
-        filter="$filter | map(select(.node.category==\"$1\"))"
+        filter="$filter | map(select(.node.category | contains(\"$1\")))"
     fi
-    if [ -n "$2" ]; then
-        filter="$filter | sort_by(.node.\"$2\") | reverse"
-    fi
-    filter="$filter | .[].node.title"
-    echo "$store_json" | jq -r "$filter"
+    cat "$jv_store_file" | jq --raw-output "$filter | .[].node.title"
 }
 
-store_search_plugins () { # $1:space separated search terms
+# Internal: list recommended plugins
+jv_store_list_plugins_recommended () {
+    cat "$jv_store_file" | jq --raw-output ".nodes | map(select(.node.recommended==\"Recommended\")) | .[].node.title"
+}
+
+jv_store_search_plugins () { # $1:space separated search terms
     # TODO test not available in jq 1.4 (raspbian)
     #echo "$store_json" | jq -r ".nodes[] | select(.node.body | test(\"$1\"; \"i\")) | .node.title"
     local term="$(jv_sanitize "$1")"
-    echo "$store_json" | jq -r ".nodes[] | select(.node.tags | contains(\"$term\")) | .node.title" #TODO create new keyword field on plugins?
+    cat "$jv_store_file" | jq -r ".nodes[] | select(.node.tags | contains(\"$term\")) | .node.title" #TODO create new keyword field on plugins?
 }
 
 store_get_field () { # $1:plugin_name, $2:field_name
-    echo "$store_json" | jq -r ".nodes | map(select(.node.title==\"$1\")) | .[0].node.$2"
+    cat "$jv_store_file" | jq -r ".nodes | map(select(.node.title==\"$1\")) | .[0].node.$2"
 }
 
 store_get_field_by_repo () {
-    echo "$store_json" | jq -r ".nodes | map(select(.node.repo==\"$1\")) | .[0].node.$2"
+    cat "$jv_store_file" | jq -r ".nodes | map(select(.node.repo==\"$1\")) | .[0].node.$2"
 }
 
 store_display_readme () { # $1:plugin_url
@@ -72,7 +96,7 @@ store_install_plugin () { # $1:plugin_url
 }
 
 jv_plugin_is_enabled () {
-    [ -d plugins_enabled/$1 ]
+    [ -d "plugins_enabled/$1" ]
 }
 
 jv_plugin_enable () {
