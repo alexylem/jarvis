@@ -224,7 +224,7 @@ jv_sanitize () {
     echo $string \
         | tr '[:upper:]' '[:lower:]' \
         | iconv -f utf-8 -t ascii//TRANSLIT \
-        | sed "s/[^a-zA-Z0-9 $replace_spaces_with]//g"
+        | sed "s/[^-a-zA-Z0-9 $replace_spaces_with]//g"
 }
 
 _reset="\033[0m"

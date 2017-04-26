@@ -116,3 +116,46 @@ store_plugin_uninstall () { # $1:plugin_name
     #jv_plugins_order_rebuild # in jv_plugin_disable
     #cd plugins_installed/
 }
+
+jv_store_create_plugin () {
+    # ask github username first as user may not have it to proceed later
+    local username="$(dialog_input "Your github username? sign-up at https://github.com/join")"
+    [ -z "$username" ] && return
+    local reponame="jarvis-"
+    while true; do
+        reponame="$(dialog_input "Your plugin name (short and self-explanatory)\nex: jarvis-cookbook" "$reponame")"
+        reponame="$(jv_sanitize "$reponame" "-")" # sanitize special chars
+        [[ "$reponame" == jarvis-* ]] || reponame="jarvis-$reponame" # make sure plugin name starts with jarvis-
+        dialog_yesno "Your repository name will be: $reponame\nConfirm?" true >/dev/null && break
+    done
+    if [ -d "plugins_installed/$reponame" ]; then
+        jv_error "folder plugins_installed/$reponame already exists"
+        jv_press_enter_to_continue
+        return 1
+    fi
+    local description="$(dialog_input "Optional short description for your github repository\nex: Plugin for Jarvis to give random recipies")"
+    retcode="$(curl "https://api.github.com/user/repos" \
+         --user "$username" \
+         --progress-bar \
+         --data "{\"name\":\"$reponame\",\"description\":\"$description\",\"has_issues\":true}" \
+         --write-out "%{http_code}" \
+         --output $jv_cache_folder/github.json)"
+    if [ "${retcode:0:1}" != "2" ]; then
+        jv_error "$(cat $jv_cache_folder/github.json)"
+        jv_press_enter_to_continue
+        return 1
+    fi
+    mkdir "plugins_installed/$reponame"
+    cd "plugins_installed/$reponame"
+    git clone "https://github.com/alexylem/jarvis-plugin" .
+    git remote remove origin
+    git remote add origin git@github.com:$username/$reponame.git
+    git push --set-upstream origin master
+    cd ../../
+    jv_plugin_enable "$reponame"
+    dialog_msg <<EOM
+Congratulations, your plugin is now initialized and linked to your github account
+To help you develop, commit and register your plugin on Jarvis store, visit:
+http://domotiquefacile.fr/jarvis/content/publish-your-plugin
+EOM
+}
