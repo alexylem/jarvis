@@ -473,9 +473,11 @@ while getopts ":$flags" o; do
             printf "[";;
 	    k)  keyboard=true
 	        no_menu=true;;
-        l)  if jv_is_started; then
+        l)  jv_api=true
+            if jv_is_started; then
                 kill -$jv_sig_listen $(cat $lockfile)
-                exit
+                jv_print_json "Success" "ok"
+                jv_exit # to properly end JSON if -j flag used
             fi
             just_listen=true
             no_menu=true;;

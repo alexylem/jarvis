@@ -274,6 +274,12 @@ Internal: trigger hooks
 * $@ - other arguments to pass to hook
 
 
+`jv_pause_resume()`
+-------------------
+
+Internal: resume or pause Jarvis hotword recognition
+
+
 `jv_exit()`
 -----------
 
