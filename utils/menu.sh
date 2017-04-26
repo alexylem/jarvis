@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Jarvis main menu
-jv_main_menu () {
-    while [ "$no_menu" = false ]; do
+jv_menu_main () {
+    while true; do
         options=('Start Jarvis'
                  'Settings'
                  'Commands (what JARVIS can understand and execute)'
@@ -242,7 +242,7 @@ EOM
                 editor jarvis-events &&
                 crontab jarvis-events -i;;
             Plugins*)
-                menu_store
+                jv_menu_store
                 ;;
             Help*)
                 dialog_msg <<EOM
@@ -313,7 +313,7 @@ menu_store_browse () { # $1 (optional) sorting, $2 (optionnal) space separated s
     done
 }
 
-menu_store () {
+jv_menu_store () {
     store_init
     local categories=($(store_get_categories))
     

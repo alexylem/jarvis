@@ -117,10 +117,14 @@ _snowboy_STT () {
     local retcode=$?
     printf $_reset
     local pause_retcode=$((128+$jv_sig_pause))
+    local listen_retcode=$((128+$jv_sig_listen))
     case $retcode in
-        124)            return 124;; # timeout
-        $pause_retcode) kill $pid # paused by user, kill snowboy
-                        return $pause_retcode;;
+        124)             return 124;; # timeout
+        $pause_retcode)  kill $pid # paused by user, kill snowboy
+                         return $pause_retcode;;
+        $listen_retcode) kill $pid # go in listen mode, kill snowboy
+                         echo "$trigger" > $forder # simulate hotword heard
+                         return 0;;
     esac
     
     # 0-10 fail  -   11 - 101 ok  - 102-255 fail
