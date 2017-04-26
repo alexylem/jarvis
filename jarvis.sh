@@ -476,7 +476,7 @@ while getopts ":$flags" o; do
         l)  jv_api=true
             if jv_is_started; then
                 kill -$jv_sig_listen $(cat $lockfile)
-                jv_print_json "Success" "ok"
+                jv_success "Ok"
                 jv_exit # to properly end JSON if -j flag used
             fi
             just_listen=true
