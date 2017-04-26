@@ -45,8 +45,11 @@ jv_ip="$(/sbin/ifconfig | sed -En 's/127.0.0.1//;s/.*inet (ad[d]?r:)?(([0-9]*\.)
 # Internal: indicates if Jarvis is paused
 jv_is_paused=false
 
-# Internal: signal number of SIGUSR1
+# Internal: signal number of SIGUSR1 to pause / resume jarvis
 jv_sig_pause=$(kill -l SIGUSR1)
+
+# Internal: signal number of SIGUSR2 to trigger command mode
+jv_sig_listen=$(kill -l SIGUSR2)
 
 # Public: Re-run last executed command. Use to create an order to repeat.
 #
@@ -307,6 +310,7 @@ jv_hook () {
     shopt -u nullglob
 }
 
+# Internal: resume or pause Jarvis hotword recognition
 jv_pause_resume () {
     if $jv_is_paused; then
         jv_is_paused=false

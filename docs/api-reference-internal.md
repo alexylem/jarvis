@@ -87,7 +87,13 @@ Internal: indicates if Jarvis is paused
 `jv_sig_pause`
 --------------
 
-Internal: signal number of SIGUSR1
+Internal: signal number of SIGUSR1 to pause / resume jarvis
+
+
+`jv_sig_listen`
+---------------
+
+Internal: signal number of SIGUSR2 to trigger command mode
 
 
 `jv_repeat_last_command()`
@@ -266,6 +272,12 @@ Internal: Kill Jarvis if running in background
 Internal: trigger hooks
 * $1 - hook name to trigger
 * $@ - other arguments to pass to hook
+
+
+`jv_pause_resume()`
+-------------------
+
+Internal: resume or pause Jarvis hotword recognition
 
 
 `jv_exit()`

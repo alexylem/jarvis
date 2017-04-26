@@ -36,7 +36,7 @@ show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW: You can now Enable/Disabled installed plugins"
+headline="NEW: Check-out recommendations in Plugins > Recommended"
 
 # Move to Jarvis directory
 export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -75,6 +75,7 @@ lockfile="$jv_cache_folder/jarvis.lock"
 audiofile="$jv_cache_folder/jarvis-record.wav"
 forder="$jv_cache_folder/jarvis-order"
 jv_say_queue="$jv_cache_folder/jarvis-say"
+jv_store_file="$jv_cache_folder/jarvis-store.json"
 rm -f $audiofile # sometimes, when error, previous recording is played
 if [ ! -d "plugins_installed" ]; then
     if [ -d "plugins" ]; then # retrocompatibility
@@ -472,7 +473,13 @@ while getopts ":$flags" o; do
             printf "[";;
 	    k)  keyboard=true
 	        no_menu=true;;
-        l)  just_listen=true
+        l)  jv_api=true
+            if jv_is_started; then
+                kill -$jv_sig_listen $(cat $lockfile)
+                jv_success "Ok"
+                jv_exit # to properly end JSON if -j flag used
+            fi
+            just_listen=true
             no_menu=true;;
         m)  quiet=true;;
         n)  no_menu=true;;
@@ -531,7 +538,7 @@ EOM
 fi
 
 # if -s argument provided, just say it & exit (used in jarvis-events)
-if [[ "$just_say" != false ]]; then
+if [ "$just_say" != false ]; then
     say "$just_say"
     jv_exit # to properly end JSON if -j flag used
 fi
@@ -540,10 +547,12 @@ if [ "$just_execute" == false ]; then
     # Check if Jarvis is already running in background
     if jv_is_started; then
         options=('Show Jarvis output'
+                 'Listen now for a command'
                  'Pause / Resume'
                  'Stop Jarvis')
         case "$(dialog_menu 'Jarvis is already running\nWhat would you like to do? (Cancel to let it run)' options[@])" in
             Show*)   tail -f jarvis.log;;
+            Listen*) kill -$jv_sig_listen $(cat $lockfile);;
             Pause*)  kill -$jv_sig_pause $(cat $lockfile);;
             Stop*)   jv_kill_jarvis;;
         esac
@@ -566,8 +575,10 @@ if [ "$just_execute" == false ]; then
     fi
     
     # main menu
-    source utils/menu.sh
-    jv_main_menu
+    if ! $no_menu; then
+        source utils/menu.sh
+        jv_menu_main
+    fi
 
     # Dump config in troubleshooting mode
     if [ $verbose = true ]; then
@@ -676,17 +687,12 @@ handle_orders() {
     fi
 }
 
-# if -x argument provided, just handle order & exit (used in jarvis-events)
-#if [[ "$just_execute" != false ]]; then
-#	jv_handle_order "$just_execute"
-#	jv_exit
-#fi
-
 # only if not just execute to avoid erase lockfile from API
 if [ "$just_execute" = false ]; then
     # trap Ctrl+C or kill
     trap "jv_exit" INT TERM
     trap "jv_pause_resume" $jv_sig_pause
+    trap ":" $jv_sig_listen
     
     # save pid in lockfile for proper kill
     echo $$ > $lockfile
@@ -711,11 +717,11 @@ if [ "$just_execute" = false ]; then
 else # just execute an order
     order="$just_execute"
     
-    if [ -f /tmp/jarvis-possible-answers ]; then
+    if [ -f $jv_cache_folder/jarvis-possible-answers ]; then
         # there are possible answers from previous json conversation (nested commmands)
-        commands="$(cat /tmp/jarvis-possible-answers)"
+        commands="$(cat $jv_cache_folder/jarvis-possible-answers)"
         # remove file to avoid future issues
-        rm /tmp/jarvis-possible-answers
+        rm $jv_cache_folder/jarvis-possible-answers
         # indicate there are possible answers not to reset commands
         jv_possible_answers=true
     fi
@@ -829,7 +835,7 @@ while true; do
         if $jv_possible_answers; then
             if $jv_json; then
                 # if in nested commands, save possible answer for next json call
-                echo -e "$commands" > /tmp/jarvis-possible-answers
+                echo -e "$commands" > $jv_cache_folder/jarvis-possible-answers
                 jv_exit
             fi
         else # just execute but not pending answer, finished
