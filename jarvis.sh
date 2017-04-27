@@ -537,6 +537,9 @@ EOM
     exit
 fi
 
+# Load plugins configuration to ensure start_speaking hooks are configured
+for f in plugins_enabled/*/config.sh; do source $f; done # plugin configuration
+
 # if -s argument provided, just say it & exit (used in jarvis-events)
 if [ "$just_say" != false ]; then
     say "$just_say"
@@ -603,7 +606,6 @@ source my-functions.sh #470
 
 # Include installed plugins
 shopt -s nullglob
-for f in plugins_enabled/*/config.sh; do source $f; done # plugin configuration
 for f in plugins_enabled/*/functions.sh; do source $f; done # plugin functions
 for f in plugins_enabled/*/${language:0:2}/functions.sh; do source $f; done # plugin language specific functions
 shopt -u nullglob
