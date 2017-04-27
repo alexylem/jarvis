@@ -537,6 +537,17 @@ EOM
     exit
 fi
 
+# Include user functions before just_say because user start/stop_speaking may use them
+[ -f my-functions.sh ] || cp defaults/my-functions-default.sh my-functions.sh
+source my-functions.sh #470
+
+# Include installed plugins before just_say because plugin start/stop_speaking hooks
+shopt -s nullglob
+for f in plugins_enabled/*/config.sh; do source $f; done # plugin configuration
+for f in plugins_enabled/*/functions.sh; do source $f; done # plugin functions
+for f in plugins_enabled/*/${language:0:2}/functions.sh; do source $f; done # plugin language specific functions
+shopt -u nullglob
+
 # if -s argument provided, just say it & exit (used in jarvis-events)
 if [ "$just_say" != false ]; then
     say "$just_say"
@@ -597,16 +608,6 @@ if [ "$just_execute" == false ]; then
     fi
 fi
 
-# Include user functions
-[ -f my-functions.sh ] || cp defaults/my-functions-default.sh my-functions.sh
-source my-functions.sh #470
-
-# Include installed plugins
-shopt -s nullglob
-for f in plugins_enabled/*/config.sh; do source $f; done # plugin configuration
-for f in plugins_enabled/*/functions.sh; do source $f; done # plugin functions
-for f in plugins_enabled/*/${language:0:2}/functions.sh; do source $f; done # plugin language specific functions
-shopt -u nullglob
 jv_plugins_order_rebuild # why here? in case plugin is manually added/delete?
 
 # run startup hooks after plugin load
