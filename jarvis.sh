@@ -537,24 +537,7 @@ EOM
     exit
 fi
 
-# Include user functions before just_say because user start/stop_speaking may use them
-[ -f my-functions.sh ] || cp defaults/my-functions-default.sh my-functions.sh
-source my-functions.sh #470
-
-# Include installed plugins before just_say because plugin start/stop_speaking hooks
-shopt -s nullglob
-for f in plugins_enabled/*/config.sh; do source $f; done # plugin configuration
-for f in plugins_enabled/*/functions.sh; do source $f; done # plugin functions
-for f in plugins_enabled/*/${language:0:2}/functions.sh; do source $f; done # plugin language specific functions
-shopt -u nullglob
-
-# if -s argument provided, just say it & exit (used in jarvis-events)
-if [ "$just_say" != false ]; then
-    say "$just_say"
-    jv_exit # to properly end JSON if -j flag used
-fi
-
-if [ "$just_execute" == false ]; then
+if [ "$jv_api" == false ]; then
     # Check if Jarvis is already running in background
     if jv_is_started; then
         options=('Show Jarvis output'
@@ -573,7 +556,6 @@ if [ "$just_execute" == false ]; then
     # check for updates
     if [ $check_updates != false ] && [ $no_menu = false ]; then
         if [ "$(find config/last_update_check -mtime -$check_updates 2>/dev/null | wc -l)" -eq 0 ]; then
-            jv_jarvis_updated=false
             jv_check_updates
             source utils/update.sh # apply config upates
             jv_plugins_check_updates
@@ -606,6 +588,23 @@ if [ "$just_execute" == false ]; then
         done
         echo -e "--------------------------------\n$_reset"
     fi
+fi
+
+# Include user functions before just_say because user start/stop_speaking may use them
+[ -f my-functions.sh ] || cp defaults/my-functions-default.sh my-functions.sh
+source my-functions.sh #470
+
+# Include installed plugins before just_say because plugin start/stop_speaking hooks
+shopt -s nullglob
+for f in plugins_enabled/*/config.sh; do source $f; done # plugin configuration
+for f in plugins_enabled/*/functions.sh; do source $f; done # plugin functions
+for f in plugins_enabled/*/${language:0:2}/functions.sh; do source $f; done # plugin language specific functions
+shopt -u nullglob
+
+# if -s argument provided, just say it & exit (used in jarvis-events)
+if [ "$just_say" != false ]; then
+    say "$just_say"
+    jv_exit # to properly end JSON if -j flag used
 fi
 
 jv_plugins_order_rebuild # why here? in case plugin is manually added/delete?

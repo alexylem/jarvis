@@ -96,6 +96,12 @@ Internal: signal number of SIGUSR1 to pause / resume jarvis
 Internal: signal number of SIGUSR2 to trigger command mode
 
 
+`jv_jarvis_updated`
+-------------------
+
+Internal: indicats if jarvis has been updated to ask for restart
+
+
 `jv_repeat_last_command()`
 --------------------------
 

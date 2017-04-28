@@ -51,6 +51,9 @@ jv_sig_pause=$(kill -l SIGUSR1)
 # Internal: signal number of SIGUSR2 to trigger command mode
 jv_sig_listen=$(kill -l SIGUSR2)
 
+# Internal: indicats if jarvis has been updated to ask for restart
+jv_jarvis_updated=false
+
 # Public: Re-run last executed command. Use to create an order to repeat.
 #
 # Usage:
