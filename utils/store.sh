@@ -1,6 +1,6 @@
 store_init () {
     if [ -f "$jv_store_file" ]; then
-        echo "Using cache, update to get new plugins"
+        jv_warning "Using cache, update to get new plugins"
     else
         jv_store_update
     fi
@@ -32,7 +32,7 @@ System"
 
 # Internal: list $2 top plugins sorted by $1
 jv_store_list_plugins_top () {
-    cat "$jv_store_file" | jq --raw-output ".nodes | sort_by(.node.\"$1\") | reverse | limit($2;.[]) | .node.title"
+    cat "$jv_store_file" | jq --raw-output ".nodes | sort_by(.node."$1") | reverse | .[:$2] | .[] | .node.title"
 }
 
 # Internal: list plugins in category $1 (can be "All")
