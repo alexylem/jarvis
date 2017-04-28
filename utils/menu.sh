@@ -332,7 +332,7 @@ jv_menu_store () {
                  "Top Plugins" #TODO top X
                  "Update (retrieve new list of plugins)"
                  "Install from URL" #TODO also as jarvis option argument
-                 "Publish your Plugin")
+                 "Create a Plugin")
         case "`dialog_menu 'Plugins' options[@]`" in
             Installed*) if [ "${#nb_installed[@]}" -gt 0 ]; then
                             #cd plugins_installed/
@@ -448,13 +448,7 @@ EOM
                         [ -z "$plugin_url" ] && continue
                         store_install_plugin "$plugin_url"
                         ;;
-            Publish*)   dialog_msg <<EOM
-Why keeping your great Jarvis commands just for you?
-Share them and have the whole community using them!
-It's easy, and a great way to make one's contribution to the project.
-Procedure to publish your commands on the Jarvis Store:
-http://domotiquefacile.fr/jarvis/content/publish-your-plugin
-EOM
+            Create*)    jv_store_create_plugin
                         ;;
             *) break;;
         esac
