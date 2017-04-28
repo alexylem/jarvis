@@ -376,6 +376,7 @@ jv_menu_store () {
                                                 ;;
                                             Enable)
                                                 jv_plugin_enable "$plugin"
+                                                break # back to list of plugins
                                                 ;;
                                             Update)
                                                 echo "Checking for updates..."

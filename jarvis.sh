@@ -49,13 +49,13 @@ source utils/update.sh # needed for update of Jarvis config
 source utils/audio.sh # needed for jv_auto_levels
 
 # Check platform compatibility
-dependencies=(awk curl git iconv jq nano perl sed sox wget mpg123)
+dependencies=(awk curl git iconv jq nano perl sed sox wget)
 case "$OSTYPE" in
     linux*)     platform="linux"
                 jv_arch="$(uname -m)"
                 jv_os_name="$(cat /etc/*release | grep ^ID= | cut -f2 -d=)"
                 jv_os_version="$(cat /etc/*release | grep ^VERSION_ID= | cut -f2 -d= | tr -d '"')"
-                dependencies+=(alsamixer aplay arecord whiptail)
+                dependencies+=(alsamixer aplay arecord whiptail libsox-fmt-mp3)
             	jv_cache_folder="/dev/shm"
                 ;;
     darwin*)    platform="osx"
@@ -331,32 +331,6 @@ configure () {
     return 0
 }
 
-check_dependencies () {
-    missings=()
-    for i in "${dependencies[@]}"; do
-        hash $i 2>/dev/null || missings+=($i)
-    done
-    if [ ${#missings[@]} -gt 0 ]; then
-        jv_warning "You must install missing dependencies before going further"
-        for missing in "${missings[@]}"; do
-            echo "$missing: Not found"
-        done
-        jv_yesno "Attempt to automatically install the above packages?" || exit 1
-        jv_update # split jv_update and jv_install to make overall jarvis installation faster
-        jv_install ${missings[@]} || exit 1
-    fi
-    
-    if [[ "$platform" == "linux" ]]; then
-        if ! groups "$(whoami)" | grep -qw audio; then
-            jv_warning "Your user should be part of audio group to list audio devices"
-            jv_yesno "Would you like to add audio group to user $USER?" || exit 1
-            sudo usermod -a -G audio $USER # add audio group to user
-            jv_warning "Please logout and login for new group permissions to take effect, then restart Jarvis"
-            exit
-        fi
-    fi
-}
-
 wizard () {
     jv_check_updates
     source utils/update.sh # init config/version
@@ -465,7 +439,7 @@ while getopts ":$flags" o; do
         c)  conversation_mode_override=${OPTARG};;
         h)  show_help
             exit;;
-        i)  check_dependencies
+        i)  jv_check_dependencies
             configure "load"
             wizard
             exit;;
@@ -514,7 +488,7 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 # check dependencies
-check_dependencies
+jv_check_dependencies
 # load user settings if exist else launch install wizard
 configure "load" || wizard
 # send google analytics hit

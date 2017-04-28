@@ -54,6 +54,37 @@ jv_sig_listen=$(kill -l SIGUSR2)
 # Internal: indicats if jarvis has been updated to ask for restart
 jv_jarvis_updated=false
 
+# Internal: check if all dependencies are installed
+jv_check_dependencies () {
+    local no_hash=()
+    for package in "${dependencies[@]}"; do
+        hash $package 2>/dev/null || no_hash+=($package)
+    done
+    local missings=()
+    for package in "${no_hash[@]}"; do
+        jv_is_installed "$package" || missings+=($package)
+    done
+    if [ ${#missings[@]} -gt 0 ]; then
+        jv_warning "You must install missing dependencies before going further"
+        for missing in "${missings[@]}"; do
+            echo "$missing: Not found"
+        done
+        jv_yesno "Attempt to automatically install the above packages?" || exit 1
+        jv_update # split jv_update and jv_install to make overall jarvis installation faster
+        jv_install ${missings[@]} || exit 1
+    fi
+    
+    if [[ "$platform" == "linux" ]]; then
+        if ! groups "$(whoami)" | grep -qw audio; then
+            jv_warning "Your user should be part of audio group to list audio devices"
+            jv_yesno "Would you like to add audio group to user $USER?" || exit 1
+            sudo usermod -a -G audio $USER # add audio group to user
+            jv_warning "Please logout and login for new group permissions to take effect, then restart Jarvis"
+            exit
+        fi
+    fi
+}
+
 # Public: Re-run last executed command. Use to create an order to repeat.
 #
 # Usage:
