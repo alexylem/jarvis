@@ -25,7 +25,7 @@ jv_record_duration () {
 
 jv_auto_levels () {
     local max_silence_level=5
-    local min_voice_level=50
+    local min_voice_level=30
     local max_voice_level=95
     
     dialog_msg <<EOM
@@ -104,9 +104,9 @@ EOM
         break
     done
     
-    local sox_level=$(( $silence_level*2+1 ))
-    min_noise_perc_to_start=$sox_level
-    min_silence_level_to_stop=$sox_level
+    local sox_level="$(perl -e "print $silence_level*2+0.1")"
+    min_noise_perc_to_start="$sox_level%"
+    min_silence_level_to_stop="$sox_level%"
     #configure "save" #done when exiting settings menu / completing wizard
     
     dialog_msg <<EOM
@@ -115,8 +115,8 @@ Results:
 - Voice volume: $voice_level% (min $min_voice_level%, max $max_voice_level%)
 Sox parameters:
 - Microphone gain: $gain
-- Min noise percentage to start: $min_noise_perc_to_start%
-- Min silence percentage to stop: $min_silence_level_to_stop%
+- Min noise percentage to start: $min_noise_perc_to_start
+- Min silence percentage to stop: $min_silence_level_to_stop
 EOM
 }
 
