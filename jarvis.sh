@@ -68,7 +68,7 @@ case "$OSTYPE" in
     *)          jv_error "ERROR: $OSTYPE is not a supported platform"
                 exit 1;;
 esac
-source utils/dialog_$platform.sh
+source utils/utils_$platform.sh
 
 # Initiate files & directories
 lockfile="$jv_cache_folder/jarvis.lock"

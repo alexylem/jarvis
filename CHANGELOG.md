@@ -1,17 +1,17 @@
-- 26AVR17 Trigger hotword from API https://github.com/alexylem/jarvis/issues/557
+- 29APR17 Adjust speech playback speed https://github.com/alexylem/jarvis/issues/541 
+- 26APR17 Trigger hotword from API https://github.com/alexylem/jarvis/issues/557
 - 22APR17 Option to enable/disable plugins https://github.com/alexylem/jarvis/issues/556
 - 21MAR17 Option to pause and resume Jarvis hotword recognition
 - 19APR17 Trigger all hooks except Program startup and exit from API https://github.com/alexylem/jarvis-api/issues/11
 - 18APR17 User functions.sh file https://github.com/alexylem/jarvis/issues/470
 - 08APR17 Added portuguese language
-- 071PR17 Sox based snowboy
+- 07APR17 Sox based snowboy
 - 18MAR17 snowboy as voice recorder in addition to sox, check settings > audio > recorder
 - 05MAR17 Uninstall script for Jarvis and its dependencies
 - 28NOV16 Voxygen TTS and voices
 - 16OCT16 Display available commands on Startup https://github.com/alexylem/jarvis/issues/181
 - 15OCT16 Train Snowboy models from Jarvis https://github.com/alexylem/jarvis/issues/172
 - 11OCT16 New WebStore https://github.com/alexylem/jarvis/issues/146
-  WARNING: You will need to reinstall & configure your Plugins
 - 18SEP16 Store of commands from community https://github.com/alexylem/jarvis/issues/52
 - 22AUG16 Ability to select OSX voice https://github.com/alexylem/jarvis/issues/97
 - 02AUG16 Snowboy sensitivity setting https://github.com/alexylem/jarvis/issues/84

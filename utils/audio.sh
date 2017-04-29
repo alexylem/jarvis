@@ -1,6 +1,6 @@
 # Audio related functions for Jarvis
 
-# play an audio file to speakers
+# Public: play an audio file to speakers  
 # $1: audio file to play
 jv_play () {
     [ $platform = "linux" ] && local play_export="AUDIODRIVER=alsa" || local play_export=''
@@ -12,6 +12,10 @@ jv_play () {
     fi
 }
 
+# Internal: record audio file for specific duration
+#
+# $1: audiofile
+# $2: duration in seconds
 jv_record_duration () {
     local audiofile=$1
     local duration=$2
@@ -23,6 +27,7 @@ jv_record_duration () {
     fi
 }
 
+# Internal: auto-adjust audio levels
 jv_auto_levels () {
     local max_silence_level=5
     local min_voice_level=30
