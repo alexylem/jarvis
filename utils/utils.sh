@@ -147,7 +147,7 @@ say () {
     #set -- "${1:-$(</dev/stdin)}" "${@:2}" # read commands if $1 is empty... #195
     jv_hook "start_speaking" "$1" #533
     if $jv_json; then
-        jv_print_json "$trigger" "$1"
+        jv_print_json "answer" "$1" #564
     else
         echo -e "$_pink$trigger$_reset: $1"
     fi
