@@ -308,6 +308,24 @@ jv_press_enter_to_continue () {
     read
 }
 
+# Internal: start Jarvis as a service
+jv_start_in_background () {
+    nohup ./jarvis.sh -n 2>&1 | jv_add_timestamps >> jarvis.log &
+    cat <<EOM
+Jarvis has been launched in background
+
+To view Jarvis output:
+./jarvis.sh and select "View output"
+To check if jarvis is running:
+pgrep -lf jarvis.sh
+To stop Jarvis:
+./jarvis.sh and select "Stop Jarvis"
+
+You can now close this terminal
+EOM
+}
+
+# Internal: indicates if Jarvis is already running
 jv_is_started () {
     [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null
 }

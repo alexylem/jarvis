@@ -37,7 +37,7 @@ done
 cd ../
 
 jv_warning "Uninstalling jarvis core dependencies"
-jv_remove jq sox mpg123
+jv_remove jq sox libsox-fmt-mp3
 
 jv_warning "Removing jarvis folder"
 if jv_yesno "Do you want to backup your jarvis config?"; then

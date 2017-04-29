@@ -4,7 +4,7 @@
 # $1: audio file to play
 jv_play () {
     [ $platform = "linux" ] && local play_export="AUDIODRIVER=alsa" || local play_export=''
-    eval "$play_export play -V1 -q $1"
+    eval "$play_export play -V1 -q $1 tempo $tempo"
     if [ "$?" -ne 0 ]; then
         jv_error "ERROR: play command failed"
         jv_warning "HELP: Verify your speaker in Settings > Audio > Speaker"

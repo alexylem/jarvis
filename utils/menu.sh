@@ -109,6 +109,7 @@ jv_menu_main () {
                                          "Recorder ($recorder)"
                                          "Auto-adjust levels"
                                          "Volume"
+                                         "Tempo ($tempo)"
                                          "Sensitivity"
                                          "Gain ($gain)"
                                          "Min noise duration to start ($min_noise_duration_to_start)"
@@ -131,6 +132,7 @@ EOM
                                             else
                                                 alsamixer -c ${play_hw:3:1} -V playback || read -p "ERROR: check above"
                                             fi;;
+                                    Tempo*)     configure "tempo";;
                                     Sensitivity)
                                     if [ "$platform" == "osx" ]; then
                                                 osascript <<EOM
