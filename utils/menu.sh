@@ -109,6 +109,7 @@ jv_menu_main () {
                                          "Recorder ($recorder)"
                                          "Auto-adjust levels"
                                          "Volume"
+                                         "Tempo ($tempo)"
                                          "Sensitivity"
                                          "Gain ($gain)"
                                          "Min noise duration to start ($min_noise_duration_to_start)"
@@ -131,6 +132,7 @@ EOM
                                             else
                                                 alsamixer -c ${play_hw:3:1} -V playback || read -p "ERROR: check above"
                                             fi;;
+                                    Tempo*)     configure "tempo";;
                                     Sensitivity)
                                     if [ "$platform" == "osx" ]; then
                                                 osascript <<EOM
@@ -275,6 +277,11 @@ EOM
                 jv_check_updates
                 source utils/update.sh # source new updated file from git
                 jv_plugins_check_updates
+                touch config/last_update_check
+                if $jv_jarvis_updated; then
+                    echo "Please restart Jarvis"
+                    exit
+                fi
                 ;;
             *) exit;;
         esac
@@ -371,6 +378,7 @@ jv_menu_store () {
                                                 ;;
                                             Enable)
                                                 jv_plugin_enable "$plugin"
+                                                break # back to list of plugins
                                                 ;;
                                             Update)
                                                 echo "Checking for updates..."

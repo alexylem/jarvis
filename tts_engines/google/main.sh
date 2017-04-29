@@ -22,5 +22,5 @@ google_TTS () { # TTS () {} Speaks text $1
         wget $($verbose || echo -q) -U Mozilla -O $audio_file "http://translate.google.com/translate_tts?tl=${language:0:2}&client=tw-ob&ie=UTF-8&q=$1"
         $verbose && printf "$_reset"
     fi
-    mpg123 -q $audio_file
+    jv_play "$audio_file"
 }

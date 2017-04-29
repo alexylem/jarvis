@@ -96,6 +96,18 @@ Internal: signal number of SIGUSR1 to pause / resume jarvis
 Internal: signal number of SIGUSR2 to trigger command mode
 
 
+`jv_jarvis_updated`
+-------------------
+
+Internal: indicats if jarvis has been updated to ask for restart
+
+
+`jv_check_dependencies()`
+-------------------------
+
+Internal: check if all dependencies are installed
+
+
 `jv_repeat_last_command()`
 --------------------------
 
@@ -258,6 +270,18 @@ Returns nothing
 
     $> jv_press_enter_to_continue
     Press [Enter] to continue
+
+
+`jv_start_in_background()`
+--------------------------
+
+Internal: start Jarvis as a service
+
+
+`jv_is_started()`
+-----------------
+
+Internal: indicates if Jarvis is already running
 
 
 `jv_kill_jarvis()`

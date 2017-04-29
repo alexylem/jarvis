@@ -24,6 +24,7 @@ separator=""
 show_commands=true
 snowboy_checkticks=true
 snowboy_sensitivity="0.4"
+tempo="1.0"
 tmp_folder="/tmp"
 trigger=""
 trigger_mode="magic_word"

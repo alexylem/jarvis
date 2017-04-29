@@ -51,6 +51,40 @@ jv_sig_pause=$(kill -l SIGUSR1)
 # Internal: signal number of SIGUSR2 to trigger command mode
 jv_sig_listen=$(kill -l SIGUSR2)
 
+# Internal: indicats if jarvis has been updated to ask for restart
+jv_jarvis_updated=false
+
+# Internal: check if all dependencies are installed
+jv_check_dependencies () {
+    local no_hash=()
+    for package in "${dependencies[@]}"; do
+        hash $package 2>/dev/null || no_hash+=($package)
+    done
+    local missings=()
+    for package in "${no_hash[@]}"; do
+        jv_is_installed "$package" || missings+=($package)
+    done
+    if [ ${#missings[@]} -gt 0 ]; then
+        jv_warning "You must install missing dependencies before going further"
+        for missing in "${missings[@]}"; do
+            echo "$missing: Not found"
+        done
+        jv_yesno "Attempt to automatically install the above packages?" || exit 1
+        jv_update # split jv_update and jv_install to make overall jarvis installation faster
+        jv_install ${missings[@]} || exit 1
+    fi
+    
+    if [[ "$platform" == "linux" ]]; then
+        if ! groups "$(whoami)" | grep -qw audio; then
+            jv_warning "Your user should be part of audio group to list audio devices"
+            jv_yesno "Would you like to add audio group to user $USER?" || exit 1
+            sudo usermod -a -G audio $USER # add audio group to user
+            jv_warning "Please logout and login for new group permissions to take effect, then restart Jarvis"
+            exit
+        fi
+    fi
+}
+
 # Public: Re-run last executed command. Use to create an order to repeat.
 #
 # Usage:
@@ -113,7 +147,7 @@ say () {
     #set -- "${1:-$(</dev/stdin)}" "${@:2}" # read commands if $1 is empty... #195
     jv_hook "start_speaking" "$1" #533
     if $jv_json; then
-        jv_print_json "$trigger" "$1"
+        jv_print_json "answer" "$1" #564
     else
         echo -e "$_pink$trigger$_reset: $1"
     fi
@@ -274,6 +308,24 @@ jv_press_enter_to_continue () {
     read
 }
 
+# Internal: start Jarvis as a service
+jv_start_in_background () {
+    nohup ./jarvis.sh -n 2>&1 | jv_add_timestamps >> jarvis.log &
+    cat <<EOM
+Jarvis has been launched in background
+
+To view Jarvis output:
+./jarvis.sh and select "View output"
+To check if jarvis is running:
+pgrep -lf jarvis.sh
+To stop Jarvis:
+./jarvis.sh and select "Stop Jarvis"
+
+You can now close this terminal
+EOM
+}
+
+# Internal: indicates if Jarvis is already running
 jv_is_started () {
     [ -e $lockfile ] && kill -0 `cat $lockfile` 2>/dev/null
 }
@@ -500,8 +552,8 @@ jv_build () {
         date +"%y.%m.%d" > version.txt
         jv_success "Done"
     printf "Generating documentation..."
-        utils/tomdoc.sh --markdown --access Public utils/utils.sh utils/dialog_linux.sh > docs/api-reference-public.md
-        utils/tomdoc.sh --markdown utils/utils.sh utils/update.sh utils/dialog_linux.sh > docs/api-reference-internal.md
+        utils/tomdoc.sh --markdown --access Public utils/utils.sh utils/utils_linux.sh > docs/api-reference-public.md
+        utils/tomdoc.sh --markdown utils/utils.sh utils/update.sh utils/utils_linux.sh > docs/api-reference-internal.md
         jv_success "Done"
     printf "Opening GitHub Desktop..."
         open -a "GitHub Desktop" /Users/alex/Documents/jarvis

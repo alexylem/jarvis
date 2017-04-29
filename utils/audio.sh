@@ -1,10 +1,10 @@
 # Audio related functions for Jarvis
 
-# play an audio file to speakers
+# Public: play an audio file to speakers  
 # $1: audio file to play
 jv_play () {
     [ $platform = "linux" ] && local play_export="AUDIODRIVER=alsa" || local play_export=''
-    eval "$play_export play -V1 -q $1"
+    eval "$play_export play -V1 -q $1 tempo $tempo"
     if [ "$?" -ne 0 ]; then
         jv_error "ERROR: play command failed"
         jv_warning "HELP: Verify your speaker in Settings > Audio > Speaker"
@@ -12,6 +12,10 @@ jv_play () {
     fi
 }
 
+# Internal: record audio file for specific duration
+#
+# $1: audiofile
+# $2: duration in seconds
 jv_record_duration () {
     local audiofile=$1
     local duration=$2
@@ -23,9 +27,10 @@ jv_record_duration () {
     fi
 }
 
+# Internal: auto-adjust audio levels
 jv_auto_levels () {
     local max_silence_level=5
-    local min_voice_level=50
+    local min_voice_level=30
     local max_voice_level=95
     
     dialog_msg <<EOM
@@ -104,9 +109,9 @@ EOM
         break
     done
     
-    local sox_level=$(( $silence_level*2+1 ))
-    min_noise_perc_to_start=$sox_level
-    min_silence_level_to_stop=$sox_level
+    local sox_level="$(perl -e "print $silence_level*2+0.1")"
+    min_noise_perc_to_start="$sox_level%"
+    min_silence_level_to_stop="$sox_level%"
     #configure "save" #done when exiting settings menu / completing wizard
     
     dialog_msg <<EOM
@@ -115,8 +120,8 @@ Results:
 - Voice volume: $voice_level% (min $min_voice_level%, max $max_voice_level%)
 Sox parameters:
 - Microphone gain: $gain
-- Min noise percentage to start: $min_noise_perc_to_start%
-- Min silence percentage to stop: $min_silence_level_to_stop%
+- Min noise percentage to start: $min_noise_perc_to_start
+- Min silence percentage to stop: $min_silence_level_to_stop
 EOM
 }
 
