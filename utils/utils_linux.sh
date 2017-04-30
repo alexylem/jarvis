@@ -83,7 +83,7 @@ jv_update () {
 # 
 #   jv_is_installed mpg123 && echo "already installed"
 jv_is_installed () {
-    hash "$1" 2>/dev/null || dpkg -l "$1" >/dev/null 2>&1
+    hash "$1" 2>/dev/null || dpkg -s "$1" >/dev/null 2>&1
 }
 
 # Public: install packages, used for dependencies
