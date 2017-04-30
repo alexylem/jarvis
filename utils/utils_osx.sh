@@ -96,7 +96,7 @@ jv_install () {
 # Public: indicates if a package is installed
 # $1 - package to verify
 jv_is_installed () {
-    brew ls --versions "$1" >/dev/null
+    hash "$1" 2>/dev/null || brew ls --versions "$1" >/dev/null
 }
 
 # Public: remove packages, used for uninstalls

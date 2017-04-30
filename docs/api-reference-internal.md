@@ -27,6 +27,11 @@ Public: the name of Jarvis (the hotword)
 
 Public: the transcribed voice order
 
+    *FAIT (*)==echo "capture: (1)"; echo "order: $order"
+    You: Fais le café
+    capture: le cafe
+    order: Fait le café
+
 
 `language`
 ----------
@@ -71,11 +76,16 @@ Internal: indicates if there are nested commands
 
 Public: indicates if called using API else normal usage
 
+    $jv_api && echo "this is an API call"
+
 
 `jv_ip`
 -------
 
 Public: ip address of Jarvis
+
+    echo $jv_ip
+    192.168.1.20
 
 
 `jv_is_paused`
@@ -143,8 +153,6 @@ Public: display available commands grouped by plugin name
 
 Internal: add timestamps to log file
 
-Usage
-
     script.sh | jv_add_timestamps >> file.log
 
 
@@ -153,8 +161,6 @@ Usage
 
 Public: Speak some text out loud
 * $1 - text to speak
-
-Returns nothing
 
     $> say "hello world"
     Jarvis: hello world
@@ -365,7 +371,9 @@ Public: YesNo prompt from the command line
 
 Usage
 
-    if jv_yesno "question?"; then...
+    $> jv_yesno "question?" && echo "Yup"
+    question? [Y/n] y
+    Yup
 
 
 `jv_progressbar()`
@@ -373,10 +381,14 @@ Usage
 
 Public: display a progress bar in the terminal
 * $1 - current step number
-* $2 - total number of steps Usage    (usually in a loop)
-    jv_progressbar $current_step $total_steps
- Output    Progress : [########################################] 100%
- Used in    jarvis-face
+* $2 - total number of steps
+
+Usage (usually in a loop)
+
+    $> jv_progressbar 5 10
+    [████████████████████                    ] 50%
+    $> jv_progressbar 10 10
+    [████████████████████████████████████████] 100%
 
 
 `jv_build()`
@@ -404,12 +416,17 @@ don't put local or else return code always O
 
 Public: update package/formula list
 
+    jv_update
+
 
 `jv_is_installed()`
 -------------------
 
 Public: indicates if a package is installed
+
 * $1 - package to verify
+
+    jv_is_installed mpg123 && echo "already installed"
 
 
 `jv_install()`
@@ -417,7 +434,9 @@ Public: indicates if a package is installed
 
 Public: install packages, used for dependencies
 
-args: list of packages to install
+* $@ - list of packages to install
+
+    jv_install mpg123
 
 
 `jv_remove()`
@@ -425,7 +444,9 @@ args: list of packages to install
 
 Public: remove packages, used for uninstalls
 
-args: list of packages to remove
+* $@ - list of packages to remove
+
+    jv_remove mpg123
 
 
 `jv_browse_url()`

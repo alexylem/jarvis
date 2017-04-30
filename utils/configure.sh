@@ -32,7 +32,6 @@ configure () {
                    'snowboy_sensitivity'
                    'snowboy_token'
                    'tempo'
-                   'tmp_folder'
                    'trigger'
                    'trigger_stt'
                    'trigger_mode'
@@ -179,7 +178,6 @@ configure () {
         snowboy_sensitivity) eval "$1=\"$(dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.4" "${!1}")\"";;
         snowboy_token)       eval "$1=\"$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai (in profile settings)" "${!1}" true)\"";;
         tempo)               eval "$1=\"$(dialog_input "Speech playback speed\nOriginal: 1.0" "${!1}" true)\"";;
-        tmp_folder)          eval "$1=\"$(dialog_input "Cache folder" "${!1}")\"";;
         trigger)             eval "$1=\"$(dialog_input "How would you like your Jarvis to be called?\n(Hotword to be said before speaking commands)" "${!1}" true)\""
                              [ "$trigger_stt" = "snowboy" ] && stt_sb_train "$trigger"
                              ;;

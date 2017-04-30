@@ -13,6 +13,11 @@ username=
 trigger=
 
 # Public: the transcribed voice order
+# 
+#   *FAIT (*)==echo "capture: (1)"; echo "order: $order"
+#   You: Fais le café
+#   capture: le cafe
+#   order: Fait le café 
 order=
 
 # Public: the user's language in Jarvis settings
@@ -37,9 +42,14 @@ jv_os_version=
 jv_possible_answers=false
 
 # Public: indicates if called using API else normal usage
+# 
+#   $jv_api && echo "this is an API call"
 jv_api=false
 
 # Public: ip address of Jarvis
+# 
+#   echo $jv_ip
+#   192.168.1.20
 jv_ip="$(/sbin/ifconfig | sed -En 's/127.0.0.1//;s/.*inet (ad[d]?r:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
 
 # Internal: indicates if Jarvis is paused
@@ -56,12 +66,8 @@ jv_jarvis_updated=false
 
 # Internal: check if all dependencies are installed
 jv_check_dependencies () {
-    local no_hash=()
-    for package in "${dependencies[@]}"; do
-        hash $package 2>/dev/null || no_hash+=($package)
-    done
     local missings=()
-    for package in "${no_hash[@]}"; do
+    for package in "${dependencies[@]}"; do
         jv_is_installed "$package" || missings+=($package)
     done
     if [ ${#missings[@]} -gt 0 ]; then
@@ -126,8 +132,6 @@ jv_display_commands () {
 }
 
 # Internal: add timestamps to log file
-#
-# Usage
 # 
 #   script.sh | jv_add_timestamps >> file.log
 jv_add_timestamps () {
@@ -138,8 +142,6 @@ jv_add_timestamps () {
 
 # Public: Speak some text out loud
 # $1 - text to speak
-# 
-# Returns nothing
 # 
 #   $> say "hello world"
 #   Jarvis: hello world
@@ -513,7 +515,9 @@ jv_ga_send_hit () {
 #
 # Usage
 # 
-#   if jv_yesno "question?"; then...
+#   $> jv_yesno "question?" && echo "Yup"
+#   question? [Y/n] y
+#   Yup
 jv_yesno () {
     while true; do
         read -n 1 -p "$1 [Y/n] "
@@ -526,13 +530,13 @@ jv_yesno () {
 # Public: display a progress bar in the terminal
 # $1 - current step number
 # $2 - total number of steps
-# Usage
-#   (usually in a loop)
-#   jv_progressbar $current_step $total_steps
-# Output
-#   Progress : [########################################] 100%
-# Used in
-#   jarvis-face
+# 
+# Usage (usually in a loop)
+# 
+#   $> jv_progressbar 5 10
+#   [████████████████████                    ] 50%
+#   $> jv_progressbar 10 10
+#   [████████████████████████████████████████] 100%
 jv_progressbar () {
     let _progress="(${1}*100/${2}*100)/100" # quotes to prevent globbing
 	let _done="(${_progress}*4)/10" # quotes to prevent globbing

@@ -4,7 +4,7 @@
 # | http://domotiquefacile.fr/jarvis       |
 # +----------------------------------------+
 flags='bc:ihjklmnp:qrs:uvwx:z'
-show_help () { cat <<EOF
+jv_show_help () { cat <<EOF
 
     Usage: ${0##*/} [-$flags]
 
@@ -39,7 +39,7 @@ EOF
 headline="NEW: Adjust playback speed in Settings > Audio > Tempo"
 
 # Move to Jarvis directory
-export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # why export?
 cd "$jv_dir" # needed now for git used in automatic update
 
 shopt -s nocasematch # string comparison case insensitive
@@ -86,8 +86,7 @@ if [ ! -d "plugins_installed" ]; then
 fi
 if [ ! -d "plugins_enabled" ]; then
     mkdir plugins_enabled
-    plugins=$(ls plugins_installed)
-    for plugin in $plugins; do
+    for plugin in $(ls plugins_installed); do
         jv_plugin_enable "$plugin"
     done
 fi
@@ -112,7 +111,7 @@ while getopts ":$flags" o; do
             jv_start_in_background
             exit;;
         c)  conversation_mode_override=${OPTARG};;
-        h)  show_help
+        h)  jv_show_help
             exit;;
         i)  jv_check_dependencies
             configure "load"
