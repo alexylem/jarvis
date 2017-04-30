@@ -47,6 +47,7 @@ source utils/utils.sh # needed for wizard / platform error
 source utils/store.sh # needed for plugin installation & store menu
 source utils/update.sh # needed for update of Jarvis config
 source utils/audio.sh # needed for jv_auto_levels
+source utils/configure.sh # needed to configure jarvis
 
 # Check platform compatibility
 dependencies=(awk curl git iconv jq nano perl sed sox wget)
@@ -164,7 +165,6 @@ fi
 # check dependencies
 jv_check_dependencies
 # load user settings if exist else launch install wizard
-source utils/configure.sh # needed to configure jarvis
 configure "load" || wizard
 # send google analytics hit
 $send_usage_stats && ( jv_ga_send_hit & )
