@@ -71,19 +71,26 @@ editor () {
 }
 
 # Public: update package/formula list
+# 
+#   jv_update
 jv_update () {
     sudo apt-get update -y #421
 }
 
 # Public: indicates if a package is installed
+# 
 # $1 - package to verify
+# 
+#   jv_is_installed mpg123 && echo "already installed"
 jv_is_installed () {
-    dpkg -l "$1" >/dev/null 2>&1
+    hash "$1" 2>/dev/null || dpkg -l "$1" >/dev/null 2>&1
 }
 
 # Public: install packages, used for dependencies
 #
-# args: list of packages to install
+# $@ - list of packages to install
+# 
+#   jv_install mpg123
 jv_install () {
     sudo apt-get install -y $@
     sudo apt-get clean
@@ -91,7 +98,9 @@ jv_install () {
 
 # Public: remove packages, used for uninstalls
 #
-# args: list of packages to remove
+# $@ - list of packages to remove
+#
+#   jv_remove mpg123
 jv_remove () {
     sudo apt-get remove $@
 }
