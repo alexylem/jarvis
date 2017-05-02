@@ -319,7 +319,7 @@ Jarvis has been launched in background
 To view Jarvis output:
 ./jarvis.sh and select "View output"
 To check if jarvis is running:
-pgrep -lf jarvis.sh
+pgrep -laf jarvis.sh
 To stop Jarvis:
 ./jarvis.sh and select "Stop Jarvis"
 

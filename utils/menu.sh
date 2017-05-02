@@ -394,7 +394,9 @@ jv_menu_store () {
                                                 dialog_msg "$plugin_url/issues/new"
                                                 ;;
                                             Reinstall)
-                                                source "plugins_installed/$plugin/install.sh"
+                                                cd "plugins_installed/$plugin"
+                                                source install.sh
+                                                cd ../../
                                                 dialog_msg "Installation Complete"
                                                 ;;
                                             Uninstall)
