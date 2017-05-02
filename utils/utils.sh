@@ -442,6 +442,7 @@ jv_check_updates () {
                  printf "Updating $repo_name..."
                  read < <( git pull -q & echo $! ) # suppress bash job control output
                  jv_spinner $REPLY
+                 [ -f update.sh ] && source update.sh # source new updated file from git
             	 jv_success "Done"
                  
                  # if config changed, merge with user configuration and open in editor
@@ -466,13 +467,11 @@ jv_check_updates () {
 # Internal: runs jv_check_updates for all plugins
 # $1 - don't ask confirmation, default false
 jv_plugins_check_updates () {
-    cd plugins_installed/
     shopt -s nullglob
-    for plugin_dir in *; do
+    for plugin_dir in plugins_installed/*; do
         jv_check_updates "$plugin_dir" "$1"            
     done
     shopt -u nullglob
-    cd ../
 }
 
 # Internal: Rebuild plugins_order.txt following added/removed plugins
@@ -557,7 +556,7 @@ jv_build () {
         jv_success "Done"
     printf "Generating documentation..."
         utils/tomdoc.sh --markdown --access Public utils/utils.sh utils/utils_linux.sh > docs/api-reference-public.md
-        utils/tomdoc.sh --markdown utils/utils.sh utils/update.sh utils/utils_linux.sh > docs/api-reference-internal.md
+        utils/tomdoc.sh --markdown utils/utils.sh utils/utils_linux.sh > docs/api-reference-internal.md
         jv_success "Done"
     printf "Opening GitHub Desktop..."
         open -a "GitHub Desktop" /Users/alex/Documents/jarvis

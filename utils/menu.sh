@@ -274,7 +274,6 @@ EOM
                 ;;
             "Search for updates")
                 jv_check_updates
-                source utils/update.sh # source new updated file from git
                 jv_plugins_check_updates
                 touch config/last_update_check
                 if $jv_jarvis_updated; then
