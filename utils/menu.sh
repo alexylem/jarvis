@@ -361,7 +361,6 @@ jv_menu_store () {
                                                  "Update"
                                                  "Rate"
                                                  "Report an issue"
-                                                 "Reinstall"
                                                  "Uninstall")
                                         case "`dialog_menu \"$plugin\" options[@]`" in
                                             Info)
@@ -391,12 +390,6 @@ jv_menu_store () {
                                                 ;;
                                             Report*)
                                                 dialog_msg "$plugin_url/issues/new"
-                                                ;;
-                                            Reinstall)
-                                                cd "plugins_installed/$plugin"
-                                                source install.sh
-                                                cd ../../
-                                                dialog_msg "Installation Complete"
                                                 ;;
                                             Uninstall)
                                                 if dialog_yesno "Are you sure?" true >/dev/null; then
