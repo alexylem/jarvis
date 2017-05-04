@@ -378,12 +378,7 @@ jv_menu_store () {
                                                 break # back to list of plugins
                                                 ;;
                                             Update)
-                                                echo "Checking for updates..."
-                                                cd "plugins_installed/$plugin"
-                                                git pull &
-                                                jv_spinner $!
-                                                jv_press_enter_to_continue
-                                                cd ../../
+                                                jv_check_updates "plugins_installed/$plugin" false
                                                 ;;
                                             Rate)
                                                 dialog_msg "$(store_get_field_by_repo "$plugin_url" "url")#comment-form"
