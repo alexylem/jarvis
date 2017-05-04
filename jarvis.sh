@@ -147,6 +147,10 @@ while getopts ":$flags" o; do
         v)  verbose=true;;
         w)  unset _reset _red _orange _green _gray _blue _cyan _pink;;
         x)  just_execute="${OPTARG}"
+            if [ -z "$just_execute" ]; then
+                jv_error "ERROR: Order cannot be empty"
+                exit 1
+            fi
             jv_api=true;;
         z)  jv_build
             exit;;
