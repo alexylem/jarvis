@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import snowboydecoder
+#import snowboydecoder
 import snowboydetect
-import pyaudio
+#import pyaudio
 import collections
 import time
 import os
@@ -17,6 +17,21 @@ logger.setLevel(logging.INFO)
 TOP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 RESOURCE_FILE = os.path.join(TOP_DIR, "resources/common.res")
+
+class RingBuffer(object):
+    """Ring buffer to hold audio from PortAudio"""
+    def __init__(self, size = 4096):
+        self._buf = collections.deque(maxlen=size)
+
+    def extend(self, data):
+        """Adds data to the end of buffer"""
+        self._buf.extend(data)
+
+    def get(self):
+        """Retrieves data from the beginning of buffer and clears it"""
+        tmp = bytes(bytearray(self._buf))
+        self._buf.clear()
+        return tmp
 
 class JarvisHotwordDetector(object):
     """
@@ -62,8 +77,7 @@ class JarvisHotwordDetector(object):
         
         sensitivity_str = ",".join([str(t) for t in sensitivity])
         self.detector.SetSensitivity(sensitivity_str.encode())
-        self.ring_buffer = snowboydecoder.RingBuffer(
-        self.detector.NumChannels() * self.detector.SampleRate() * 5)
+        self.ring_buffer = RingBuffer( self.detector.NumChannels() * self.detector.SampleRate() * 5)
         
         # My modifications
 
@@ -173,7 +187,7 @@ class JarvisHotwordDetector(object):
         # A match !
         return 1
 
-    def start(self, detected_callback=snowboydecoder.play_audio_file,
+    def start(self, detected_callback,
               interrupt_check=lambda: False,
               sleep_time=0.03):
         """

@@ -27,7 +27,7 @@ jv_show_help () { cat <<EOF
     -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/jarvis-time
     -q  quit jarvis if running in background
     -r  uninstall jarvis and its dependencies
-    -s  just say something and exit, ex: ${0##*/} -s "hello world"
+    -s  just say something and exit, ex: ${0##*/} -s 'hello world'
     -u  force update Jarvis and plugins (ex: use in cron)
     -v  troubleshooting mode
     -w  no colors in output
@@ -45,7 +45,6 @@ cd "$jv_dir" # needed now for git used in automatic update
 shopt -s nocasematch # string comparison case insensitive
 source utils/utils.sh # needed for wizard / platform error
 source utils/store.sh # needed for plugin installation & store menu
-source utils/update.sh # needed for update of Jarvis config
 source utils/audio.sh # needed for jv_auto_levels
 source utils/configure.sh # needed to configure jarvis
 
@@ -138,17 +137,20 @@ while getopts ":$flags" o; do
             exit $?;;
         r)  source uninstall.sh
             exit $?;;
-        s)	just_say=${OPTARG}
+        s)	just_say="${OPTARG}"
             jv_api=true;;
         u)  configure "load" #498 
             jv_check_updates "./" true # force udpate
-            source utils/update.sh # apply config updates
             jv_plugins_check_updates true # force udpate
             touch config/last_update_check
             exit;;
         v)  verbose=true;;
         w)  unset _reset _red _orange _green _gray _blue _cyan _pink;;
         x)  just_execute="${OPTARG}"
+            if [ -z "$just_execute" ]; then
+                jv_error "ERROR: order cannot be empty"
+                exit 1
+            fi
             jv_api=true;;
         z)  jv_build
             exit;;
@@ -206,7 +208,6 @@ if [ "$jv_api" == false ]; then
     if [ $check_updates != false ] && [ $no_menu = false ]; then
         if [ "$(find config/last_update_check -mtime -$check_updates 2>/dev/null | wc -l)" -eq 0 ]; then
             jv_check_updates
-            source utils/update.sh # apply config upates
             jv_plugins_check_updates
             touch config/last_update_check
             if $jv_jarvis_updated; then

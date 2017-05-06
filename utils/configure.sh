@@ -218,7 +218,6 @@ configure () {
 
 wizard () {
     jv_check_updates
-    source utils/update.sh # init config/version
     
     # initiate directories
     mkdir -p config

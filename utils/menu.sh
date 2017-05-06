@@ -274,7 +274,6 @@ EOM
                 ;;
             "Search for updates")
                 jv_check_updates
-                source utils/update.sh # source new updated file from git
                 jv_plugins_check_updates
                 touch config/last_update_check
                 if $jv_jarvis_updated; then
@@ -362,7 +361,6 @@ jv_menu_store () {
                                                  "Update"
                                                  "Rate"
                                                  "Report an issue"
-                                                 "Reinstall"
                                                  "Uninstall")
                                         case "`dialog_menu \"$plugin\" options[@]`" in
                                             Info)
@@ -380,22 +378,13 @@ jv_menu_store () {
                                                 break # back to list of plugins
                                                 ;;
                                             Update)
-                                                echo "Checking for updates..."
-                                                cd "plugins_installed/$plugin"
-                                                git pull &
-                                                jv_spinner $!
-                                                jv_press_enter_to_continue
-                                                cd ../../
+                                                jv_check_updates "plugins_installed/$plugin" false
                                                 ;;
                                             Rate)
                                                 dialog_msg "$(store_get_field_by_repo "$plugin_url" "url")#comment-form"
                                                 ;;
                                             Report*)
                                                 dialog_msg "$plugin_url/issues/new"
-                                                ;;
-                                            Reinstall)
-                                                source "plugins_installed/$plugin/install.sh"
-                                                dialog_msg "Installation Complete"
                                                 ;;
                                             Uninstall)
                                                 if dialog_yesno "Are you sure?" true >/dev/null; then

@@ -21,6 +21,8 @@ google_TTS () { # TTS () {} Speaks text $1
         $verbose && printf "$_gray" # output in verbose mode will be displayed in gray
         wget $($verbose || echo -q) -U Mozilla -O $audio_file "http://translate.google.com/translate_tts?tl=${language:0:2}&client=tw-ob&ie=UTF-8&q=$1"
         $verbose && printf "$_reset"
+    else
+        $verbose && jv_debug "DEBUG: using cache $audio_file"
     fi
     jv_play "$audio_file"
 }

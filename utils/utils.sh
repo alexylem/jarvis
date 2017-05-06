@@ -147,22 +147,25 @@ jv_add_timestamps () {
 #   Jarvis: hello world
 say () {
     #set -- "${1:-$(</dev/stdin)}" "${@:2}" # read commands if $1 is empty... #195
-    jv_hook "start_speaking" "$1" #533
+    local phrase="$1"
+    phrase="$(echo -e "$phrase" | sed $'s/\xC2\xA0/ /g')" #574 remove non-breakable spaces
+    #phrase="${phrase/\*/}" #TODO * char causes issues with google & OSX say TTS, looks like no longer with below icon
+    jv_hook "start_speaking" "$phrase" #533
     if $jv_json; then
-        jv_print_json "answer" "$1" #564
+        jv_print_json "answer" "$phrase" #564
     else
-        echo -e "$_pink$trigger$_reset: $1"
+        echo -e "$_pink$trigger$_reset: $phrase"
     fi
     $quiet && return
     if $jv_api; then # if using API, put in queue
         if jv_is_started; then
-            echo "$1" >> $jv_say_queue # put in queue (read by say.sh)
+            echo "$phrase" >> $jv_say_queue # put in queue (read by say.sh)
         else
             jv_error "ERROR: Jarvis is not running"
             jv_success "HELP: Start Jarvis using ./jarvis.sh -b"
         fi
     else # if using Jarvis, speak synchronously
-        $tts_engine'_TTS' "$1"
+        $tts_engine'_TTS' "$phrase"
     fi
     jv_hook "stop_speaking"
 }
@@ -319,7 +322,7 @@ Jarvis has been launched in background
 To view Jarvis output:
 ./jarvis.sh and select "View output"
 To check if jarvis is running:
-pgrep -lf jarvis.sh
+pgrep -laf jarvis.sh
 To stop Jarvis:
 ./jarvis.sh and select "Stop Jarvis"
 
@@ -442,6 +445,7 @@ jv_check_updates () {
                  printf "Updating $repo_name..."
                  read < <( git pull -q & echo $! ) # suppress bash job control output
                  jv_spinner $REPLY
+                 [ -f update.sh ] && source update.sh # source new updated file from git
             	 jv_success "Done"
                  
                  # if config changed, merge with user configuration and open in editor
@@ -466,13 +470,11 @@ jv_check_updates () {
 # Internal: runs jv_check_updates for all plugins
 # $1 - don't ask confirmation, default false
 jv_plugins_check_updates () {
-    cd plugins_installed/
     shopt -s nullglob
-    for plugin_dir in *; do
+    for plugin_dir in plugins_installed/*; do
         jv_check_updates "$plugin_dir" "$1"            
     done
     shopt -u nullglob
-    cd ../
 }
 
 # Internal: Rebuild plugins_order.txt following added/removed plugins
@@ -557,7 +559,7 @@ jv_build () {
         jv_success "Done"
     printf "Generating documentation..."
         utils/tomdoc.sh --markdown --access Public utils/utils.sh utils/utils_linux.sh > docs/api-reference-public.md
-        utils/tomdoc.sh --markdown utils/utils.sh utils/update.sh utils/utils_linux.sh > docs/api-reference-internal.md
+        utils/tomdoc.sh --markdown utils/utils.sh utils/utils_linux.sh > docs/api-reference-internal.md
         jv_success "Done"
     printf "Opening GitHub Desktop..."
         open -a "GitHub Desktop" /Users/alex/Documents/jarvis

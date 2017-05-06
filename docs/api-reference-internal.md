@@ -399,12 +399,6 @@ Internal: Build Jarvis
 Returns nothing
 
 
-`jv_version`
-------------
-
-update complete, update local version
-
-
 `result`
 --------
 
