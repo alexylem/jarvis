@@ -27,7 +27,7 @@ jv_show_help () { cat <<EOF
     -p  install plugin, ex: ${0##*/} -p https://github.com/alexylem/jarvis-time
     -q  quit jarvis if running in background
     -r  uninstall jarvis and its dependencies
-    -s  just say something and exit, ex: ${0##*/} -s "hello world"
+    -s  just say something and exit, ex: ${0##*/} -s 'hello world'
     -u  force update Jarvis and plugins (ex: use in cron)
     -v  troubleshooting mode
     -w  no colors in output
@@ -137,7 +137,7 @@ while getopts ":$flags" o; do
             exit $?;;
         r)  source uninstall.sh
             exit $?;;
-        s)	just_say=${OPTARG}
+        s)	just_say="${OPTARG}"
             jv_api=true;;
         u)  configure "load" #498 
             jv_check_updates "./" true # force udpate
@@ -148,7 +148,7 @@ while getopts ":$flags" o; do
         w)  unset _reset _red _orange _green _gray _blue _cyan _pink;;
         x)  just_execute="${OPTARG}"
             if [ -z "$just_execute" ]; then
-                jv_error "ERROR: Order cannot be empty"
+                jv_error "ERROR: order cannot be empty"
                 exit 1
             fi
             jv_api=true;;
