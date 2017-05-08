@@ -42,6 +42,10 @@ it_handles_nested_alternatives() {
     test "$(./jarvis.sh -kmwx "ca va?" <<< "pas du tout" | tail -n 1)" = "Alex: Jarvis: j'en suis navré"
 }
 
+it_runs_keyboard_mode () {
+    ./jarvis.sh -mk <<< "au revoir"
+}
+
 #it_starts_in_background() {
 #    test "$(./jarvis.sh -b | head -n 1)" = "Jarvis has been launched in background"
 #}

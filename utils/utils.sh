@@ -553,7 +553,7 @@ jv_progressbar () {
 # Returns nothing
 jv_build () {
     echo "Running tests..."
-        roundup test/*.sh || exit 2
+        roundup test/*.sh || exit 1
     printf "Updating version file..."
         date +"%y.%m.%d" > version.txt
         jv_success "Done"

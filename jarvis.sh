@@ -138,6 +138,10 @@ while getopts ":$flags" o; do
         r)  source uninstall.sh
             exit $?;;
         s)	just_say="${OPTARG}"
+            if [ -z "$just_say" ]; then
+                jv_error "ERROR: phrase cannot be empty"
+                exit 1
+            fi
             jv_api=true;;
         u)  configure "load" #498 
             jv_check_updates "./" true # force udpate
@@ -153,7 +157,7 @@ while getopts ":$flags" o; do
             fi
             jv_api=true;;
         z)  jv_build
-            exit;;
+            exit $?;;
         *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
     esac
 done

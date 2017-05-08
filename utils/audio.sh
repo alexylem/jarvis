@@ -1,9 +1,10 @@
+#!/bin/bash
 # Audio related functions for Jarvis
 
 # Public: play an audio file to speakers  
 # $1: audio file to play
 jv_play () {
-    [ $platform = "linux" ] && local play_export="AUDIODRIVER=alsa" || local play_export='' # is this still needed?
+    [ "$platform" = "linux" ] && local play_export="AUDIODRIVER=alsa" || local play_export='' # is this still needed?
     [ -s "$1" ] && eval "$play_export play -V1 -q $1 tempo $tempo" #591 sox bug with empty audio files
     if [ "$?" -ne 0 ]; then
         jv_error "ERROR: play command failed"
@@ -183,35 +184,91 @@ LISTEN () {
     return $returncode
 }
 
-# jv_bluetooth () {
-#     # if pulseaudio is not started
-#     pgrep pulseaudio
-#         # start pulseaudio daemon
-#         pulseaudio --start
-#     # if bluetooth device disabled
-#     rfkill list bluetooth | grep yes
-#         # enable bluetooth device
-#         sudo rfkill unblock bluetooth
-#     # start bluetooth manager
-#     (
-#         # power on bluetooth controller
-#         echo -e "power on\n"
-#         sleep 1
-#         # enable agent
-#         echo -e "agent on\n"
-#         sleep 1
-#         # set agent as the default one
-#         echo -e "default-agent\n"
-#         sleep 1
-#         # scan devices
-#         #echo -e "scan on\n"
-#         #sleep 10
-#         #echo -e "scan off\n"
-#         #sleep 1
-#         #echo -e "quit\n"
-#     ) | bluetoothctl
-#     # set your device to pairing mode
-#     # scan devices in pairing mode
-#     hcitool scan | grep :
-#     
-# }
+jv_bt_init () {
+    # make sure bluetooth HCI device is open and initialized
+    sudo hciconfig hci0 up
+    # make sure bluebooth device is not blocked
+    sudo rfkill unblock bluetooth
+    # power blutooth controller
+    echo -e "power on\nquit\n" | bluetoothctl >/dev/null
+}
+
+# scan for bluetooth devices in pairing mode
+jv_bt_scan () {
+    #jv_warning "Put your bluetooth device in pairing mode"
+    #jv_press_enter_to_continue
+    jv_debug "Scanning bluetooth devices..."
+    (
+        echo -e "scan on\n"
+        sleep 10
+        echo -e "scan off\n"
+        echo -e "devices\n"
+        echo -e "quit\n"
+    ) | bluetoothctl | grep ^Device | cut -c 8-
+}
+
+# $1 - mac address of bluetooth device
+jv_bt_connect () {
+    if jv_bt_is_connected $1; then
+        echo "Already connected"
+        jv_play "sounds/connected.wav"
+        return 0
+    fi
+    echo -e "devices\nquit\n" | bluetoothctl | grep "$1" >/dev/null
+    if [ $? -ne 0 ]; then
+        jv_error "ERROR: $1 is not available"
+        return 1
+    fi
+    echo -e "paired-devices\nquit\n" | bluetoothctl | grep "$1" >/dev/null
+    if [ $? -ne 0 ]; then # if not paired
+        # pair & trust
+        echo "Pairing..."
+        (
+            echo -e "pair $1\n"
+            sleep 1
+            echo -e "trust $1\n"
+            sleep 1
+            echo -e "quit\n"
+        ) | bluetoothctl
+    fi
+    # connect
+    printf "Connecting..."
+    echo -e "connect $1\n" | bluetoothctl >/dev/null 2>&1
+    for i in $(seq 1 5); do
+        sleep 1
+        if jv_bt_is_connected $1; then
+            # start pulseaudio if not running already
+            pulseaudio --check || pulseaudio --start
+            # set bluetooth speaker as active audio device
+            pacmd set-default-sink bluez_sink.${1//:/_}
+            jv_success "Connected"
+            jv_play "sounds/connected.wav"
+            return 0
+        fi
+    done
+    jv_error "Failed"
+    return 1
+}
+
+# $1 - mac address of bluetooth device
+jv_bt_is_connected () {
+    echo -e "info $1\nquit\n" | bluetoothctl | grep "Connected: yes" >/dev/null
+}
+
+# $1 - mac address of bluetooth device
+jv_bt_disconnect () {
+    printf "Disconnecting..."
+    echo -e "disconnect $1\nquit\n" | bluetoothctl >/dev/null
+    for i in $(seq 1 5); do
+        sleep 1
+        if ! jv_bt_is_connected $1; then
+            # stop pulseaudio if running
+            pulseaudio --check || pulseaudio --kill
+            jv_success "Disconnected"
+            jv_play "sounds/connected.wav"
+            return 0
+        fi
+    done
+    jv_error "Failed"
+    return 1
+}

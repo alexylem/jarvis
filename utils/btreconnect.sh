@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 sudo rfkill unblock all
 rfkill list all
 # "52:78:23:5D:C2:D9"

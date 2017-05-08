@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Configuration
 configure () {
     local variables=('bing_speech_api_key'
