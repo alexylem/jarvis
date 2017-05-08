@@ -99,7 +99,6 @@ just_say=false
 just_listen=false
 just_execute=false
 no_menu=false
-jv_json=false
 while getopts ":$flags" o; do
     case "${o}" in
 		b)  # Check if Jarvis is already running in background

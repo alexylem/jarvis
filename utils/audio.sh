@@ -184,6 +184,10 @@ LISTEN () {
     return $returncode
 }
 
+jv_bt_install () {
+    sudo apt-get install pulseaudio bluez pulseaudio-module-bluetooth
+}
+
 jv_bt_init () {
     # make sure bluetooth HCI device is open and initialized
     sudo hciconfig hci0 up
@@ -227,7 +231,6 @@ jv_bt_connect () {
             echo -e "pair $1\n"
             sleep 1
             echo -e "trust $1\n"
-            sleep 1
             echo -e "quit\n"
         ) | bluetoothctl
     fi
@@ -239,6 +242,8 @@ jv_bt_connect () {
         if jv_bt_is_connected $1; then
             # start pulseaudio if not running already
             pulseaudio --check || pulseaudio --start
+            # need time to bluez sink to appear
+            sleep 1
             # set bluetooth speaker as active audio device
             pacmd set-default-sink bluez_sink.${1//:/_}
             jv_success "Connected"
@@ -263,7 +268,7 @@ jv_bt_disconnect () {
         sleep 1
         if ! jv_bt_is_connected $1; then
             # stop pulseaudio if running
-            pulseaudio --check || pulseaudio --kill
+            pulseaudio --check && pulseaudio --kill
             jv_success "Disconnected"
             jv_play "sounds/connected.wav"
             return 0

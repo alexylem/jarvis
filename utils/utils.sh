@@ -46,6 +46,9 @@ jv_possible_answers=false
 #   $jv_api && echo "this is an API call"
 jv_api=false
 
+# Public: indicates if output should be in JSON
+jv_json=false
+
 # Public: ip address of Jarvis
 # 
 #   echo $jv_ip
