@@ -185,7 +185,11 @@ LISTEN () {
 }
 
 jv_bt_install () {
-    sudo apt-get install pulseaudio bluez pulseaudio-module-bluetooth
+    jv_install pulseaudio bluez pulseaudio-module-bluetooth
+}
+
+jv_bt_uninstall () {
+    jv_remove pulseaudio bluez pulseaudio-module-bluetooth
 }
 
 jv_bt_init () {
@@ -199,9 +203,6 @@ jv_bt_init () {
 
 # scan for bluetooth devices in pairing mode
 jv_bt_scan () {
-    #jv_warning "Put your bluetooth device in pairing mode"
-    #jv_press_enter_to_continue
-    jv_debug "Scanning bluetooth devices..."
     (
         echo -e "scan on\n"
         sleep 10
@@ -276,4 +277,62 @@ jv_bt_disconnect () {
     done
     jv_error "Failed"
     return 1
+}
+
+jv_bt_menu () {
+    $jv_use_bluetooth || jv_bt_wizard
+    if [ $? -ne 0 ]; then
+        jv_use_bluetooth=false
+        return
+    fi
+    while true; do
+        if jv_bt_is_connected "$jv_bt_device_mac"; then
+            local bt_status="Connected"
+            local bt_reconnect_disconnect="Disconnect"
+        else
+            local bt_status="Disconnected"
+            local bt_reconnect_disconnect="Reconnect"
+        fi
+        local options=("Use bluetooth ($jv_use_bluetoot})"
+                 "Status ($bt_status)"
+                 "Scan"
+                 "$bt_reconnect_disconnect"
+                 "Uninstall bluetooth")
+        case "$(dialog_menu "Bluetooth\nSpeaker: $jv_bt_device_name ($bt_status)" options[@])" in
+            Use*)           configure "jv_use_bluetooth"
+                            jv_use_bluetooth || break 2;;
+            Scan)           jv_warning "Put your bluetooth device in pairing mode"
+                            jv_press_enter_to_continue
+                            jv_debug "Scanning bluetooth devices..."
+                            local bt_devices=( $(jv_bt_scan) )
+                            jv_bt_device="$(dialog_select "Bluetooth devices" bt_devices[@])"
+                            if [ -n "$jv_bt_device" ]; then
+                                jv_bt_device_name="${jv_bt_device# *}"
+                                jv_bt_device_mac="${jv_bt_device#* }"
+                                jv_debug "Connecting to $jv_bt_device_mac..."
+                                jv_bt_connect "$jv_bt_device_mac"
+                            fi
+                            ;;
+            Reconnect)      jv_bt_connect "$jv_bt_speaker_mac";;
+            Disconnect)     jv_bt_disconnect "$jv_bt_speaker_mac";;
+            Uninstall)      jv_bt_uninstall;;
+            *)              break;;
+        esac
+    done
+}
+
+jv_bt_wizard () {
+    configure "jv_use_bluetooth"
+    $jv_use_bluetooth || return 1
+    if ! jv_is_installed "pulseaudio-module-bluetooth"; then
+        if dialog_yesno "pulseaudio-module-bluetooth doesn't seem to be installed. Install it?" >/dev/null; then
+            jv_bt_install || return 1
+        else
+            return
+        fi
+    fi
+    if [ -n "$jv_bt_device_mac" ]; then
+        #if jv_bt_is_connected "$jv_bt_speaker_mac"
+        :
+    fi
 }

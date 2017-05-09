@@ -106,6 +106,7 @@ jv_menu_main () {
                             while true; do
                                 options=("Speaker ($play_hw)"
                                          "Mic ($rec_hw)"
+                                         "Bluetooth (in development)"
                                          "Recorder ($recorder)"
                                          "Auto-adjust levels"
                                          "Volume"
@@ -117,34 +118,35 @@ jv_menu_main () {
                                          "Min silence duration to stop ($min_silence_duration_to_stop)"
                                          "Min silence level to stop ($min_silence_level_to_stop)")
                                 case "`dialog_menu 'Configuration > Audio' options[@]`" in
-                                    Speaker*)  configure "play_hw";;
-                                    Mic*)      configure "rec_hw";;
-                                    Recorder*) configure "recorder";;
-                                    Auto*)     jv_auto_levels;;
-                                    Volume) if [ "$platform" == "osx" ]; then
-                                                osascript <<EOM
-                                                    tell application "System Preferences"
-                                                        activate
-                                                        set current pane to pane "com.apple.preference.sound"
-                                                        reveal (first anchor of current pane whose name is "output")
-                                                    end tell
+                                    Speaker*)   configure "play_hw";;
+                                    Mic*)       configure "rec_hw";;
+                                    Recorder*)  configure "recorder";;
+                                    Bluetooth*) jv_bt_menu;;
+                                    Auto*)      jv_auto_levels;;
+                                    Volume)     if [ "$platform" == "osx" ]; then
+                                                    osascript <<EOM
+                                                        tell application "System Preferences"
+                                                            activate
+                                                            set current pane to pane "com.apple.preference.sound"
+                                                            reveal (first anchor of current pane whose name is "output")
+                                                        end tell
 EOM
-                                            else
-                                                alsamixer -c ${play_hw:3:1} -V playback || read -p "ERROR: check above"
-                                            fi;;
+                                                else
+                                                    alsamixer -c ${play_hw:3:1} -V playback || read -p "ERROR: check above"
+                                                fi;;
                                     Tempo*)     configure "tempo";;
                                     Sensitivity)
-                                    if [ "$platform" == "osx" ]; then
-                                                osascript <<EOM
-                                                    tell application "System Preferences"
-                                                        activate
-                                                        set current pane to pane "com.apple.preference.sound"
-                                                        reveal (first anchor of current pane whose name is "input")
-                                                    end tell
+                                                if [ "$platform" == "osx" ]; then
+                                                    osascript <<EOM
+                                                        tell application "System Preferences"
+                                                            activate
+                                                            set current pane to pane "com.apple.preference.sound"
+                                                            reveal (first anchor of current pane whose name is "input")
+                                                        end tell
 EOM
-                                            else
-                                                alsamixer -c ${rec_hw:3:1} -V capture || read -p "ERROR: check above"
-                                            fi;;
+                                                else
+                                                    alsamixer -c ${rec_hw:3:1} -V capture || read -p "ERROR: check above"
+                                                fi;;
                                     Gain*)            configure "gain";;
                                     *duration*start*) configure "min_noise_duration_to_start";;
                                     *perc*start*)     configure "min_noise_perc_to_start";;
