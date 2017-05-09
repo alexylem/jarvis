@@ -329,8 +329,7 @@ jv_bt_menu () {
     fi
     jv_bt_init
     while true; do
-        local options=("Use bluetooth ($jv_use_bluetooth)"
-                       "Scan")
+        local options=()
         if [ -n "$jv_bt_device_mac" ]; then
             if jv_bt_is_connected "$jv_bt_device_mac"; then
                 local bt_status="Connected"
@@ -341,7 +340,9 @@ jv_bt_menu () {
             fi
             options+=("Forget device")
         fi
-        options+=("Uninstall bluetooth")
+        options+=("Scan"
+                  "Use bluetooth ($jv_use_bluetooth)"
+                  "Uninstall bluetooth")
         case "$(dialog_menu "Bluetooth\nSpeaker: ${jv_bt_device_name:-None} ($bt_status)" options[@])" in
             Use*)           configure "jv_use_bluetooth"
                             $jv_use_bluetooth || break;;
