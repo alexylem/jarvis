@@ -214,6 +214,7 @@ jv_bt_scan () {
 
 # $1 - mac address of bluetooth device
 jv_bt_connect () {
+    jv_debug "Connecting to $1..."
     if jv_bt_is_connected $1; then
         echo "Already connected"
         jv_play "sounds/connected.wav"
@@ -233,7 +234,13 @@ jv_bt_connect () {
             sleep 1
             echo -e "trust $1\n"
             echo -e "quit\n"
-        ) | bluetoothctl
+        ) | bluetoothctl >/dev/null
+        if [ $? -eq 0 ]; then
+            jv_success "Paired"
+        else
+            jv_error "Failed"
+            return 1
+        fi
     fi
     # connect
     printf "Connecting..."
@@ -279,6 +286,28 @@ jv_bt_disconnect () {
     return 1
 }
 
+jv_bt_forget () {
+    echo -e "paired-devices\nquit\n" | bluetoothctl | grep "$1" >/dev/null
+    if [ $? -ne 0 ]; then # if not paired
+        jv_error "ERROR: $1 is not paired"
+        return 1
+    fi
+    echo "Removing..."
+    (
+        echo -e "untrust $1\n"
+        sleep 1
+        echo -e "remove $1\n"
+        sleep 1
+        echo -e "quit\n"
+    ) | bluetoothctl >/dev/null
+    if [ $? -eq 0 ]; then
+        jv_success "Removed"
+    else
+        jv_error "Failed"
+        return 1
+    fi
+}
+
 jv_bt_menu () {
     $jv_use_bluetooth || jv_bt_wizard
     if [ $? -ne 0 ]; then
@@ -297,12 +326,12 @@ jv_bt_menu () {
         local options=("Use bluetooth ($jv_use_bluetooth)"
                  "Scan"
                  "$bt_reconnect_disconnect"
+                 "Forget device"
                  "Uninstall bluetooth")
         case "$(dialog_menu "Bluetooth\nSpeaker: ${jv_bt_device_name:-None} ($bt_status)" options[@])" in
             Use*)           configure "jv_use_bluetooth"
                             $jv_use_bluetooth || break;;
-            Scan)           jv_warning "Put your bluetooth device in pairing mode"
-                            jv_press_enter_to_continue
+            Scan)           dialog_msg "Put your bluetooth device in pairing mode then click Ok"
                             jv_debug "Scanning bluetooth devices..."
                             local bt_devices=()
                             while read bt_device; do
@@ -310,16 +339,23 @@ jv_bt_menu () {
                             done < <( jv_bt_scan )
                             jv_bt_device="$(dialog_select "Bluetooth devices" bt_devices[@])"
                             if [ -n "$jv_bt_device" ]; then
-                                jv_bt_device_name="${jv_bt_device# *}"
-                                jv_bt_device_mac="${jv_bt_device#* }"
-                                jv_debug "Connecting to $jv_bt_device_mac..."
+                                jv_bt_device_mac="${jv_bt_device# *}"
+                                jv_bt_device_name="${jv_bt_device#* }"
                                 jv_bt_connect "$jv_bt_device_mac" \
                                     && dialog_msg "Connected" \
-                                    || dialog_msg "Connection failed"
+                                    || dialog_msg "Connection failed\nMake sure your device is in pairing mode"
                             fi
                             ;;
-            Reconnect)      jv_bt_connect "$jv_bt_speaker_mac";;
-            Disconnect)     jv_bt_disconnect "$jv_bt_speaker_mac";;
+            Reconnect)      jv_bt_connect "$jv_bt_device_mac" \
+                                && dialog_msg "Connected" \
+                                || dialog_msg "Connection failed\nMake sure your device is in pairing mode"
+                            ;;
+            Disconnect)     jv_bt_disconnect "$jv_bt_device_mac";;
+            Forget*)        jv_bt_disconnect "$jv_bt_device_mac"
+                            jv_bt_forget "$jv_bt_device_mac"
+                            jv_bt_device_mac=""
+                            jv_bt_device_name=""
+                            ;;
             Uninstall)      jv_bt_uninstall;;
             *)              break;;
         esac
