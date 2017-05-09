@@ -5,6 +5,7 @@ dictionary="stt_engines/pocketsphinx/jarvis-dictionary.dic"
 gain="0"
 google_speech_api_key=""
 jv_branch="master"
+jv_use_bluetooth=false
 phrase_failed="This command has returned an error"
 phrase_triggered=""
 phrase_welcome="Hello"
