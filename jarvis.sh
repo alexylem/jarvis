@@ -161,7 +161,7 @@ while getopts ":$flags" o; do
     esac
 done
 
-# Check not ran as root
+# Check not ran as root #why so at the bottom?
 if [ "$EUID" -eq 0 ]; then
     jv_error "ERROR: Jarvis must not be used as root"
     exit 1
@@ -171,6 +171,8 @@ fi
 jv_check_dependencies
 # load user settings if exist else launch install wizard
 configure "load" || wizard
+# activate bluetooth if needed
+$jv_use_bluetooth && jv_bt_init
 # send google analytics hit
 $send_usage_stats && ( jv_ga_send_hit & )
 
@@ -299,7 +301,7 @@ jv_handle_order() {
             fi
         else
             [ "${line:0:1}" = ">" ] && continue #https://github.com/alexylem/jarvis/issues/305
-            patterns=${line%==*} # *HELLO*|*GOOD*MORNING*==say Hi => *HELLO*|*GOOD*MORNING*
+            patterns=${line%%==*} # *HELLO*|*GOOD*MORNING*==say Hi => *HELLO*|*GOOD*MORNING*
     		IFS='|' read -ra ARR <<< "$patterns" # *HELLO*|*GOOD*MORNING* => [*HELLO*, *GOOD*MORNING*]
     		for pattern in "${ARR[@]}"; do # *HELLO*
     			regex="^${pattern//'*'/.*}$" # .*HELLO.*

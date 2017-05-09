@@ -106,7 +106,7 @@ jv_menu_main () {
                             while true; do
                                 options=("Speaker ($play_hw)"
                                          "Mic ($rec_hw)"
-                                         "Bluetooth (in development)"
+                                         "Bluetooth (experimental)"
                                          "Recorder ($recorder)"
                                          "Auto-adjust levels"
                                          "Volume"

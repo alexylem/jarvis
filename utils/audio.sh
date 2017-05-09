@@ -192,6 +192,7 @@ jv_bt_uninstall () {
     jv_remove pulseaudio bluez pulseaudio-module-bluetooth
 }
 
+# call only if jv_use_bluetooth
 jv_bt_init () {
     # make sure bluetooth HCI device is open and initialized
     sudo hciconfig hci0 up
@@ -199,6 +200,8 @@ jv_bt_init () {
     sudo rfkill unblock bluetooth
     # power blutooth controller
     echo -e "power on\nquit\n" | bluetoothctl >/dev/null
+    # pulseaudio needs to run for connecting bluetooth devices
+    pulseaudio --start
 }
 
 # scan for bluetooth devices in pairing mode
@@ -213,6 +216,17 @@ jv_bt_scan () {
 }
 
 # $1 - mac address of bluetooth device
+jv_bt_is_connected () {
+    pactl info | grep "bluez_sink.${1//:/_}" >/dev/null
+    #echo -e "info $1\nquit\n" | bluetoothctl | grep "Connected: yes" >/dev/null
+}
+
+# $1 - mac address of bluetooth device
+jv_bt_is_paired () {
+    echo -e "paired-devices\nquit\n" | bluetoothctl | grep "^Device $1" >/dev/null
+}
+
+# $1 - mac address of bluetooth device
 jv_bt_connect () {
     jv_debug "Connecting to $1..."
     if jv_bt_is_connected $1; then
@@ -220,22 +234,21 @@ jv_bt_connect () {
         jv_play "sounds/connected.wav"
         return 0
     fi
-    echo -e "devices\nquit\n" | bluetoothctl | grep "$1" >/dev/null
+    echo -e "devices\nquit\n" | bluetoothctl | grep "^Device $1" >/dev/null
     if [ $? -ne 0 ]; then
         jv_error "ERROR: $1 is not available"
         return 1
     fi
-    echo -e "paired-devices\nquit\n" | bluetoothctl | grep "$1" >/dev/null
-    if [ $? -ne 0 ]; then # if not paired
+    if ! jv_bt_is_paired $1; then
         # pair & trust
-        echo "Pairing..."
+        printf "Pairing..."
         (
             echo -e "pair $1\n"
-            sleep 1
-            echo -e "trust $1\n"
+            sleep 2
             echo -e "quit\n"
         ) | bluetoothctl >/dev/null
-        if [ $? -eq 0 ]; then
+        if jv_bt_is_paired $1; then
+            echo -e "trust $1\nquit\n" | bluetoothctl >/dev/null
             jv_success "Paired"
         else
             jv_error "Failed"
@@ -244,28 +257,28 @@ jv_bt_connect () {
     fi
     # connect
     printf "Connecting..."
-    echo -e "connect $1\n" | bluetoothctl >/dev/null 2>&1
+    echo -e "connect $1\n" | bluetoothctl >/dev/null 2>&1 # Failed to connect: org.bluez.Error.Failed if pulseaudio not running
     for i in $(seq 1 5); do
         sleep 1
         if jv_bt_is_connected $1; then
-            # start pulseaudio if not running already
-            pulseaudio --check || pulseaudio --start
-            # need time to bluez sink to appear
-            sleep 1
-            # set bluetooth speaker as active audio device
-            pacmd set-default-sink bluez_sink.${1//:/_}
-            jv_success "Connected"
-            jv_play "sounds/connected.wav"
-            return 0
+            local bt_sink="bluez_sink.${1//:/_}"
+            for i in $(seq 1 5); do
+                # need time to bluez sink to appear
+                sleep 1
+                # check sink exists
+                if pactl list short sinks | grep "$bt_sink" >/dev/null; then
+                    # set bluetooth speaker as active audio device
+                    pacmd set-default-sink "$bt_sink"
+                    jv_success "Connected"
+                    jv_play "sounds/connected.wav"
+                    return 0
+                fi
+            done
+            jv_warning "Sink was not created"
         fi
     done
     jv_error "Failed"
     return 1
-}
-
-# $1 - mac address of bluetooth device
-jv_bt_is_connected () {
-    echo -e "info $1\nquit\n" | bluetoothctl | grep "Connected: yes" >/dev/null
 }
 
 # $1 - mac address of bluetooth device
@@ -276,7 +289,7 @@ jv_bt_disconnect () {
         sleep 1
         if ! jv_bt_is_connected $1; then
             # stop pulseaudio if running
-            pulseaudio --check && pulseaudio --kill
+            #pulseaudio --check && pulseaudio --kill
             jv_success "Disconnected"
             jv_play "sounds/connected.wav"
             return 0
@@ -292,7 +305,7 @@ jv_bt_forget () {
         jv_error "ERROR: $1 is not paired"
         return 1
     fi
-    echo "Removing..."
+    printf "Removing..."
     (
         echo -e "untrust $1\n"
         sleep 1
@@ -316,18 +329,19 @@ jv_bt_menu () {
     fi
     jv_bt_init
     while true; do
-        if jv_bt_is_connected "$jv_bt_device_mac"; then
-            local bt_status="Connected"
-            local bt_reconnect_disconnect="Disconnect"
-        else
-            local bt_status="Disconnected"
-            local bt_reconnect_disconnect="Reconnect"
-        fi
         local options=("Use bluetooth ($jv_use_bluetooth)"
-                 "Scan"
-                 "$bt_reconnect_disconnect"
-                 "Forget device"
-                 "Uninstall bluetooth")
+                       "Scan")
+        if [ -n "$jv_bt_device_mac" ]; then
+            if jv_bt_is_connected "$jv_bt_device_mac"; then
+                local bt_status="Connected"
+                options+=("Disconnect")
+            else
+                local bt_status="Disconnected"
+                options+=("Reconnect")
+            fi
+            options+=("Forget device")
+        fi
+        options+=("Uninstall bluetooth")
         case "$(dialog_menu "Bluetooth\nSpeaker: ${jv_bt_device_name:-None} ($bt_status)" options[@])" in
             Use*)           configure "jv_use_bluetooth"
                             $jv_use_bluetooth || break;;
@@ -337,17 +351,16 @@ jv_bt_menu () {
                             while read bt_device; do
                                 bt_devices+=("$bt_device")
                             done < <( jv_bt_scan )
-                            jv_bt_device="$(dialog_select "Bluetooth devices" bt_devices[@])"
-                            if [ -n "$jv_bt_device" ]; then
-                                jv_bt_device_mac="${jv_bt_device# *}"
+                            #TODO check list not empty
+                            jv_bt_device="$(dialog_select "Bluetooth devices" bt_devices[@] false)"
+                            if [ "$jv_bt_device" != "false" ]; then
+                                jv_bt_device_mac="${jv_bt_device%% *}"
                                 jv_bt_device_name="${jv_bt_device#* }"
                                 jv_bt_connect "$jv_bt_device_mac" \
-                                    && dialog_msg "Connected" \
                                     || dialog_msg "Connection failed\nMake sure your device is in pairing mode"
                             fi
                             ;;
             Reconnect)      jv_bt_connect "$jv_bt_device_mac" \
-                                && dialog_msg "Connected" \
                                 || dialog_msg "Connection failed\nMake sure your device is in pairing mode"
                             ;;
             Disconnect)     jv_bt_disconnect "$jv_bt_device_mac";;
@@ -369,11 +382,7 @@ jv_bt_wizard () {
         if dialog_yesno "pulseaudio-module-bluetooth doesn't seem to be installed. Install it?" >/dev/null; then
             jv_bt_install || return 1
         else
-            return
+            return 1
         fi
-    fi
-    if [ -n "$jv_bt_device_mac" ]; then
-        #if jv_bt_is_connected "$jv_bt_speaker_mac"
-        :
     fi
 }
