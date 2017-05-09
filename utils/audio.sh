@@ -293,24 +293,25 @@ jv_bt_menu () {
             local bt_status="Disconnected"
             local bt_reconnect_disconnect="Reconnect"
         fi
-        local options=("Use bluetooth ($jv_use_bluetoot})"
-                 "Status ($bt_status)"
+        local options=("Use bluetooth ($jv_use_bluetooth)"
                  "Scan"
                  "$bt_reconnect_disconnect"
                  "Uninstall bluetooth")
-        case "$(dialog_menu "Bluetooth\nSpeaker: $jv_bt_device_name ($bt_status)" options[@])" in
+        case "$(dialog_menu "Bluetooth\nSpeaker: ${jv_bt_device_name:-None} ($bt_status)" options[@])" in
             Use*)           configure "jv_use_bluetooth"
                             jv_use_bluetooth || break 2;;
             Scan)           jv_warning "Put your bluetooth device in pairing mode"
                             jv_press_enter_to_continue
                             jv_debug "Scanning bluetooth devices..."
-                            local bt_devices=( $(jv_bt_scan) )
+                            local bt_devices=( "$(jv_bt_scan)" )
                             jv_bt_device="$(dialog_select "Bluetooth devices" bt_devices[@])"
                             if [ -n "$jv_bt_device" ]; then
                                 jv_bt_device_name="${jv_bt_device# *}"
                                 jv_bt_device_mac="${jv_bt_device#* }"
                                 jv_debug "Connecting to $jv_bt_device_mac..."
-                                jv_bt_connect "$jv_bt_device_mac"
+                                jv_bt_connect "$jv_bt_device_mac" \
+                                    && dialog_msg "Connected" \
+                                    || dialog_msg "Connection failed"
                             fi
                             ;;
             Reconnect)      jv_bt_connect "$jv_bt_speaker_mac";;
