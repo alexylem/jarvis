@@ -150,26 +150,28 @@ jv_add_timestamps () {
 #   Jarvis: hello world
 say () {
     #set -- "${1:-$(</dev/stdin)}" "${@:2}" # read commands if $1 is empty... #195
-    local phrase="$1"
-    phrase="$(echo -e "$phrase" | sed $'s/\xC2\xA0/ /g')" #574 remove non-breakable spaces
+    local phrases="$1"
+    phrases="$(echo -e "$phrases" | sed $'s/\xC2\xA0/ /g')" #574 remove non-breakable spaces
     #phrase="${phrase/\*/}" #TODO * char causes issues with google & OSX say TTS, looks like no longer with below icon
-    jv_hook "start_speaking" "$phrase" #533
-    if $jv_json; then
-        jv_print_json "answer" "$phrase" #564
-    else
-        echo -e "$_pink$trigger$_reset: $phrase"
-    fi
-    $quiet && return
-    if $jv_api; then # if using API, put in queue
-        if jv_is_started; then
-            echo "$phrase" >> $jv_say_queue # put in queue (read by say.sh)
+    jv_hook "start_speaking" "$phrases" #533
+    while read -r phrase; do #591 can be multiline
+        if $jv_json; then
+            jv_print_json "answer" "$phrase" #564
         else
-            jv_error "ERROR: Jarvis is not running"
-            jv_success "HELP: Start Jarvis using ./jarvis.sh -b"
+            echo -e "$_pink$trigger$_reset: $phrase"
         fi
-    else # if using Jarvis, speak synchronously
-        $tts_engine'_TTS' "$phrase"
-    fi
+        $quiet && return
+        if $jv_api; then # if using API, put in queue
+            if jv_is_started; then
+                echo "$phrase" >> $jv_say_queue # put in queue (read by say.sh)
+            else
+                jv_error "ERROR: Jarvis is not running"
+                jv_success "HELP: Start Jarvis using ./jarvis.sh -b"
+            fi
+        else # if using Jarvis, speak synchronously
+            $tts_engine'_TTS' "$phrase"
+        fi
+    done <<< "$phrases"
     jv_hook "stop_speaking"
 }
 

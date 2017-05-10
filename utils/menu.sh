@@ -36,11 +36,13 @@ jv_menu_main () {
                     options=('Step-by-step wizard'
                              'General'
                              'Phrases'
-                             'Hooks'
                              'Audio'
                              'Voice recognition'
-                             'Speech synthesis')
+                             'Speech synthesis'
+                             'Hooks')
                     case "`dialog_menu 'Configuration' options[@]`" in
+                        "Step-by-step wizard")
+                            wizard;;
                         "General")
                             while true; do
                                 options=("Username ($username)"
@@ -78,30 +80,6 @@ jv_menu_main () {
                                     *) break;;
                                 esac
                             done;;
-                        "Hooks")
-                        while true; do
-                            options=("Program startup"
-                                     "Start listening"
-                                     "Stop listening"
-                                     "Listening timeout"
-                                     "Entering command mode"
-                                     "Start speaking"
-                                     "Stop speaking"
-                                     "Exiting command mode"
-                                     "Program exit")
-                            case "`dialog_menu 'Configuration > Hooks' options[@]`" in
-                                Program*startup*)   configure "program_startup";;
-                                Program*exit*)      configure "program_exit";;
-                                Entering*)          configure "entering_cmd";;
-                                Exiting*)           configure "exiting_cmd";;
-                                Listening*timeout)  configure "listening_timeout";;
-                                Start*listening*)   configure "start_listening";;
-                                Stop*listening*)    configure "stop_listening";;
-                                Start*speaking*)    configure "start_speaking";;
-                                Stop*speaking*)     configure "stop_speaking";;
-                                *) break;;
-                            esac
-                        done;;
                         "Audio")
                             while true; do
                                 options=("Speaker ($play_hw)"
@@ -223,8 +201,30 @@ EOM
                                     *) break;;
                                 esac
                             done;;
-                        "Step-by-step wizard")
-                            wizard;;
+                        "Hooks")
+                            while true; do
+                                options=("Program startup"
+                                         "Start listening"
+                                         "Stop listening"
+                                         "Listening timeout"
+                                         "Entering command mode"
+                                         "Start speaking"
+                                         "Stop speaking"
+                                         "Exiting command mode"
+                                         "Program exit")
+                                case "`dialog_menu 'Configuration > Hooks' options[@]`" in
+                                    Program*startup*)   configure "program_startup";;
+                                    Program*exit*)      configure "program_exit";;
+                                    Entering*)          configure "entering_cmd";;
+                                    Exiting*)           configure "exiting_cmd";;
+                                    Listening*timeout)  configure "listening_timeout";;
+                                    Start*listening*)   configure "start_listening";;
+                                    Stop*listening*)    configure "stop_listening";;
+                                    Start*speaking*)    configure "start_speaking";;
+                                    Stop*speaking*)     configure "stop_speaking";;
+                                    *) break;;
+                                esac
+                            done;;
                         *) break;;
                     esac
                 done
