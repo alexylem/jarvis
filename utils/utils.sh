@@ -160,7 +160,7 @@ say () {
         else
             echo -e "$_pink$trigger$_reset: $phrase"
         fi
-        $quiet && return
+        $quiet && break #602
         if $jv_api; then # if using API, put in queue
             if jv_is_started; then
                 echo "$phrase" >> $jv_say_queue # put in queue (read by say.sh)
