@@ -1,4 +1,4 @@
-# Jarvis [![Version-shield]](CHANGELOG.md) ![Build-shield] [![Plugins-shield]](http://domotiquefacile.fr/jarvis/top-plugins) [![License-shield]](LICENSE.md) 
+# Jarvis [![Version-shield]](CHANGELOG.md) ![Build-shield] [![Plugins-shield]](http://domotiquefacile.fr/jarvis/top-plugins)
 
 [![Banner]](http://domotiquefacile.fr/jarvis/)
 
@@ -27,6 +27,8 @@ $> ./jarvis.sh -i
 $> jarvis
 ```
 ![App-menu]
+
+[![Asciinema]](https://asciinema.org/a/3rydfvf0wmmdxydqyx0nuivvg)
 
 ### Command-line options
 ```shell
@@ -58,13 +60,14 @@ http://domotiquefacile.fr/jarvis/content/support
 
 ### License
 
-[![License-shield]](LICENSE.md) Please, refer to [LICENSE.md](https://github.com/alexylem/jarvis/blob/master/LICENSE.md) file.
+[![License-shield]](LICENSE.md)
 
 <!-- Links To Images -->
 [Banner]: /imgs/banners/jarvis_banner.png "Simple configurable multi-lang assistant"
 [English]: /imgs/flags/us.png "English"
 [French]: /imgs/flags/fr.png "French"
 [App-menu]: http://domotiquefacile.fr/jarvis/sites/default/files/paste_1476635110.png
+[Asciinema]: https://cloud.githubusercontent.com/assets/11017174/25974079/4e840f70-36a7-11e7-9f7d-9d4f50311033.png
 <!-- Links To MDs -->
 [Changelog File]: CHANGELOG.md
 [Contributing File]: CONTRIBUTING.md
