@@ -6,7 +6,7 @@
 flags='bc:ihjklmnp:qrs:uvwx:z'
 jv_show_help () { cat <<EOF
 
-    Usage: ${0##*/} [-$flags]
+    Usage: jarvis [-$flags]
 
     Jarvis.sh is a lightweight configurable multi-lang voice assistant
     Meant for home automation running on slow computer (ex: Raspberry Pi)
@@ -38,8 +38,20 @@ EOF
 
 headline="NEW: Adjust playback speed in Settings > Audio > Tempo"
 
-# Move to Jarvis directory
-export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # why export?
+# Public: get absolute path of current script, even if called via symbolic link
+jv_get_current_dir () {
+    SOURCE="${BASH_SOURCE[0]}"
+    while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+      DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+      SOURCE="$(readlink "$SOURCE")"
+      [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+    done
+    echo "$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+}
+#export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # why export?
+jv_dir="$(jv_get_current_dir)"
+
+# move to jarvis directory
 cd "$jv_dir" # needed now for git used in automatic update
 
 shopt -s nocasematch # string comparison case insensitive
@@ -90,6 +102,8 @@ if [ ! -d "plugins_enabled" ]; then
         jv_plugin_enable "$plugin"
     done
 fi
+# create symlink to jarvis if not already exists
+[ -h /usr/local/bin/jarvis ] || ln -s "$jv_dir/jarvis.sh" /usr/local/bin/jarvis
 
 # default flags, use options to change see jarvis.sh -h
 quiet=false
@@ -104,7 +118,7 @@ while getopts ":$flags" o; do
 		b)  # Check if Jarvis is already running in background
             if jv_is_started; then
                 jv_error "Jarvis is already running"
-                jv_warning "run ./jarvis.sh -q to stop it"
+                jv_warning "run jarvis -q to stop it"
                 exit 1
             fi
             jv_start_in_background
@@ -331,6 +345,7 @@ jv_handle_order() {
     fi
 }
 
+# Internal:
 handle_orders() {
     if [ -z "$separator" ]; then
         jv_handle_order "$1"
@@ -428,7 +443,7 @@ while true; do
                 
                 if $jv_is_paused; then
                     echo "paused"
-                    $verbose && jv_debug "to resume, run: ./jarvis.sh and select Resume"
+                    $verbose && jv_debug "to resume, run: jarvis and select Resume"
                     wait # until signal
                     continue 2
                 fi

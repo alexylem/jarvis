@@ -166,7 +166,7 @@ say () {
                 echo "$phrase" >> $jv_say_queue # put in queue (read by say.sh)
             else
                 jv_error "ERROR: Jarvis is not running"
-                jv_success "HELP: Start Jarvis using ./jarvis.sh -b"
+                jv_success "HELP: Start Jarvis using jarvis -b"
             fi
         else # if using Jarvis, speak synchronously
             $tts_engine'_TTS' "$phrase"
@@ -320,16 +320,16 @@ jv_press_enter_to_continue () {
 
 # Internal: start Jarvis as a service
 jv_start_in_background () {
-    nohup ./jarvis.sh -n 2>&1 | jv_add_timestamps >> jarvis.log &
+    nohup jarvis -n 2>&1 | jv_add_timestamps >> jarvis.log &
     cat <<EOM
 Jarvis has been launched in background
 
 To view Jarvis output:
-./jarvis.sh and select "View output"
+jarvis and select "View output"
 To check if jarvis is running:
 pgrep -laf jarvis.sh
 To stop Jarvis:
-./jarvis.sh and select "Stop Jarvis"
+jarvis and select "Stop Jarvis"
 
 You can now close this terminal
 EOM

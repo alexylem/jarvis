@@ -3,13 +3,13 @@
 describe "Jarvis API"
 
 it_starts_in_background() {
-    ./jarvis.sh -q || true
-    ./jarvis.sh -b | grep "Jarvis has been launched in background"
+    jarvis -q || true
+    jarvis -b | grep "Jarvis has been launched in background"
 }
 
 it_checks_already_running() {
     sleep 0.5
-    ./jarvis.sh -b 2>&1 | grep "Jarvis is already running"
+    jarvis -b 2>&1 | grep "Jarvis is already running"
 }
 
 it_says_hello () {
@@ -27,5 +27,5 @@ it_says_hello_verbose_false () {
 it_gets_killed() {
    kill $(cat /tmp/jarvis.lock) # -q breaks roundup
    sleep 0.5
-   ./jarvis.sh -q | grep "Jarvis is not running"
+   jarvis -q | grep "Jarvis is not running"
 }
