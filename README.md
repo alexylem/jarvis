@@ -71,6 +71,6 @@ http://domotiquefacile.fr/jarvis/content/support
 [License File]: LICENSE.md
 <!-- Badges URLs -->
 [Build-shield]: https://img.shields.io/badge/build-passing-brightgreen.svg
-[Version-shield]: https://img.shields.io/badge/version-17.04.30-blue.svg
+[Version-shield]: https://img.shields.io/badge/version-17.05.11-blue.svg
 [License-shield]: https://img.shields.io/badge/license-MIT-yellow.svg
 [Plugins-shield]: https://img.shields.io/badge/plugins-81+-orange.svg
