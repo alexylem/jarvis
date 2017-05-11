@@ -6,7 +6,7 @@
 
 Jarvis.sh is a lightweight configurable multi-lang voice assistant  
 Meant for home automation running on [slow computers](http://domotiquefacile.fr/jarvis/content/prerequisites) (ex: Raspberry Pi)  
-Installs automatically [voice recognition](http://domotiquefacile.fr/jarvis/content/stt) & [speech synthesis]http://domotiquefacile.fr/jarvis/content/tts) egines of your choice  
+Installs automatically [voice recognition](http://domotiquefacile.fr/jarvis/content/stt) & [speech synthesis](http://domotiquefacile.fr/jarvis/content/tts) egines of your choice  
 Highly extendable thanks to a wide catalog of [community plugins](http://domotiquefacile.fr/jarvis/plugins)
 
 Languages supported (for voice recognition and speech synthesis):  
