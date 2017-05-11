@@ -1,4 +1,4 @@
-# Jarvis [![Version-shield]](CHANGELOG.md) [![License-shield]](LICENSE.md) ![Build-shield]
+# Jarvis [![Version-shield]](CHANGELOG.md) ![Build-shield] [![Plugins-shield]](http://domotiquefacile.fr/jarvis/top-plugins) [![License-shield]](LICENSE.md) 
 
 [![Banner]](http://domotiquefacile.fr/jarvis/)
 
@@ -70,6 +70,7 @@ http://domotiquefacile.fr/jarvis/content/support
 [Contributing File]: CONTRIBUTING.md
 [License File]: LICENSE.md
 <!-- Badges URLs -->
-[Build-shield]: https://img.shields.io/badge/build-passing-green.svg
+[Build-shield]: https://img.shields.io/badge/build-passing-brightgreen.svg
 [Version-shield]: https://img.shields.io/badge/version-17.04.30-blue.svg
-[License-shield]: https://img.shields.io/badge/license-MIT-blue.svg
+[License-shield]: https://img.shields.io/badge/license-MIT-yellow.svg
+[Plugins-shield]: https://img.shields.io/badge/plugins-81+-orange.svg
