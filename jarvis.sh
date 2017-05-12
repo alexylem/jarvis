@@ -60,6 +60,12 @@ source utils/store.sh # needed for plugin installation & store menu
 source utils/audio.sh # needed for jv_auto_levels
 source utils/configure.sh # needed to configure jarvis
 
+# Check not ran as root
+if [ "$EUID" -eq 0 ]; then
+    echo "ERROR: Jarvis must not be used as root" 1>&2 # not jv_error because test needs no-color
+    exit 1
+fi
+
 # Check platform compatibility
 dependencies=(awk curl git iconv jq nano perl sed sox wget)
 case "$OSTYPE" in
@@ -113,16 +119,10 @@ just_say=false
 just_listen=false
 just_execute=false
 no_menu=false
+jv_do_start_in_background=false
 while getopts ":$flags" o; do
     case "${o}" in
-		b)  # Check if Jarvis is already running in background
-            if jv_is_started; then
-                jv_error "Jarvis is already running"
-                jv_warning "run jarvis -q to stop it"
-                exit 1
-            fi
-            jv_start_in_background
-            exit;;
+		b)  jv_do_start_in_background=true;;
         c)  conversation_mode_override=${OPTARG};;
         h)  jv_show_help
             exit;;
@@ -175,10 +175,15 @@ while getopts ":$flags" o; do
     esac
 done
 
-# Check not ran as root #why so at the bottom?
-if [ "$EUID" -eq 0 ]; then
-    jv_error "ERROR: Jarvis must not be used as root"
-    exit 1
+if $jv_do_start_in_background; then
+    # Check if Jarvis is already running in background
+    if jv_is_started; then
+        jv_error "Jarvis is already running"
+        jv_warning "run jarvis -q to stop it"
+        exit 1
+    fi
+    jv_start_in_background
+    exit
 fi
 
 # check dependencies

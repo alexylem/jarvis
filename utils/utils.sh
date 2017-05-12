@@ -320,7 +320,7 @@ jv_press_enter_to_continue () {
 
 # Internal: start Jarvis as a service
 jv_start_in_background () {
-    nohup jarvis -n 2>&1 | jv_add_timestamps >> jarvis.log &
+    nohup jarvis -$($verbose && echo v)n 2>&1 | jv_add_timestamps >> jarvis.log &
     cat <<EOM
 Jarvis has been launched in background
 
@@ -346,11 +346,12 @@ jv_kill_jarvis () {
         local pid=$(cat $lockfile) # process id of jarvis
         if kill -0 $pid 2>/dev/null; then
             # Trigger program exit hook
-            jv_hook "program_exit" #410 for some reason below kill TERM is not caught by jarvis. Need to trigger hook manually before
+            #jv_hook "program_exit" #410 for some reason below kill TERM is not caught by jarvis. Need to trigger hook manually before
             
             # Kill jarvis group of processes
-            local gid=$(ps -p $pid -o pgid=)
-            kill -TERM -$(echo $gid)
+            #local gid=$(ps -p $pid -o pgid=)
+            #kill -TERM -$(echo $gid)
+            kill -TERM $pid #607
             echo "Jarvis has been terminated"
             return 0
         fi
