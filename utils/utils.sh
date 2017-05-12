@@ -345,6 +345,9 @@ jv_kill_jarvis () {
     if [ -e $lockfile ]; then
         local pid=$(cat $lockfile) # process id of jarvis
         if kill -0 $pid 2>/dev/null; then
+            # Source plugin config for their hooks
+            for f in plugins_enabled/*/config.sh; do source $f; done # plugin configuration
+            
             # Trigger program exit hook
             jv_hook "program_exit" #410 for some reason below kill TERM is not caught by jarvis. Need to trigger hook manually before
             
