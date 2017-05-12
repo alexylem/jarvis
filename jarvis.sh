@@ -103,7 +103,7 @@ if [ ! -d "plugins_enabled" ]; then
     done
 fi
 # create symlink to jarvis if not already exists
-[ -h /usr/local/bin/jarvis ] || ln -s "$jv_dir/jarvis.sh" /usr/local/bin/jarvis
+[ -h /usr/local/bin/jarvis ] || sudo ln -s "$jv_dir/jarvis.sh" /usr/local/bin/jarvis
 
 # default flags, use options to change see jarvis.sh -h
 quiet=false

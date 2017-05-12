@@ -17,11 +17,11 @@ it_says_hello () {
 }
 
 it_says_hello_verbose () {
-    test "$(curl -s "localhost:8080?say=bonjour&mute=true&verbose=true")" = '[{"debug": "DEBUG: start_speaking hook \"bonjour\""}, {"answer": "bonjour"}, {"debug": "DEBUG: stop_speaking hook"}]'
+    test "$(curl -s "localhost:8080?say=bonjour&mute=true&verbose=True")" = '[{"debug": "DEBUG: start_speaking hook \"bonjour\""}, {"answer": "bonjour"}, {"debug": "DEBUG: stop_speaking hook"}]'
 }
 
 it_says_hello_verbose_false () {
-    test "$(curl -s "localhost:8080?say=bonjour&mute=true&verbose=false")" = '[{"answer": "bonjour"}]'
+    test "$(curl -s "localhost:8080?say=bonjour&mute=true&verbose=False")" = '[{"answer": "bonjour"}]'
 }
 
 it_gets_killed() {
