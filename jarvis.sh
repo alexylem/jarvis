@@ -171,7 +171,8 @@ while getopts ":$flags" o; do
             jv_api=true;;
         z)  jv_build
             exit $?;;
-        *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
+        *)	echo -e "jarvis: invalid option\nTry 'jarvis -h' for more information." 1>&2
+            exit 1;;
     esac
 done
 
@@ -184,6 +185,10 @@ if $jv_do_start_in_background; then
     fi
     jv_start_in_background
     exit
+fi
+
+if $jv_api; then # if using api all output to jarvis log in addition to stdout
+    exec > >(tee >(jv_add_timestamps >> jarvis.log)) 2>&1
 fi
 
 # check dependencies

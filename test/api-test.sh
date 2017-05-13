@@ -3,7 +3,7 @@
 describe "Jarvis API"
 
 it_starts_in_background() {
-    jarvis -q || true
+    jarvis -q || true # in case jarvis already running
     jarvis -b | grep "Jarvis has been launched in background"
 }
 
@@ -25,7 +25,10 @@ it_says_hello_verbose_false () {
 }
 
 it_gets_killed() {
-   kill $(cat /tmp/jarvis.lock) # -q breaks roundup
-   sleep 0.5
-   jarvis -q | grep "Jarvis is not running"
+   jarvis -q | grep  "Jarvis has been terminated"
+}
+
+it_but_not_twice () {
+    sleep 0.5
+    jarvis -q | grep "Jarvis is not running"
 }
