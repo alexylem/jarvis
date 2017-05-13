@@ -36,11 +36,13 @@ jv_menu_main () {
                     options=('Step-by-step wizard'
                              'General'
                              'Phrases'
-                             'Hooks'
                              'Audio'
                              'Voice recognition'
-                             'Speech synthesis')
+                             'Speech synthesis'
+                             'Hooks')
                     case "`dialog_menu 'Configuration' options[@]`" in
+                        "Step-by-step wizard")
+                            wizard;;
                         "General")
                             while true; do
                                 options=("Username ($username)"
@@ -78,34 +80,11 @@ jv_menu_main () {
                                     *) break;;
                                 esac
                             done;;
-                        "Hooks")
-                        while true; do
-                            options=("Program startup"
-                                     "Start listening"
-                                     "Stop listening"
-                                     "Listening timeout"
-                                     "Entering command mode"
-                                     "Start speaking"
-                                     "Stop speaking"
-                                     "Exiting command mode"
-                                     "Program exit")
-                            case "`dialog_menu 'Configuration > Hooks' options[@]`" in
-                                Program*startup*)   configure "program_startup";;
-                                Program*exit*)      configure "program_exit";;
-                                Entering*)          configure "entering_cmd";;
-                                Exiting*)           configure "exiting_cmd";;
-                                Listening*timeout)  configure "listening_timeout";;
-                                Start*listening*)   configure "start_listening";;
-                                Stop*listening*)    configure "stop_listening";;
-                                Start*speaking*)    configure "start_speaking";;
-                                Stop*speaking*)     configure "stop_speaking";;
-                                *) break;;
-                            esac
-                        done;;
                         "Audio")
                             while true; do
                                 options=("Speaker ($play_hw)"
                                          "Mic ($rec_hw)"
+                                         "Bluetooth (experimental)"
                                          "Recorder ($recorder)"
                                          "Auto-adjust levels"
                                          "Volume"
@@ -117,34 +96,35 @@ jv_menu_main () {
                                          "Min silence duration to stop ($min_silence_duration_to_stop)"
                                          "Min silence level to stop ($min_silence_level_to_stop)")
                                 case "`dialog_menu 'Configuration > Audio' options[@]`" in
-                                    Speaker*)  configure "play_hw";;
-                                    Mic*)      configure "rec_hw";;
-                                    Recorder*) configure "recorder";;
-                                    Auto*)     jv_auto_levels;;
-                                    Volume) if [ "$platform" == "osx" ]; then
-                                                osascript <<EOM
-                                                    tell application "System Preferences"
-                                                        activate
-                                                        set current pane to pane "com.apple.preference.sound"
-                                                        reveal (first anchor of current pane whose name is "output")
-                                                    end tell
+                                    Speaker*)   configure "play_hw";;
+                                    Mic*)       configure "rec_hw";;
+                                    Recorder*)  configure "recorder";;
+                                    Bluetooth*) jv_bt_menu;;
+                                    Auto*)      jv_auto_levels;;
+                                    Volume)     if [ "$platform" == "osx" ]; then
+                                                    osascript <<EOM
+                                                        tell application "System Preferences"
+                                                            activate
+                                                            set current pane to pane "com.apple.preference.sound"
+                                                            reveal (first anchor of current pane whose name is "output")
+                                                        end tell
 EOM
-                                            else
-                                                alsamixer -c ${play_hw:3:1} -V playback || read -p "ERROR: check above"
-                                            fi;;
+                                                else
+                                                    alsamixer -c ${play_hw:3:1} -V playback || read -p "ERROR: check above"
+                                                fi;;
                                     Tempo*)     configure "tempo";;
                                     Sensitivity)
-                                    if [ "$platform" == "osx" ]; then
-                                                osascript <<EOM
-                                                    tell application "System Preferences"
-                                                        activate
-                                                        set current pane to pane "com.apple.preference.sound"
-                                                        reveal (first anchor of current pane whose name is "input")
-                                                    end tell
+                                                if [ "$platform" == "osx" ]; then
+                                                    osascript <<EOM
+                                                        tell application "System Preferences"
+                                                            activate
+                                                            set current pane to pane "com.apple.preference.sound"
+                                                            reveal (first anchor of current pane whose name is "input")
+                                                        end tell
 EOM
-                                            else
-                                                alsamixer -c ${rec_hw:3:1} -V capture || read -p "ERROR: check above"
-                                            fi;;
+                                                else
+                                                    alsamixer -c ${rec_hw:3:1} -V capture || read -p "ERROR: check above"
+                                                fi;;
                                     Gain*)            configure "gain";;
                                     *duration*start*) configure "min_noise_duration_to_start";;
                                     *perc*start*)     configure "min_noise_perc_to_start";;
@@ -221,8 +201,30 @@ EOM
                                     *) break;;
                                 esac
                             done;;
-                        "Step-by-step wizard")
-                            wizard;;
+                        "Hooks")
+                            while true; do
+                                options=("Program startup"
+                                         "Start listening"
+                                         "Stop listening"
+                                         "Listening timeout"
+                                         "Entering command mode"
+                                         "Start speaking"
+                                         "Stop speaking"
+                                         "Exiting command mode"
+                                         "Program exit")
+                                case "`dialog_menu 'Configuration > Hooks' options[@]`" in
+                                    Program*startup*)   configure "program_startup";;
+                                    Program*exit*)      configure "program_exit";;
+                                    Entering*)          configure "entering_cmd";;
+                                    Exiting*)           configure "exiting_cmd";;
+                                    Listening*timeout)  configure "listening_timeout";;
+                                    Start*listening*)   configure "start_listening";;
+                                    Stop*listening*)    configure "stop_listening";;
+                                    Start*speaking*)    configure "start_speaking";;
+                                    Stop*speaking*)     configure "stop_speaking";;
+                                    *) break;;
+                                esac
+                            done;;
                         *) break;;
                     esac
                 done

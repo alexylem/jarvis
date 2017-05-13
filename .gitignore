@@ -50,3 +50,5 @@ hooks/stop_speaking
 *.pyc
 
 hooks/listening_timeout
+
+my-functions.sh

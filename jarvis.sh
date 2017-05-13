@@ -6,7 +6,7 @@
 flags='bc:ihjklmnp:qrs:uvwx:z'
 jv_show_help () { cat <<EOF
 
-    Usage: ${0##*/} [-$flags]
+    Usage: jarvis [-$flags]
 
     Jarvis.sh is a lightweight configurable multi-lang voice assistant
     Meant for home automation running on slow computer (ex: Raspberry Pi)
@@ -38,8 +38,20 @@ EOF
 
 headline="NEW: Adjust playback speed in Settings > Audio > Tempo"
 
-# Move to Jarvis directory
-export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # why export?
+# Public: get absolute path of current script, even if called via symbolic link
+jv_get_current_dir () {
+    SOURCE="${BASH_SOURCE[0]}"
+    while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+      DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+      SOURCE="$(readlink "$SOURCE")"
+      [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+    done
+    echo "$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+}
+#export jv_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # why export?
+jv_dir="$(jv_get_current_dir)"
+
+# move to jarvis directory
 cd "$jv_dir" # needed now for git used in automatic update
 
 shopt -s nocasematch # string comparison case insensitive
@@ -47,6 +59,12 @@ source utils/utils.sh # needed for wizard / platform error
 source utils/store.sh # needed for plugin installation & store menu
 source utils/audio.sh # needed for jv_auto_levels
 source utils/configure.sh # needed to configure jarvis
+
+# Check not ran as root
+if [ "$EUID" -eq 0 ]; then
+    echo "ERROR: Jarvis must not be used as root" 1>&2 # not jv_error because test needs no-color
+    exit 1
+fi
 
 # Check platform compatibility
 dependencies=(awk curl git iconv jq nano perl sed sox wget)
@@ -90,6 +108,8 @@ if [ ! -d "plugins_enabled" ]; then
         jv_plugin_enable "$plugin"
     done
 fi
+# create symlink to jarvis if not already exists
+[ -h /usr/local/bin/jarvis ] || sudo ln -s "$jv_dir/jarvis.sh" /usr/local/bin/jarvis
 
 # default flags, use options to change see jarvis.sh -h
 quiet=false
@@ -99,17 +119,10 @@ just_say=false
 just_listen=false
 just_execute=false
 no_menu=false
-jv_json=false
+jv_do_start_in_background=false
 while getopts ":$flags" o; do
     case "${o}" in
-		b)  # Check if Jarvis is already running in background
-            if jv_is_started; then
-                jv_error "Jarvis is already running"
-                jv_warning "run ./jarvis.sh -q to stop it"
-                exit 1
-            fi
-            jv_start_in_background
-            exit;;
+		b)  jv_do_start_in_background=true;;
         c)  conversation_mode_override=${OPTARG};;
         h)  jv_show_help
             exit;;
@@ -138,6 +151,10 @@ while getopts ":$flags" o; do
         r)  source uninstall.sh
             exit $?;;
         s)	just_say="${OPTARG}"
+            if [ -z "$just_say" ]; then
+                jv_error "ERROR: phrase cannot be empty"
+                exit 1
+            fi
             jv_api=true;;
         u)  configure "load" #498 
             jv_check_updates "./" true # force udpate
@@ -153,21 +170,33 @@ while getopts ":$flags" o; do
             fi
             jv_api=true;;
         z)  jv_build
-            exit;;
-        *)	echo "Usage: $0 [-$flags]" 1>&2; exit 1;;
+            exit $?;;
+        *)	echo -e "jarvis: invalid option\nTry 'jarvis -h' for more information." 1>&2
+            exit 1;;
     esac
 done
 
-# Check not ran as root
-if [ "$EUID" -eq 0 ]; then
-    jv_error "ERROR: Jarvis must not be used as root"
-    exit 1
+if $jv_do_start_in_background; then
+    # Check if Jarvis is already running in background
+    if jv_is_started; then
+        jv_error "Jarvis is already running"
+        jv_warning "run jarvis -q to stop it"
+        exit 1
+    fi
+    jv_start_in_background
+    exit
+fi
+
+if $jv_api; then # if using api all output to jarvis log in addition to stdout
+    exec > >(tee >(jv_add_timestamps >> jarvis.log)) 2>&1
 fi
 
 # check dependencies
 jv_check_dependencies
 # load user settings if exist else launch install wizard
 configure "load" || wizard
+# activate bluetooth if needed
+$jv_use_bluetooth && jv_bt_init
 # send google analytics hit
 $send_usage_stats && ( jv_ga_send_hit & )
 
@@ -296,7 +325,7 @@ jv_handle_order() {
             fi
         else
             [ "${line:0:1}" = ">" ] && continue #https://github.com/alexylem/jarvis/issues/305
-            patterns=${line%==*} # *HELLO*|*GOOD*MORNING*==say Hi => *HELLO*|*GOOD*MORNING*
+            patterns=${line%%==*} # *HELLO*|*GOOD*MORNING*==say Hi => *HELLO*|*GOOD*MORNING*
     		IFS='|' read -ra ARR <<< "$patterns" # *HELLO*|*GOOD*MORNING* => [*HELLO*, *GOOD*MORNING*]
     		for pattern in "${ARR[@]}"; do # *HELLO*
     			regex="^${pattern//'*'/.*}$" # .*HELLO.*
@@ -326,6 +355,7 @@ jv_handle_order() {
     fi
 }
 
+# Internal:
 handle_orders() {
     if [ -z "$separator" ]; then
         jv_handle_order "$1"
@@ -423,7 +453,7 @@ while true; do
                 
                 if $jv_is_paused; then
                     echo "paused"
-                    $verbose && jv_debug "to resume, run: ./jarvis.sh and select Resume"
+                    $verbose && jv_debug "to resume, run: jarvis and select Resume"
                     wait # until signal
                     continue 2
                 fi
