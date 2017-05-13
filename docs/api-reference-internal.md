@@ -79,6 +79,12 @@ Public: indicates if called using API else normal usage
     $jv_api && echo "this is an API call"
 
 
+`jv_json`
+---------
+
+Public: indicates if output should be in JSON
+
+
 `jv_ip`
 -------
 

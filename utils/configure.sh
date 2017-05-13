@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Configuration
 configure () {
     local variables=('bing_speech_api_key'
@@ -9,6 +9,9 @@ configure () {
                    'gain'
                    'google_speech_api_key'
                    'jv_branch'
+                   'jv_bt_device_mac'
+                   'jv_bt_device_name'
+                   'jv_use_bluetooth'
                    'language'
                    'language_model'
                    'trigger_mode'
@@ -71,6 +74,9 @@ configure () {
                                    jv_error "ERROR: an error has occured while checking out $jv_branch branch"
                                    jv_press_enter_to_continue
                                };;
+        jv_use_bluetooth)      eval "$1=\"$(dialog_yesno "Do you want to use a bluetooth Speaker?\nThis will start PulseAudio" "${!1}")\""
+                               $jv_use_bluetooth && pulseaudio --start || pulseaudio --kill
+                               ;;
         program_startup)       editor hooks/$1;;
         program_exit)          editor hooks/$1;;
         entering_cmd)          editor hooks/$1;;

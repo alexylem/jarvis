@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 declare -f dialog_msg >/dev/null || {
-    echo "To uninstall, please run ./jarvis.sh -r"
+    echo "To uninstall, please run jarvis -r"
     exit 1
 }
 

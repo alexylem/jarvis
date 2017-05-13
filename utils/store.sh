@@ -1,3 +1,4 @@
+#!/bin/bash
 store_init () {
     if [ -f "$jv_store_file" ]; then
         jv_warning "Using cache, update to get new plugins"

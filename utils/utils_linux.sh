@@ -92,8 +92,7 @@ jv_is_installed () {
 # 
 #   jv_install mpg123
 jv_install () {
-    sudo apt-get install -y $@
-    sudo apt-get clean
+    sudo apt-get install -y $@ && sudo apt-get clean
 }
 
 # Public: remove packages, used for uninstalls

@@ -1,3 +1,6 @@
+- 11MAY17 Use jarvis instead of ./jarvis.sh https://github.com/alexylem/jarvis/issues/604
+- 09MAY17 Experimental bluetooth support https://github.com/alexylem/jarvis/issues/200
+- 06MAY17 Update script for plugins https://github.com/alexylem/jarvis/issues/581
 - 29APR17 Adjust speech playback speed https://github.com/alexylem/jarvis/issues/541 
 - 26APR17 Trigger hotword from API https://github.com/alexylem/jarvis/issues/557
 - 22APR17 Option to enable/disable plugins https://github.com/alexylem/jarvis/issues/556
