@@ -36,7 +36,7 @@ jv_show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW: Adjust playback speed in Settings > Audio > Tempo"
+headline="NEW: Experimental bluetooth support in Settings > Audio > Bluetooth"
 
 # Public: get absolute path of current script, even if called via symbolic link
 jv_get_current_dir () {
@@ -109,7 +109,11 @@ if [ ! -d "plugins_enabled" ]; then
     done
 fi
 # create symlink to jarvis if not already exists
-[ -h /usr/local/bin/jarvis ] || sudo ln -s "$jv_dir/jarvis.sh" /usr/local/bin/jarvis
+if [ -h /usr/local/bin/jarvis ]; then
+    [ "$(basename "$0")" != 'jarvis' ] && jv_debug "Notice: you can use 'jarvis' instead of './jarvis.sh'"
+else
+    sudo ln -s "$jv_dir/jarvis.sh" /usr/local/bin/jarvis
+fi
 
 # default flags, use options to change see jarvis.sh -h
 quiet=false
