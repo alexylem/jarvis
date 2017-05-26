@@ -1,26 +1,26 @@
-# Jarvis [![Version-shield]](CHANGELOG.md) ![Build-shield] [![Plugins-shield]](http://domotiquefacile.fr/jarvis/top-plugins)
+# Jarvis [![Version-shield]](CHANGELOG.md) ![Build-shield] [![Plugins-shield]](http://openjarvis.com/top-plugins)
 
-[![Banner]](http://domotiquefacile.fr/jarvis/)
+[![Banner]](http://openjarvis.com/)
 
-> Overview & full documentation available on http://domotiquefacile.fr/jarvis/
+> Overview & full documentation available on http://openjarvis.com/
 
 Jarvis.sh is a lightweight configurable multi-lang voice assistant  
-Meant for home automation running on [slow computers](http://domotiquefacile.fr/jarvis/content/prerequisites) (ex: Raspberry Pi)  
-Installs automatically [voice recognition](http://domotiquefacile.fr/jarvis/content/stt) & [speech synthesis](http://domotiquefacile.fr/jarvis/content/tts) egines of your choice  
-Highly extendable thanks to a wide catalog of [community plugins](http://domotiquefacile.fr/jarvis/plugins)
+Meant for home automation running on [slow computers](http://openjarvis.com/content/prerequisites) (ex: Raspberry Pi)  
+Installs automatically [voice recognition](http://openjarvis.com/content/stt) & [speech synthesis](http://openjarvis.com/content/tts) egines of your choice  
+Highly extendable thanks to a wide catalog of [community plugins](http://openjarvis.com/plugins)
 
 Languages supported (for voice recognition and speech synthesis):  
 :fr: :gb: :us: :es: :it: :de:
 
 ### Installation
 
-See [Requirements](http://domotiquefacile.fr/jarvis/content/prerequisites).
+See [Requirements](http://openjarvis.com/content/prerequisites).
 ```shell
 $> git clone https://github.com/alexylem/jarvis.git
 $> cd jarvis/
 $> ./jarvis.sh -i
 ```
->More info on the site [installation page](http://domotiquefacile.fr/jarvis/content/installation).
+>More info on the site [installation page](http://openjarvis.com/content/installation).
 
 ### Usage
 ```
@@ -56,7 +56,7 @@ $> jarvis -h
 
 ### Support
 
-http://domotiquefacile.fr/jarvis/content/support
+http://openjarvis.com/content/support
 
 ### License
 
@@ -66,7 +66,7 @@ http://domotiquefacile.fr/jarvis/content/support
 [Banner]: /imgs/banners/jarvis_banner.png "Simple configurable multi-lang assistant"
 [English]: /imgs/flags/us.png "English"
 [French]: /imgs/flags/fr.png "French"
-[App-menu]: http://domotiquefacile.fr/jarvis/sites/default/files/paste_1476635110.png
+[App-menu]: http://openjarvis.com/sites/default/files/paste_1476635110.png
 [Asciinema]: https://cloud.githubusercontent.com/assets/11017174/25974079/4e840f70-36a7-11e7-9f7d-9d4f50311033.png
 <!-- Links To MDs -->
 [Changelog File]: CHANGELOG.md

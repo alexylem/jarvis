@@ -108,12 +108,6 @@ if [ ! -d "plugins_enabled" ]; then
         jv_plugin_enable "$plugin"
     done
 fi
-# create symlink to jarvis if not already exists
-if [ -h /usr/local/bin/jarvis ]; then
-    [ "$(basename "$0")" != 'jarvis' ] && jv_debug "Notice: you can use 'jarvis' instead of '$0'"
-else
-    sudo ln -s "$jv_dir/jarvis.sh" /usr/local/bin/jarvis
-fi
 
 # default flags, use options to change see jarvis.sh -h
 quiet=false
@@ -193,6 +187,14 @@ fi
 
 if $jv_api; then # if using api all output to jarvis log in addition to stdout
     exec > >(tee >(jv_add_timestamps >> jarvis.log)) 2>&1
+fi
+
+# create symlink to jarvis if not already exists
+# after -j flag
+if [ -h /usr/local/bin/jarvis ]; then
+    [ "$(basename "$0")" != 'jarvis' ] && jv_debug "Notice: you can use 'jarvis' instead of '$0'"
+else
+    sudo ln -s "$jv_dir/jarvis.sh" /usr/local/bin/jarvis
 fi
 
 # check dependencies
