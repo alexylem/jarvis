@@ -6,7 +6,7 @@
 > Jarvis.sh is a lightweight configurable multi-lang jarvis-like bot.
 Meant for home automation running on slow computer (ex: Raspberry Pi 2 & 3).  
 It installs automatically speech recognition & synthesis engines of your choice.  
-It works with a [plugin store](http://domotiquefacile.fr/jarvis/plugins) to add some cool features.
+It works with a [plugin store](http://openjarvis.com/plugins) to add some cool features.
 
 This project is multilingual, which means that you may receive assistance, at least in French and in English.
 
@@ -62,8 +62,8 @@ Compatible with any Linux distribution that has installed the tools needed. The 
 
 **Getting started with Jarvis (Core & Plugins)**
 
-Overview & full documentation available on http://domotiquefacile.fr/jarvis/
-Please, take a look at [Docs](http://domotiquefacile.fr/jarvis/content/installation) and [Issues](https://github.com/alexylem/jarvis/issues) (mostly [question](https://github.com/alexylem/jarvis/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3Aquestion%20),  [help wanted](https://github.com/alexylem/jarvis/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3A%22help%20wanted%22%20) and [plugin request](https://github.com/alexylem/jarvis/issues?q=is%3Aissue+label%3A%22plugin+request%22)) before opening a new issue.
+Overview & full documentation available on http://openjarvis.com/
+Please, take a look at [Docs](http://openjarvis.com/content/installation) and [Issues](https://github.com/alexylem/jarvis/issues) (mostly [question](https://github.com/alexylem/jarvis/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3Aquestion%20),  [help wanted](https://github.com/alexylem/jarvis/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3A%22help%20wanted%22%20) and [plugin request](https://github.com/alexylem/jarvis/issues?q=is%3Aissue+label%3A%22plugin+request%22)) before opening a new issue.
 
 
 ### Contributing

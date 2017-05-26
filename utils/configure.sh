@@ -52,7 +52,7 @@ configure () {
                    'stop_speaking'
                    'listening_timeout')
     case "$1" in
-        bing_speech_api_key)   eval "$1=\"$(dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}" true)\"";;
+        bing_speech_api_key)   eval "$1=\"$(dialog_input "Bing Speech API Key\nHow to get one: http://openjarvis.com/content/bing" "${!1}" true)\"";;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
                                case "$(dialog_select "Check Updates when Jarvis starts up\nRecommended: Daily" options[@] "Daily")" in
                                    Always) check_updates=0;;
@@ -61,7 +61,7 @@ configure () {
                                    Never)  check_updates=false;;
                                esac;;
         command_stt)           options=('bing' 'wit' 'snowboy' 'pocketsphinx')
-                               eval "$1=\"$(dialog_select "Which engine to use for the recognition of commands\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: bing" options[@] "${!1}")\""
+                               eval "$1=\"$(dialog_select "Which engine to use for the recognition of commands\nVisit http://openjarvis.com/content/stt\nRecommended: bing" options[@] "${!1}")\""
                                [ "$command_stt" == "snowboy" ] && dialog_msg "Attention: Snowboy for commands will only be able to understand trained commands.\nTrain your commands in Settings > Voice Reco > Snowboy Settings > Train..."
                                source stt_engines/$command_stt/main.sh;;
         conversation_mode)     eval "$1=\"$(dialog_yesno "Wait for another command after first executed" "${!1}")\"";;
@@ -201,12 +201,12 @@ configure () {
                              eval "$1=\"$(dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}")\""
                              ;;
         trigger_stt)         options=('snowboy' 'pocketsphinx' 'bing')
-                             eval "$1=\"$(dialog_select "Which engine to use for the recognition of the hotword ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}")\""
+                             eval "$1=\"$(dialog_select "Which engine to use for the recognition of the hotword ($trigger)\nVisit http://openjarvis.com/content/stt\nRecommended: snowboy" options[@] "${!1}")\""
                              source stt_engines/$trigger_stt/main.sh
                              ;;
         tts_engine)          options=('svox_pico' 'google' 'espeak' 'osx_say')
                              recommended="$([ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico')"
-                             eval "$1=\"$(dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}")\""
+                             eval "$1=\"$(dialog_select "Which engine to use for the speech synthesis\nVisit http://openjarvis.com/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}")\""
                              source tts_engines/$tts_engine/main.sh
                              rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
                              case "$tts_engine" in
@@ -286,6 +286,6 @@ Congratulations! You can start using Jarvis
 Select Plugins to check out community commands
 Select Commands to add your own commands
 Full Documentation & support available at:
-http://domotiquefacile.fr/jarvis
+http://openjarvis.com
 EOM
 }

@@ -275,6 +275,7 @@ jv_bt_connect () {
                 fi
             done
             jv_warning "Sink was not created"
+            break
         fi
     done
     jv_error "Failed"

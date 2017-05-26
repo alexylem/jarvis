@@ -1,7 +1,7 @@
 #!/bin/bash
 # +----------------------------------------+
 # | JARVIS by Alexandre Mély - MIT license |
-# | http://domotiquefacile.fr/jarvis       |
+# | http://openjarvis.com                  |
 # +----------------------------------------+
 flags='bc:ihjklmnp:qrs:uvwx:z'
 jv_show_help () { cat <<EOF
