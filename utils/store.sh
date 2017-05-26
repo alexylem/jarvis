@@ -5,13 +5,13 @@ store_init () {
     else
         jv_store_update
     fi
-    #export store_json="$(curl -s http://domotiquefacile.fr/jarvis/all.json)" # why export?
+    #export store_json="$(curl -s http://openjarvis.com/all.json)" # why export?
     #export store_json_lower="$(echo "$store_json" | tr '[:upper:]' '[:lower:]')"
 }
 
 jv_store_update () {
     printf "Retrieving plugins database..."
-    curl -s "http://domotiquefacile.fr/jarvis/all.json" > "$jv_store_file"
+    curl -s "http://www.openjarvis.com/all.json" -H 'User-Agent: Mozilla/5; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13' > "$jv_store_file"
     jv_success "Done"
 }
 
@@ -157,6 +157,6 @@ jv_store_create_plugin () {
     dialog_msg <<EOM
 Congratulations, your plugin is now initialized and linked to your github account
 To help you develop, commit and register your plugin on Jarvis store, visit:
-http://domotiquefacile.fr/jarvis/content/publish-your-plugin
+http://openjarvis.com/content/publish-your-plugin
 EOM
 }

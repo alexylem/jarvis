@@ -1,7 +1,7 @@
 How to get support?
 
-http://domotiquefacile.fr/jarvis/content/support
+http://openjarvis.com/content/support
 
 How to contribute?
 
-http://domotiquefacile.fr/jarvis/content/credits
+http://openjarvis.com/content/credits

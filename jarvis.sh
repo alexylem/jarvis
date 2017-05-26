@@ -1,7 +1,7 @@
 #!/bin/bash
 # +----------------------------------------+
 # | JARVIS by Alexandre Mély - MIT license |
-# | http://domotiquefacile.fr/jarvis       |
+# | http://openjarvis.com                  |
 # +----------------------------------------+
 flags='bc:ihjklmnp:qrs:uvwx:z'
 jv_show_help () { cat <<EOF
@@ -110,7 +110,7 @@ if [ ! -d "plugins_enabled" ]; then
 fi
 # create symlink to jarvis if not already exists
 if [ -h /usr/local/bin/jarvis ]; then
-    [ "$(basename "$0")" != 'jarvis' ] && jv_debug "Notice: you can use 'jarvis' instead of './jarvis.sh'"
+    [ "$(basename "$0")" != 'jarvis' ] && jv_debug "Notice: you can use 'jarvis' instead of '$0'"
 else
     sudo ln -s "$jv_dir/jarvis.sh" /usr/local/bin/jarvis
 fi
@@ -206,11 +206,8 @@ $send_usage_stats && ( jv_ga_send_hit & )
 
 trigger_sanitized=$(jv_sanitize "$trigger")
 [ -n "$conversation_mode_override" ] && conversation_mode=$conversation_mode_override
-source recorders/$recorder/main.sh
-source stt_engines/$trigger_stt/main.sh
-source stt_engines/$command_stt/main.sh
-source tts_engines/$tts_engine/main.sh
 
+# don't think this is really needed
 if ( [ "$play_hw" != "false" ] || [ "$rec_hw" != "false" ] ) && [ ! -f ~/.asoundrc ]; then
     update_alsa $play_hw $rec_hw  # retro compatibility
     dialog_msg<<EOM
@@ -258,19 +255,46 @@ if [ "$jv_api" == false ]; then
 
     # Dump config in troubleshooting mode
     if [ $verbose = true ]; then
-        if [ "$play_hw" != "false" ]; then
+        if [ -n "$play_hw" ] && [ "$play_hw" != "false" ]; then
             play_path="/proc/asound/card${play_hw:3:1}"
             [ -e "$play_path/usbid" ] && speaker=$(lsusb -d $(cat "$play_path/usbid") | cut -c 34-) || speaker=$(cat "$play_path/id")
         else
             speaker="Default"
         fi
-        [ "$rec_hw" != "false" ] && microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || microphone="Default"
+        [ -n "$rec_hw" ] && [ "$rec_hw" != "false" ] && microphone=$(lsusb -d $(cat /proc/asound/card${rec_hw:3:1}/usbid) | cut -c 34-) || microphone="Default"
         echo -e "$_gray\n------------ Config ------------"
         for parameter in jv_branch jv_version jv_arch jv_os_name jv_os_version language play_hw rec_hw speaker microphone recorder trigger_stt command_stt tts_engine; do
             printf "%-20s %s \n" "$parameter" "${!parameter}"
         done
         echo -e "--------------------------------\n$_reset"
     fi
+fi
+
+if [ -n "$play_hw" ]; then
+    source recorders/$recorder/main.sh
+    source stt_engines/$trigger_stt/main.sh || {
+        jv_error "ERROR: invalid hotword recognition engine ($trigger_stt)"
+        jv_warning "HELP: jarvis > Settings > Voice Reco > Reco of hotword"
+        jv_exit 1
+    }
+    source stt_engines/$command_stt/main.sh || {
+        jv_error "ERROR: invalid command recognition engine ($trigger_stt)"
+        jv_warning "HELP: jarvis > Settings > Voice Reco > Reco of commands"
+        jv_exit 1
+    }
+else
+    quiet=true
+    jv_warning "No speaker configured, forcing mute mode"
+fi
+if [ -n "$rec_hw" ]; then
+    source tts_engines/$tts_engine/main.sh || {
+        jv_error "ERROR: invalid speech synthesis engine ($trigger_stt)"
+        jv_warning "HELP: jarvis > Settings > Speech synthesis > Engine"
+        jv_exit 1
+    }
+else
+    keyboard=true
+    jv_warning "No mic configured, forcing keyboard mode"
 fi
 
 # Include user functions before just_say because user start/stop_speaking may use them
@@ -418,7 +442,7 @@ while true; do
         if [ $keyboard = true ]; then
             bypass=true
     		printf "$_cyan$username$_reset: "
-            read order
+            read order 2>/dev/null || { while :; do sleep 2073600; done } # read fails if in background, just wait forever
     	else
     		if [ "$trigger_mode" = "enter_key" ]; then
     			bypass=true

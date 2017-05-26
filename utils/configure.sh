@@ -52,7 +52,7 @@ configure () {
                    'stop_speaking'
                    'listening_timeout')
     case "$1" in
-        bing_speech_api_key)   eval "$1=\"$(dialog_input "Bing Speech API Key\nHow to get one: http://domotiquefacile.fr/jarvis/content/bing" "${!1}" true)\"";;
+        bing_speech_api_key)   eval "$1=\"$(dialog_input "Bing Speech API Key\nHow to get one: http://openjarvis.com/content/bing" "${!1}" true)\"";;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
                                case "$(dialog_select "Check Updates when Jarvis starts up\nRecommended: Daily" options[@] "Daily")" in
                                    Always) check_updates=0;;
@@ -61,7 +61,7 @@ configure () {
                                    Never)  check_updates=false;;
                                esac;;
         command_stt)           options=('bing' 'wit' 'snowboy' 'pocketsphinx')
-                               eval "$1=\"$(dialog_select "Which engine to use for the recognition of commands\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: bing" options[@] "${!1}")\""
+                               eval "$1=\"$(dialog_select "Which engine to use for the recognition of commands\nVisit http://openjarvis.com/content/stt\nRecommended: bing" options[@] "${!1}")\""
                                [ "$command_stt" == "snowboy" ] && dialog_msg "Attention: Snowboy for commands will only be able to understand trained commands.\nTrain your commands in Settings > Voice Reco > Snowboy Settings > Train..."
                                source stt_engines/$command_stt/main.sh;;
         conversation_mode)     eval "$1=\"$(dialog_yesno "Wait for another command after first executed" "${!1}")\"";;
@@ -129,44 +129,54 @@ configure () {
         phrase_triggered)               eval "$1=\"$(dialog_input 'What to say when magic word is heard\nEx: Yes?' "${!1}")\"";;
         phrase_welcome)                 eval "$1=\"$(dialog_input 'What to say at program startup' "${!1}")\"";;
         play_hw)
+            play_hw="${play_hw:-false}"
             while true; do
-                dialog_msg "Checking audio output, make sure your speakers are on and press [Ok]"
-                play "sounds/applause.wav"
-                dialog_yesno "Did you hear something?" true >/dev/null && break
-                clear
-                jv_warning "Selection of the speaker device"
-                aplay -l
-                read -p "Indicate the card # to use [0-9]: " card
-                read -p "Indicate the device # to use [0-9]: " device
-                play_hw="hw:$card,$device"
-                #IFS=$'\n'
-                #devices=(`aplay -l | grep ^card`)
-                #device=`dialog_select "Select a speaker" devices[@]`
-                #play_hw=`echo $device | sed -rn 's/card ([0-9]+)[^,]*, device ([0-9]+).*/hw:\1,\2/p'`
-                update_alsa $play_hw $rec_hw
+                #dialog_msg "Checking audio output, make sure your speakers are on and press [Ok]"
+                if dialog_yesno "Checking audio output, make sure your speakers are on and press [Yes].\nPress [No] if you don't have speakers." true >/dev/null; then
+                    play "sounds/applause.wav"
+                    dialog_yesno "Did you hear something?" true >/dev/null && break
+                    clear
+                    jv_warning "Selection of the speaker device"
+                    aplay -l
+                    read -p "Indicate the card # to use [0-9]: " card
+                    read -p "Indicate the device # to use [0-9]: " device
+                    play_hw="hw:$card,$device"
+                    #IFS=$'\n'
+                    #devices=(`aplay -l | grep ^card`)
+                    #device=`dialog_select "Select a speaker" devices[@]`
+                    #play_hw=`echo $device | sed -rn 's/card ([0-9]+)[^,]*, device ([0-9]+).*/hw:\1,\2/p'`
+                    update_alsa $play_hw $rec_hw
+                else
+                    play_hw=""
+                    break
+                fi
             done
             ;;
         pocketsphinxlog) eval "$1=\"$(dialog_input "File to store PocketSphinx logs" "${!1}")\"";;
-        rec_hw) # returns 1 if no mic
-            rec_export=''
+        rec_hw)
+            rec_hw="${rec_hw:-false}"
             while true; do
-                dialog_yesno "Checking audio input, make sure your microphone is on, press [Yes] and say something.\nPress [No] if you don't have a microphone." true >/dev/null || return 1
-                clear
-                rec -r 16000 -c 1 -b 16 -e signed-integer $audiofile trim 0 3
-                if [ $? -eq 0 ]; then
-                    play $audiofile
-                    dialog_yesno "Did you hear yourself?" true >/dev/null && break
+                if dialog_yesno "Checking audio input, make sure your microphone is on, press [Yes] and say something.\nPress [No] if you don't have a microphone." true >/dev/null; then
+                    clear
+                    rec -r 16000 -c 1 -b 16 -e signed-integer $audiofile trim 0 3
+                    if [ $? -eq 0 ]; then
+                        play $audiofile
+                        dialog_yesno "Did you hear yourself?" true >/dev/null && break
+                    fi
+                    jv_warning "Selection of the microphone device"
+                    arecord -l
+                    read -p "Indicate the card # to use [0-9]: " card
+                    read -p "Indicate the device # to use [0-9]: " device
+                    rec_hw="hw:$card,$device"
+                    #IFS=$'\n'
+                    #devices=(`arecord -l | grep ^card`)
+                    #device=`dialog_select "Select a microphone" devices[@]`
+                    #rec_hw=`echo $device | sed -rn 's/card ([0-9]+)[^,]*, device ([0-9]+).*/hw:\1,\2/p'`
+                    update_alsa $play_hw $rec_hw
+                else
+                    rec_hw=""
+                    break
                 fi
-                jv_warning "Selection of the microphone device"
-                arecord -l
-                read -p "Indicate the card # to use [0-9]: " card
-                read -p "Indicate the device # to use [0-9]: " device
-                rec_hw="hw:$card,$device"
-                #IFS=$'\n'
-                #devices=(`arecord -l | grep ^card`)
-                #device=`dialog_select "Select a microphone" devices[@]`
-                #rec_hw=`echo $device | sed -rn 's/card ([0-9]+)[^,]*, device ([0-9]+).*/hw:\1,\2/p'`
-                update_alsa $play_hw $rec_hw
             done
             ;;
         recorder)            options=("snowboy" "sox")
@@ -191,31 +201,19 @@ configure () {
                              eval "$1=\"$(dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}")\""
                              ;;
         trigger_stt)         options=('snowboy' 'pocketsphinx' 'bing')
-                             eval "$1=\"$(dialog_select "Which engine to use for the recognition of the hotword ($trigger)\nVisit http://domotiquefacile.fr/jarvis/content/stt\nRecommended: snowboy" options[@] "${!1}")\""
+                             eval "$1=\"$(dialog_select "Which engine to use for the recognition of the hotword ($trigger)\nVisit http://openjarvis.com/content/stt\nRecommended: snowboy" options[@] "${!1}")\""
                              source stt_engines/$trigger_stt/main.sh
                              ;;
-        tts_engine)          options=('svox_pico' 'google' 'espeak' 'osx_say') # 'voxygen'
+        tts_engine)          options=('svox_pico' 'google' 'espeak' 'osx_say')
                              recommended="$([ "$platform" = "osx" ] && echo 'osx_say' || echo 'svox_pico')"
-                             eval "$1=\"$(dialog_select "Which engine to use for the speech synthesis\nVisit http://domotiquefacile.fr/jarvis/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}")\""
+                             eval "$1=\"$(dialog_select "Which engine to use for the speech synthesis\nVisit http://openjarvis.com/content/tts\nRecommended for your platform: $recommended" options[@] "${!1}")\""
                              source tts_engines/$tts_engine/main.sh
                              rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
                              case "$tts_engine" in
                                  osx_say) configure "osx_say_voice";;
-                                 #voxygen) configure "voxygen_voice";;
                              esac
                              ;;
         username)            eval "$1=\"$(dialog_input "How would you like to be called?" "${!1}" true)\"";;
-#        voxygen_voice)       case "$language" in
-#                                de_DE) options=('Matthias');;
-#                                es_ES) options=('Martha');;
-#                                fr_FR) options=('Loic' 'Philippe' 'Marion' 'Electra' 'Becool');;
-#                                it_IT) options=('Sonia');;
-#                                en_GB) options=('Bruce' 'Jenny');;
-#                                *)     options=();;
-#                             esac
-#                             eval "$1=\"$(dialog_select "Voxygen $language Voices\nVisit https://www.voxygen.fr to test them" options[@] "${!1}")\""
-#                             rm -f "$jv_cache_folder"/*.mp3 # remove cached voice
-#                             ;;
         wit_server_access_token) eval "$1=\"$(dialog_input "Wit Server Access Token\nHow to get one: https://wit.ai/apps/new" "${!1}" true)\"";;
         *)                   jv_error "ERROR: Unknown configure $1";;
     esac
@@ -243,11 +241,10 @@ EOM
     configure "username"
     
     configure "play_hw"
-    # rec_hw needed to train hotword 
-    local has_mic=false
-    configure "rec_hw" && has_mic=true  # returns 1 if no mic
+    configure "rec_hw"
     
-    if $has_mic; then
+    # if has mic
+    if [ -n "$rec_hw" ]; then
         jv_auto_levels # adjust audio levels only if mic is present
         # || exit 1 # waiting to have more feedback on auto-adjust feature to make it mandatory
     
@@ -266,7 +263,8 @@ EOM
     fi
     configure "trigger"
     
-    if $has_mic; then
+    # if has mic
+    if [ -n "$rec_hw" ]; then
         configure "command_stt"
         if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
             configure "google_speech_api_key"
@@ -279,7 +277,8 @@ EOM
         fi
     fi
     
-    configure "tts_engine"
+    # if has speaker
+    [ -n "$play_hw" ] && configure "tts_engine"
     
     configure "save"
     dialog_msg <<EOM
@@ -287,6 +286,6 @@ Congratulations! You can start using Jarvis
 Select Plugins to check out community commands
 Select Commands to add your own commands
 Full Documentation & support available at:
-http://domotiquefacile.fr/jarvis
+http://openjarvis.com
 EOM
 }

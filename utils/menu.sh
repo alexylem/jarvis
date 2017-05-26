@@ -250,26 +250,26 @@ EOM
             Help*)
                 dialog_msg <<EOM
     A question?
-    http://domotiquefacile.fr/jarvis/content/support
+    http://openjarvis.com/content/support
 
     A problem or enhancement request?
     Create a ticket on GitHub
     https://github.com/alexylem/jarvis/issues/new
 
     Just want to discuss?
-    http://domotiquefacile.fr/jarvis/content/disqus
+    http://openjarvis.com/content/disqus
 EOM
                 ;;
             "About") dialog_msg <<EOM
     JARVIS
     By Alexandre Mély
 
-    http://domotiquefacile.fr/jarvis
+    http://openjarvis.com
     alexandre.mely@gmail.com
     (I don't give support via email, please check Help)
 
     You like Jarvis? consider making a 1€ donation:
-    http://domotiquefacile.fr/jarvis/content/credits
+    http://openjarvis.com/content/credits
 
     JARVIS is freely distributable under the terms of the MIT license.
 EOM

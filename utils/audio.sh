@@ -260,7 +260,7 @@ jv_bt_connect () {
     echo -e "connect $1\n" | bluetoothctl >/dev/null 2>&1 # Failed to connect: org.bluez.Error.Failed if pulseaudio not running
     for i in $(seq 1 5); do
         sleep 1
-        if jv_bt_is_connected $1; then
+        if echo -e "info $1\nquit\n" | bluetoothctl | grep "Connected: yes" >/dev/null; then
             local bt_sink="bluez_sink.${1//:/_}"
             for i in $(seq 1 5); do
                 # need time to bluez sink to appear
@@ -275,6 +275,7 @@ jv_bt_connect () {
                 fi
             done
             jv_warning "Sink was not created"
+            break
         fi
     done
     jv_error "Failed"
