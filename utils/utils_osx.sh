@@ -9,18 +9,13 @@ dialog_msg () { # usages
     osascript -e 'set front_app_name to short name of (info for (path to frontmost application))' -e "tell application front_app_name to display alert \"$1\"" >/dev/null
 }
 
-dialog_input () { # usage ask "question" "default"
-    
-    (( $? )) && echo "$2" || echo "$result"
-}
-
 dialog_input () { # usage dialog_input "question" "default" true
     local question="$1"
     local default="$2"
     local required="${3:-false}" # true / false (default)
     while true; do
         result="$(osascript -e "display dialog \"$question\" default answer \"$default\"" -e 'text returned of result' 2>/dev/null)" # don't put local or else return code always O
-        if (( $? )); then
+        if (( $? )); then # cancel
             echo "$default"
         elif [ -n "$result" ]; then # if not null
             echo "$result"
