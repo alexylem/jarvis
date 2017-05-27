@@ -216,7 +216,10 @@ stt_sb_train () {
     [ -z "$force_retrain" ] && [[ -f "stt_engines/snowboy/resources/$sanitized.pmdl" || -f "stt_engines/snowboy/resources/$sanitized.umdl" ]] && return 0
     
     # check token is in config
-    [ -z "$snowboy_token" ] && configure "snowboy_token"
+    if [ -z "$snowboy_token" ]; then
+        configure "snowboy_token"
+        [ -n "$snowboy_token" ] || return 1
+    fi
     
     # record 3 audio samples of the hotword
     dialog_msg "We will record now 3 audio samples of '$hotword'\nSample #1\nPres [Enter], say '$hotword' then hit Ctrl+C"

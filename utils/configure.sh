@@ -194,8 +194,12 @@ configure () {
         snowboy_sensitivity) eval "$1=\"$(dialog_input "Snowboy sensitivity from 0 (strict) to 1 (permissive)\nRecommended value: 0.4" "${!1}")\"";;
         snowboy_token)       eval "$1=\"$(dialog_input "Snowboy token\nGet one at: https://snowboy.kitt.ai (in profile settings)" "${!1}" true)\"";;
         tempo)               eval "$1=\"$(dialog_input "Speech playback speed\nOriginal: 1.0" "${!1}" true)\"";;
-        trigger)             eval "$1=\"$(dialog_input "How would you like your Jarvis to be called?\n(Hotword to be said before speaking commands)" "${!1}" true)\""
-                             [ "$trigger_stt" = "snowboy" ] && stt_sb_train "$trigger"
+        trigger)             local trigger_old="$trigger"
+                             eval "$1=\"$(dialog_input "How would you like your Jarvis to be called?\n(Hotword to be said before speaking commands)" "${!1}" true)\""
+                             if [ "$trigger_stt" = "snowboy" ]; then
+                                 source stt_engines/$trigger_stt/main.sh # sourced after main menu in jarvis.sh
+                                 stt_sb_train "$trigger" || trigger="$trigger_old"
+                             fi
                              ;;
         trigger_mode)        options=("magic_word" "enter_key" "physical_button")
                              eval "$1=\"$(dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}")\""
