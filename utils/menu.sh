@@ -153,10 +153,13 @@ EOM
                                                      "Check ticks ($snowboy_checkticks)")
                                             case "`dialog_menu 'Settings > Voice recognition > Snowboy' options[@]`" in
                                                 Check*)         configure "snowboy_checkticks";;
-                                                Show*)          IFS=','; dialog_msg "Models stored in stt_engines/snowboy/resources/:\n${snowboy_models[*]}";;
+                                                Show*)          source stt_engines/snowboy/main.sh
+                                                                IFS=','; dialog_msg "Models stored in stt_engines/snowboy/resources/:\n${snowboy_models[*]}";;
                                                 Sensitivity*)   configure "snowboy_sensitivity";;
                                                 Token*)         configure "snowboy_token";;
-                                                Train*)         stt_sb_train "$(dialog_input "Hotword / Quick Command to (re-)train" "$trigger")" true;;
+                                                Train*)         source stt_engines/snowboy/main.sh
+                                                                stt_sb_train "$(dialog_input "Hotword / Quick Command to (re-)train" "$trigger")" true
+                                                                ;;
                                                 *) break;;
                                             esac
                                         done;;

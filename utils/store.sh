@@ -11,7 +11,7 @@ store_init () {
 
 jv_store_update () {
     printf "Retrieving plugins database..."
-    curl -s "http://www.openjarvis.com/all.json" -H 'User-Agent: Mozilla/5; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13' > "$jv_store_file"
+    curl -s "https://www.openjarvis.com/all.json" -H 'User-Agent: Mozilla/5; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13' > "$jv_store_file" #617
     jv_success "Done"
 }
 
