@@ -9,6 +9,11 @@ stt_sb_install () {
                 sb_supported_os=true
                 binaries="rpi-arm-raspbian-8.0-1.1.0"
             fi
+        elif [ "$jv_os_name" == "osmc" ]; then #628
+            if [[ "$(cat /etc/debian_version)" == 8* ]]; then
+                sb_supported_os=true
+                binaries="rpi-arm-raspbian-8.0-1.1.0"
+            fi
         elif [ "$jv_os_name" == "ubuntu" ] && [ "$jv_arch" == "x86_64" ]; then
             case "$jv_os_version" in
                 "12.04") 
