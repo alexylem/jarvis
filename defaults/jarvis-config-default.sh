@@ -7,6 +7,7 @@ google_speech_api_key=""
 jv_branch="master"
 jv_bt_device_mac=""
 jv_bt_device_name=""
+jv_timeout=10
 jv_use_bluetooth=false
 phrase_failed="This command has returned an error"
 phrase_triggered=""
