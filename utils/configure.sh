@@ -11,6 +11,7 @@ configure () {
                    'jv_branch'
                    'jv_bt_device_mac'
                    'jv_bt_device_name'
+                   'jv_timeout'
                    'jv_use_bluetooth'
                    'language'
                    'language_model'
@@ -74,6 +75,7 @@ configure () {
                                    jv_error "ERROR: an error has occured while checking out $jv_branch branch"
                                    jv_press_enter_to_continue
                                };;
+        jv_timeout)            eval "$1=\"$(dialog_input "Delay during voice command input before timeout\nDefault: 10" "${!1}")\"";;
         jv_use_bluetooth)      eval "$1=\"$(dialog_yesno "Do you want to use a bluetooth Speaker?\nThis will start PulseAudio" "${!1}")\""
                                $jv_use_bluetooth && pulseaudio --start || pulseaudio --kill
                                ;;

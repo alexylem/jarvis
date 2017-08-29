@@ -127,7 +127,7 @@ EOM
 }
 
 LISTEN_COMMAND () {
-    RECORD "$audiofile" 10
+    RECORD "$audiofile" "$jv_timeout"
     [ $? -eq 124 ] && return 124
     
     duration=$(sox $audiofile -n stat 2>&1 | sed -n 's#^Length[^0-9]*\([0-9]*\).\([0-9]\)*$#\1\2#p')

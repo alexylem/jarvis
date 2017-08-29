@@ -74,6 +74,6 @@ http://openjarvis.com/content/support
 [License File]: LICENSE.md
 <!-- Badges URLs -->
 [Build-shield]: https://img.shields.io/badge/build-passing-brightgreen.svg
-[Version-shield]: https://img.shields.io/badge/version-17.05.11-blue.svg
+[Version-shield]: https://img.shields.io/badge/version-17.08.29-blue.svg
 [License-shield]: https://img.shields.io/badge/license-MIT-yellow.svg
 [Plugins-shield]: https://img.shields.io/badge/plugins-81+-orange.svg

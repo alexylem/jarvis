@@ -36,7 +36,7 @@ jv_show_help () { cat <<EOF
 EOF
 }
 
-headline="NEW: Experimental bluetooth support in Settings > Audio > Bluetooth"
+headline="NEW: Update default timeout in Settings > Audio"
 
 # Public: get absolute path of current script, even if called via symbolic link
 jv_get_current_dir () {

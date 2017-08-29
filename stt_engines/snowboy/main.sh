@@ -5,7 +5,12 @@ stt_sb_install () {
     echo "1/2 Preparation of dependencies"
     if [ "$platform" = "linux" ]; then
         if [ "$jv_os_name" == "raspbian" ]; then
-            if [ "$jv_os_version" == 8 ]; then
+            if [ "$jv_os_version" -ge 8 ]; then
+                sb_supported_os=true
+                binaries="rpi-arm-raspbian-8.0-1.1.0"
+            fi
+        elif [ "$jv_os_name" == "osmc" ]; then #628
+            if [[ "$(cat /etc/debian_version)" -ge 8 ]]; then
                 sb_supported_os=true
                 binaries="rpi-arm-raspbian-8.0-1.1.0"
             fi

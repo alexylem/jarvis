@@ -91,6 +91,7 @@ jv_menu_main () {
                                          "Tempo ($tempo)"
                                          "Sensitivity"
                                          "Gain ($gain)"
+                                         "Timeout ($jv_timeout)"
                                          "Min noise duration to start ($min_noise_duration_to_start)"
                                          "Min noise perc to start ($min_noise_perc_to_start)"
                                          "Min silence duration to stop ($min_silence_duration_to_stop)"
@@ -126,6 +127,7 @@ EOM
                                                     alsamixer -c ${rec_hw:3:1} -V capture || read -p "ERROR: check above"
                                                 fi;;
                                     Gain*)            configure "gain";;
+                                    Timeout*)         configure "jv_timeout";;
                                     *duration*start*) configure "min_noise_duration_to_start";;
                                     *perc*start*)     configure "min_noise_perc_to_start";;
                                     *duration*stop*)  configure "min_silence_duration_to_stop";;
