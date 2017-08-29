@@ -10,7 +10,7 @@ stt_sb_install () {
                 binaries="rpi-arm-raspbian-8.0-1.1.0"
             fi
         elif [ "$jv_os_name" == "osmc" ]; then #628
-            if [[ "$(cat /etc/debian_version)" == 8* ]]; then
+            if [[ "$(cat /etc/debian_version)" -ge 8 ]]; then
                 sb_supported_os=true
                 binaries="rpi-arm-raspbian-8.0-1.1.0"
             fi
