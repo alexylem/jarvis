@@ -1,7 +1,8 @@
 #!/bin/bash
 # Configuration
 configure () {
-    local variables=('bing_speech_api_key'
+    local variables=('google_speech_api_key'
+                   'bing_speech_api_key'
                    'check_updates'
                    'command_stt'
                    'conversation_mode'
@@ -53,6 +54,7 @@ configure () {
                    'stop_speaking'
                    'listening_timeout')
     case "$1" in
+        google_speech_api_key)   eval "$1=\"$(dialog_input "Google Speech API Key\nNot free, see https://cloud.google.com/speech/docs/getting-started" "${!1}" true)\"";;
         bing_speech_api_key)   eval "$1=\"$(dialog_input "Bing Speech API Key\nHow to get one: http://openjarvis.com/content/bing" "${!1}" true)\"";;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
                                case "$(dialog_select "Check Updates when Jarvis starts up\nRecommended: Daily" options[@] "Daily")" in
@@ -61,7 +63,7 @@ configure () {
                                    Weekly) check_updates=7;;
                                    Never)  check_updates=false;;
                                esac;;
-        command_stt)           options=('bing' 'wit' 'snowboy' 'pocketsphinx')
+        command_stt)           options=('google' 'bing' 'wit' 'snowboy' 'pocketsphinx')
                                eval "$1=\"$(dialog_select "Which engine to use for the recognition of commands\nVisit http://openjarvis.com/content/stt\nRecommended: bing" options[@] "${!1}")\""
                                [ "$command_stt" == "snowboy" ] && dialog_msg "Attention: Snowboy for commands will only be able to understand trained commands.\nTrain your commands in Settings > Voice Reco > Snowboy Settings > Train..."
                                source stt_engines/$command_stt/main.sh;;
@@ -277,6 +279,9 @@ EOM
         fi
         if [ $trigger_stt = 'wit' ] || [ $command_stt = 'wit' ]; then
             configure "wit_server_access_token"
+        fi
+        if [ $trigger_stt = 'google' ] || [ $command_stt = 'google' ]; then
+            configure "google_speech_api_key"
         fi
         if [ $trigger_stt = 'bing' ] || [ $command_stt = 'bing' ]; then
             configure "bing_speech_api_key"

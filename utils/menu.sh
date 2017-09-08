@@ -140,6 +140,7 @@ EOM
                                 options=("Recognition of magic word ($trigger_stt)"
                                          "Recognition of commands ($command_stt)"
                                          "Snowboy settings"
+                                         "Google settings"
                                          "Bing settings"
                                          "Wit settings"
                                          "PocketSphinx setting")
@@ -165,6 +166,14 @@ EOM
                                                 *) break;;
                                             esac
                                         done;;
+                                    Google*)
+                                            while true; do
+                                                options=("Google key ($google_speech_api_key)")
+                                                case "`dialog_menu 'Settings > Voice recognition > Google' options[@]`" in
+                                                    Google*key*)  configure "google_speech_api_key";;
+                                                    *) break;;
+                                                esac
+                                            done;;
                                     Bing*)
                                             while true; do
                                                 options=("Bing key ($bing_speech_api_key)")
