@@ -272,7 +272,8 @@ if [ "$jv_api" == false ]; then
     fi
 fi
 
-if [ -n "$play_hw" ]; then
+if [ -n "$rec_hw" ]; then
+    source recorders/$recorder/main.sh
     source stt_engines/$trigger_stt/main.sh || {
         jv_error "ERROR: invalid hotword recognition engine ($trigger_stt)"
         jv_warning "HELP: jarvis > Settings > Voice Reco > Reco of hotword"
@@ -284,19 +285,18 @@ if [ -n "$play_hw" ]; then
         jv_exit 1
     }
 else
-    quiet=true
-    jv_warning "No speaker configured, forcing mute mode"
+    keyboard=true
+    jv_warning "No mic configured, forcing keyboard mode"
 fi
-if [ -n "$rec_hw" ]; then
-    source recorders/$recorder/main.sh
+if [ -n "$play_hw" ]; then
     source tts_engines/$tts_engine/main.sh || {
         jv_error "ERROR: invalid speech synthesis engine ($trigger_stt)"
         jv_warning "HELP: jarvis > Settings > Speech synthesis > Engine"
         jv_exit 1
     }
 else
-    keyboard=true
-    jv_warning "No mic configured, forcing keyboard mode"
+    quiet=true
+    jv_warning "No speaker configured, forcing mute mode"
 fi
 
 # Include user functions before just_say because user start/stop_speaking may use them
