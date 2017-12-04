@@ -296,7 +296,7 @@ if [ -n "$rec_hw" ]; then
     }
 else
     keyboard=true
-    jv_warning "No mic configured, forcing keyboard mode"
+    $jv_api || jv_warning "No mic configured, forcing keyboard mode" # not if api otherwize too much showing in log for cron tasks
 fi
 
 # Include user functions before just_say because user start/stop_speaking may use them
