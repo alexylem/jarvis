@@ -8,6 +8,7 @@ stt_sb_install () {
             if [ "$jv_os_version" -ge 8 ]; then
                 sb_supported_os=true
                 binaries="rpi-arm-raspbian-8.0-1.1.0"
+                jv_install libpython2.7 #755
             fi
         elif [ "$jv_os_name" == "osmc" ]; then #628
             if [[ "$(cat /etc/debian_version)" -ge 8 ]]; then
