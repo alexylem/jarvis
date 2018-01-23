@@ -53,7 +53,12 @@ jv_json=false
 # 
 #   echo $jv_ip
 #   192.168.1.20
-jv_ip="$(/sbin/ifconfig | sed -En 's/127.0.0.1//;s/.*inet (ad[d]?r:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
+if [[ -z $(which ifconfig) ]]
+then
+    jv_ip="$(ip a | sed -En 's/127.0.0.1//;s/.*inet (ad[d]?r:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
+else
+    jv_ip="$(/sbin/ifconfig | sed -En 's/127.0.0.1//;s/.*inet (ad[d]?r:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
+fi
 
 # Internal: indicates if Jarvis is paused
 jv_is_paused=false
@@ -291,6 +296,10 @@ jv_message() {
         echo -e "$3$1$_reset"
     fi
 }
+
+# Public: Displays a data
+# $1 - message to display
+jv_data() { jv_message "$1" "data" "data:" ;}
 # Public: Displays a error in red
 # $1 - message to display
 jv_error() { jv_message "$1" "error" "$_red" 1>&2 ;}
@@ -306,6 +315,7 @@ jv_info() { jv_message "$1" "info" "$_blue" ;}
 # Public: Displays a log in gray
 # $1 - message to display
 jv_debug() { jv_message "$1" "debug" "$_gray" ;}
+
 
 # Public: Asks user to press enter to continue
 # 
