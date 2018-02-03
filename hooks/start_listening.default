@@ -1,1 +1,1 @@
-$verbose && jv_debug "DEBUG: start_speaking hook \"$1\""
+$verbose && jv_debug "DEBUG: start_listening hook"
