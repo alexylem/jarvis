@@ -7,9 +7,16 @@ _google_transcribe () {
         exit 1 # TODO doesn't really exit because launched with & forjv_spinner
     fi
     
-    json=`wget -q --post-file $audiofile --header="Content-Type: audio/l16; rate=16000" -O - "http://www.google.com/speech-api/v2/recognize?client=chromium&lang=$language&key=$google_speech_api_key"`
-    $verbose && jv_debug "DEBUG: $json"
-    echo $json | perl -lne 'print $1 if m{"transcript":"([^"]*)"}' > $forder
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
+    transcribed="`$DIR/google-speech-api.perl $google_speech_api_key $audiofile | jq '.results[0].alternatives[0].transcript'`"
+    
+    $verbose && jv_debug "DEBUG: $transcribed"
+    if [[ $transcribed == "null" ]]; then
+        jv_error "ERROR: Google recognition failed"
+        exit 1
+    fi
+
+    echo $transcribed > $forder
 }
 
 google_STT () { # STT () {} Listen & transcribes audio file then writes corresponding text in $forder
