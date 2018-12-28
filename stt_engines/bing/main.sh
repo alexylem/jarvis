@@ -9,10 +9,17 @@ _bing_transcribe () {
         jv_warning "HELP: define bing key in Settings > Voice recognition"
         exit 1 # TODO doesn't really exit because launched with & forjv_spinner
     fi
-    
+    if [ -z "$bing_speech_api_region" ]; then
+        echo "" # new line
+        jv_error "ERROR: missing bing speech api region"
+        jv_warning "HELP: define bing key in Settings > Voice recognition"
+        exit 1 # TODO doesn't really exit because launched with & forjv_spinner
+    fi
+
+    stt_bing_region="${bing_speech_api_region}" # TODO integrate parameters to jarvis main config
     stt_bing_token="`cat /tmp/jarvis_bing_token`"
     stt_bing_expires="`cat /tmp/jarvis_bing_expires`"
-    
+
     if [ -z "$stt_bing_expires" ] || [ "$stt_bing_expires" -lt "`date +%s`" ]; then
         $verbose && jv_debug "DEBUG: token missing or expired"
         # https://github.com/alexylem/jarvis/issues/145

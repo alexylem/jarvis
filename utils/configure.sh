@@ -3,6 +3,7 @@
 configure () {
     local variables=('google_speech_api_key'
                    'bing_speech_api_key'
+                   'bing_speech_api_region'
                    'check_updates'
                    'command_stt'
                    'conversation_mode'
@@ -56,6 +57,7 @@ configure () {
     case "$1" in
         google_speech_api_key)   eval "$1=\"$(dialog_input "Google Speech API Key\nNot free, see https://cloud.google.com/speech/docs/getting-started" "${!1}" true)\"";;
         bing_speech_api_key)   eval "$1=\"$(dialog_input "Bing Speech API Key\nHow to get one: http://openjarvis.com/content/bing" "${!1}" true)\"";;
+        bing_speech_api_region) eval "$1=\"$(dialog_input "Bing Speech API region\n Find it here: https://azure.microsoft.com/fr-fr/try/cognitive-services/my-apis/?apiSlug=speech-services" "${!1}" true)\"";;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
                                case "$(dialog_select "Check Updates when Jarvis starts up\nRecommended: Daily" options[@] "Daily")" in
                                    Always) check_updates=0;;
@@ -230,14 +232,14 @@ configure () {
 
 wizard () {
     jv_check_updates
-    
+
     # initiate directories
     mkdir -p config
-    
+
     # initiate user commands & events if don't exist yet
     [ -f jarvis-commands ] || cp defaults/jarvis-commands-default jarvis-commands
     [ -f jarvis-events ] || cp defaults/jarvis-events-default jarvis-events
-    
+
     dialog_msg "Hello, my name is JARVIS, nice to meet you"
     configure "language"
 
@@ -247,17 +249,17 @@ However, speech recognition and synthesis will be done in $language
 EOM
 
     configure "username"
-    
+
     configure "play_hw"
     configure "rec_hw"
-    
+
     # if has mic
     if [ -n "$rec_hw" ]; then
         jv_auto_levels # adjust audio levels only if mic is present
         # || exit 1 # waiting to have more feedback on auto-adjust feature to make it mandatory
-    
+
         configure "trigger_stt"
-    
+
         if [ "$trigger_stt" = "snowboy" ]; then
             # use ' instead of " in dialog_msg
             dialog_msg <<EOM
@@ -270,7 +272,7 @@ EOM
         trigger_stt=false
     fi
     configure "trigger"
-    
+
     # if has mic
     if [ -n "$rec_hw" ]; then
         configure "command_stt"
@@ -287,10 +289,10 @@ EOM
             configure "bing_speech_api_key"
         fi
     fi
-    
+
     # if has speaker
     [ -n "$play_hw" ] && configure "tts_engine"
-    
+
     configure "save"
     dialog_msg <<EOM
 Congratulations! You can start using Jarvis
