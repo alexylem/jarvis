@@ -57,7 +57,7 @@ configure () {
     case "$1" in
         google_speech_api_key)   eval "$1=\"$(dialog_input "Google Speech API Key\nNot free, see https://cloud.google.com/speech/docs/getting-started" "${!1}" true)\"";;
         bing_speech_api_key)   eval "$1=\"$(dialog_input "Bing Speech API Key\nHow to get one: http://openjarvis.com/content/bing" "${!1}" true)\"";;
-        bing_speech_api_region) eval "$1=\"$(dialog_input "Bing Speech API region\n Find it here: https://azure.microsoft.com/fr-fr/try/cognitive-services/my-apis/?apiSlug=speech-services" "${!1}" true)\"";;
+        bing_speech_api_region) eval "$1=\"$(dialog_input "Bing Speech API region\n Find it here: https://azure.microsoft.com/fr-fr/try/cognitive-services/my-apis/?apiSlug=speech-services\nEnter only the regional part like \"westus\" in \"https://westus.api.cognitive.microsoft.com/sts/v1.0\"" "${!1}" true)\"";;
         check_updates)         options=('Always' 'Daily' 'Weekly' 'Never')
                                case "$(dialog_select "Check Updates when Jarvis starts up\nRecommended: Daily" options[@] "Daily")" in
                                    Always) check_updates=0;;
