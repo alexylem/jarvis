@@ -176,9 +176,11 @@ EOM
                                             done;;
                                     Bing*)
                                             while true; do
-                                                options=("Bing key ($bing_speech_api_key)")
+                                                options=("Bing key ($bing_speech_api_key)"
+                                                         "Bing api region($bing_speech_api_region)")
                                                 case "`dialog_menu 'Settings > Voice recognition > Bing' options[@]`" in
                                                     Bing*key*)  configure "bing_speech_api_key";;
+                                                    Bing*region*) configure "bing_speech_api_region";;
                                                     *) break;;
                                                 esac
                                             done;;
@@ -207,7 +209,7 @@ EOM
                             done;;
                         "Speech synthesis")
                             while true; do
-                                options=("Speech engine ($tts_engine)" "OSX voice ($osx_say_voice)") #"Voxygen voice ($voxygen_voice)" 
+                                options=("Speech engine ($tts_engine)" "OSX voice ($osx_say_voice)") #"Voxygen voice ($voxygen_voice)"
                                 case "`dialog_menu 'Configuration > Speech synthesis' options[@]`" in
                                     Speech*engine*) configure "tts_engine";;
                                     #Voxygen*voice*) configure "voxygen_voice";;
@@ -304,28 +306,28 @@ EOM
 
 # Internal: display dialog of $plugins
 # $1 - dialog title
-menu_store_browse () { # $1 (optional) sorting, $2 (optionnal) space separated search terms    
-    while true; do        
+menu_store_browse () { # $1 (optional) sorting, $2 (optionnal) space separated search terms
+    while true; do
         # Select plugin
         local plugin_title="`dialog_menu \"$1\" plugins[@]`"
-        
+
         [ -z "$plugin_title" ] && break
         if [ -z "$plugin_title" ] || [ "$plugin_title" == "false" ]; then
             break
         fi
-        
+
         local plugin_url=$(store_get_field "$plugin_title" 'repo') #https://github.com/alexylem/jarvis
-        
+
         while true; do
             # Display plugin details
             store_display_readme "$plugin_url"
-            
+
             # Plugin menu
             local options=("Info"
                      "Install")
             case "`dialog_menu \"$plugin_title\" options[@]`" in
                 Info)    continue;;
-                Install) 
+                Install)
                          store_install_plugin "$plugin_url"
                          break 2;;
                 *)       break;;
@@ -337,13 +339,13 @@ menu_store_browse () { # $1 (optional) sorting, $2 (optionnal) space separated s
 jv_menu_store () {
     store_init
     local categories=($(store_get_categories))
-    
+
     while true; do
         local plugins=()
         shopt -s nullglob
         nb_installed=(plugins_installed/*/)
         shopt -u nullglob
-        
+
         options=("Installed (${#nb_installed[@]})"
                  "Matching Order"
                  "Search"
