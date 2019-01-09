@@ -287,6 +287,7 @@ EOM
         fi
         if [ $trigger_stt = 'bing' ] || [ $command_stt = 'bing' ]; then
             configure "bing_speech_api_key"
+            configure "bing_speech_api_region"
         fi
     fi
 
