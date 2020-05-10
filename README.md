@@ -1,8 +1,7 @@
-# Jarvis [![Version-shield]](CHANGELOG.md) ![Build-shield] [![Plugins-shield]](http://openjarvis.com/top-plugins)
+# Jarvis 
 
-[![Banner]](http://openjarvis.com/)
-
-> Overview & full documentation available on http://openjarvis.com/
+This is a fork of https://github.com/alexylem/jarvis.  
+> Overview & full documentation of the original project available on http://openjarvis.com/ (French only)  
 
 Jarvis.sh is a lightweight configurable multi-lang voice assistant  
 Meant for home automation running on [slow computers](http://openjarvis.com/content/prerequisites) (ex: Raspberry Pi)  
@@ -12,11 +11,14 @@ Highly extendable thanks to a wide catalog of [community plugins](http://openjar
 Languages supported (for voice recognition and speech synthesis):  
 :fr: :gb: :us: :es: :it: :de:
 
+#### In addition to the functionality of the original project, this project adds the following features:
+* Support for [Mozilla's Project DeepSpeech](https://github.com/mozilla/DeepSpeech) stt-engine
+
 ### Installation
 
 See [Requirements](http://openjarvis.com/content/prerequisites).
 ```shell
-$> git clone https://github.com/alexylem/jarvis.git
+$> git clone https://github.com/PhilLecl/jarvis.git
 $> cd jarvis/
 $> ./jarvis.sh -i
 ```
@@ -54,18 +56,12 @@ $> jarvis -h
     -x  execute order, ex: jarvis -x "switch on lights"
 ```
 
-### Support
-
-http://openjarvis.com/content/support
-
 ### License
 
 [![License-shield]](LICENSE.md)
 
 <!-- Links To Images -->
 [Banner]: /imgs/banners/jarvis_banner.png "Simple configurable multi-lang assistant"
-[English]: /imgs/flags/us.png "English"
-[French]: /imgs/flags/fr.png "French"
 [App-menu]: http://openjarvis.com/sites/default/files/paste_1476635110.png
 [Asciinema]: https://cloud.githubusercontent.com/assets/11017174/25974079/4e840f70-36a7-11e7-9f7d-9d4f50311033.png
 <!-- Links To MDs -->
