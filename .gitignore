@@ -29,6 +29,8 @@ stt_engines/deepspeech/deepspeech-0.7.0-models.pbmm
 
 stt_engines/deepspeech/deepspeech-0.7.0-models.scorer
 
+stt_engines/deepspeech/deepspeech.log
+
 stt_engines/deepspeech/include/
 
 stt_engines/deepspeech/lib/
