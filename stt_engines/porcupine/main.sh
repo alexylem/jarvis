@@ -2,7 +2,7 @@
 
 _porcupine_install () {
   set -e
-  jv_install portaudio19-dev python3 python3-pip virtualenv
+  jv_install portaudio19-dev python3 python3-pip python3-dev virtualenv
   cd "$(dirname "${BASH_SOURCE[0]}")"
   virtualenv -p python3 .
   source bin/activate
