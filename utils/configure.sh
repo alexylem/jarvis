@@ -208,7 +208,7 @@ configure () {
         trigger_mode)        options=("magic_word" "enter_key" "physical_button")
                              eval "$1=\"$(dialog_select "How to trigger Jarvis (before to say a command)" options[@] "${!1}")\""
                              ;;
-        trigger_stt)         options=('snowboy' 'pocketsphinx' 'bing')
+        trigger_stt)         options=('snowboy' 'pocketsphinx' 'bing' 'porcupine')
                              eval "$1=\"$(dialog_select "Which engine to use for the recognition of the hotword ($trigger)\nVisit http://openjarvis.com/content/stt\nRecommended: snowboy" options[@] "${!1}")\""
                              source stt_engines/$trigger_stt/main.sh
                              ;;

@@ -21,6 +21,18 @@ stt_engines/snowboy/snowboydetect.py
 
 stt_engines/snowboy/snowboydetect.pyc
 
+stt_engines/porcupine/bin/
+
+stt_engines/porcupine/lib/
+
+stt_engines/porcupine/include/
+
+stt_engines/porcupine/share/
+
+stt_engines/porcupine/pyvenv.cfg
+
+stt_engines/porcupine/porcupine.log
+
 *.pmdl
 
 hooks/entering_cmd
