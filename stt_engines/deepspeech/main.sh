@@ -8,19 +8,41 @@ stt_deepspeech_install () {
   source bin/activate
   pip3 install deepspeech
   deactivate
-  wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.0/deepspeech-0.7.0-models.pbmm
-  wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.0/deepspeech-0.7.0-models.scorer
+  wget "https://github.com/mozilla/DeepSpeech/releases/download/v${deepspeech_version}/$deepspeech_model"
+  wget "https://github.com/mozilla/DeepSpeech/releases/download/v${deepspeech_version}/$deepspeech_scorer"
   cd "$jv_dir"
 }
 
-# Check if the needed files exist and install DeepSpeech if they don't
-[[ ( -f "$(dirname "${BASH_SOURCE[0]}")/deepspeech-0.7.0-models.pbmm" ) && \
-( -f "$(dirname "${BASH_SOURCE[0]}")/deepspeech-0.7.0-models.pbmm" ) && \
-( -d "$(dirname "${BASH_SOURCE[0]}")/bin" ) && \
-( -f "$(dirname "${BASH_SOURCE[0]}")/bin/deepspeech" ) ]] || {
+stt_deepspeech_update () {
+  set -e
+  cd "$(dirname "${BASH_SOURCE[0]}")"
+
+  source bin/activate
+  pip3 install -U deepspeech # Upgrade deepspeech package
+  deactivate
+
+  rm *.pbmm *.tflite *.scorer # Remove old models and scorer
+  wget "https://github.com/mozilla/DeepSpeech/releases/download/v${deepspeech_version}/$deepspeech_model"
+  wget "https://github.com/mozilla/DeepSpeech/releases/download/v${deepspeech_version}/$deepspeech_scorer"
+
+  cd "$jv_dir"
+}
+
+# Check if DeepSpeech is installed and install it if necessary
+[[ ( -f "$(dirname "${BASH_SOURCE[0]}")/bin/deepspeech" ) && \
+( -f "$(dirname "${BASH_SOURCE[0]}")/bin/activate" ) ]] || {
   dialog_yesno "DeepSpeech doesn't seem to be installed.\nDo you want to install it?" true >/dev/null && {
       stt_deepspeech_install
       dialog_msg "DeepSpeech installed sucessfully"
+  }
+}
+
+# Check if the current models exist and download them if they don't
+[[ ( -f "$(dirname "${BASH_SOURCE[0]}")/$deepspeech_model" ) && \
+( -f "$(dirname "${BASH_SOURCE[0]}")/$deepspeech_scorer" ) ]] || {
+  dialog_yesno "The current DeepSpeech models appear to be missing. Do you want to download them?" true >/dev/null && {
+      stt_deepspeech_update
+      dialog_msg "DeepSpeech updated sucessfully"
   }
 }
 
