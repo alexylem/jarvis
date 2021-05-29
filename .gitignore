@@ -21,6 +21,24 @@ stt_engines/snowboy/snowboydetect.py
 
 stt_engines/snowboy/snowboydetect.pyc
 
+stt_engines/deepspeech/audio/
+
+stt_engines/deepspeech/bin/
+
+stt_engines/deepspeech/*.pbmm
+
+stt_engines/deepspeech/*.tflite
+
+stt_engines/deepspeech/*.scorer
+
+stt_engines/deepspeech/deepspeech.log
+
+stt_engines/deepspeech/include/
+
+stt_engines/deepspeech/lib/
+
+stt_engines/deepspeech/share/
+
 *.pmdl
 
 hooks/entering_cmd
